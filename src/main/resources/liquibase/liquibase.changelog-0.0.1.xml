@@ -6,36 +6,49 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="init" author="kolchev">
-        <!--<sql>-->
-            <!--CREATE TABLE `languages` (-->
-            <!--`iso6391` VARCHAR(2) NOT NULL,-->
-            <!--`name` VARCHAR(255) NOT NULL,-->
-            <!--`family` VARCHAR(255),-->
-            <!--`description` VARCHAR(255),-->
-            <!--PRIMARY KEY (`iso6391`)-->
-            <!--) ENGINE=InnoDB DEFAULT CHARSET=utf8;-->
+        <sql>
+            CREATE TABLE bpe_type (
+            bpe_type_pk varchar(100) NOT NULL PRIMARY KEY,
+            bpe_type_name varchar(100) NOT NULL
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-            <!--CREATE TABLE `cpv` (-->
-            <!--`code` VARCHAR(10) NOT NULL,-->
-            <!--`name` VARCHAR(255),-->
-            <!--`group` INT NOT NULL,-->
-            <!--`parent` VARCHAR(10),-->
-            <!--`language_iso6391` VARCHAR(2) NOT NULL,-->
-            <!--PRIMARY KEY (`code`),-->
-            <!--KEY `cpv_language` (`language_iso6391`),-->
-            <!--CONSTRAINT `FK_cpv_languages` FOREIGN KEY (`language_iso6391`) REFERENCES `languages` (`iso6391`)-->
-            <!--) ENGINE=InnoDB DEFAULT CHARSET=utf8;-->
+            CREATE TABLE ext_type(
+            ext_type_pk bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            ext_type_name varchar(10) NOT NULL,
+            is_image boolean NULL DEFAULT false
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-            <!--CREATE TABLE `countries` (-->
-            <!--`code` VARCHAR(2) NOT NULL,-->
-            <!--`name` VARCHAR(255),-->
-            <!--`description` VARCHAR(255),-->
-            <!--`phone_code` VARCHAR(255),-->
-            <!--`language_iso6391` VARCHAR(2) NOT NULL,-->
-            <!--PRIMARY KEY (`code`),-->
-            <!--KEY `countries_languages` (`language_iso6391`),-->
-            <!--CONSTRAINT `FK_countries_language` FOREIGN KEY (`language_iso6391`) REFERENCES `languages` (`iso6391`)-->
-            <!--) ENGINE=InnoDB DEFAULT CHARSET=utf8;-->
-        <!--</sql>-->
+            CREATE TABLE bpe_ext(
+            id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            ext_size integer NOT NULL,
+            bpe_type_bpe_type_pk varchar(100) NOT NULL,
+            extension_type_ext_type_pk bigint(20) NOT NULL,
+            CONSTRAINT fk_bpe FOREIGN KEY (bpe_type_bpe_type_pk) REFERENCES bpe_type (bpe_type_pk),
+            CONSTRAINT fk_ext FOREIGN KEY (extension_type_ext_type_pk) REFERENCES ext_type (ext_type_pk)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            CREATE TABLE files(
+            files_pk bigint(20) NOT NULL PRIMARY KEY,
+            files_client_id varchar(255) NOT NULL,
+            files_client_desc varchar(255) NULL,
+            files_last_change date NOT NULL,
+            files_full_file_name varchar(255) NOT NULL,
+            files_file_on_server varchar(255) NOT NULL,
+            files_file_desc varchar(255) NULL,
+            visible_all boolean NOT NULL,
+            files_file_size varchar(255),
+            files_file_md5sum varchar(100),
+            bpe_type_bpe_type_pk varchar(100) NOT NULL,
+            CONSTRAINT fk_files_bpe FOREIGN KEY (bpe_type_bpe_type_pk) REFERENCES bpe_type (bpe_type_pk)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            CREATE TABLE files_url(
+            url_pk bigint(20) NOT NULL,
+            tmp_url varchar(255) NOT NULL,
+            file_files_pk bigint(20) NOT NULL,
+            PRIMARY KEY (url_pk),
+            CONSTRAINT fk_url_files FOREIGN KEY (file_files_pk) REFERENCES files (files_pk)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        </sql>
     </changeSet>
 </databaseChangeLog>
