@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost/mdmdb?useSSL=false
+    username: root
+    password: mysql
+    driverClassName: com.mysql.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      pool-name: mdm
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect

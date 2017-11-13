@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="init" author="kolchev">
+        <!--<sql>-->
+            <!--CREATE TABLE `languages` (-->
+            <!--`iso6391` VARCHAR(2) NOT NULL,-->
+            <!--`name` VARCHAR(255) NOT NULL,-->
+            <!--`family` VARCHAR(255),-->
+            <!--`description` VARCHAR(255),-->
+            <!--PRIMARY KEY (`iso6391`)-->
+            <!--) ENGINE=InnoDB DEFAULT CHARSET=utf8;-->
+
+            <!--CREATE TABLE `cpv` (-->
+            <!--`code` VARCHAR(10) NOT NULL,-->
+            <!--`name` VARCHAR(255),-->
+            <!--`group` INT NOT NULL,-->
+            <!--`parent` VARCHAR(10),-->
+            <!--`language_iso6391` VARCHAR(2) NOT NULL,-->
+            <!--PRIMARY KEY (`code`),-->
+            <!--KEY `cpv_language` (`language_iso6391`),-->
+            <!--CONSTRAINT `FK_cpv_languages` FOREIGN KEY (`language_iso6391`) REFERENCES `languages` (`iso6391`)-->
+            <!--) ENGINE=InnoDB DEFAULT CHARSET=utf8;-->
+
+            <!--CREATE TABLE `countries` (-->
+            <!--`code` VARCHAR(2) NOT NULL,-->
+            <!--`name` VARCHAR(255),-->
+            <!--`description` VARCHAR(255),-->
+            <!--`phone_code` VARCHAR(255),-->
+            <!--`language_iso6391` VARCHAR(2) NOT NULL,-->
+            <!--PRIMARY KEY (`code`),-->
+            <!--KEY `countries_languages` (`language_iso6391`),-->
+            <!--CONSTRAINT `FK_countries_language` FOREIGN KEY (`language_iso6391`) REFERENCES `languages` (`iso6391`)-->
+            <!--) ENGINE=InnoDB DEFAULT CHARSET=utf8;-->
+        <!--</sql>-->
+    </changeSet>
+</databaseChangeLog>
