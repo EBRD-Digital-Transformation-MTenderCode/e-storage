@@ -12,17 +12,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "ext_type")
-public class ExtensionTypeEntity {
+@Table(name = "bp_types")
+public class BpTypeEntity {
 
     @Id
-    @Column(name = "ext_type_pk")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "bp_pk")
+    private String id;
 
-    @Column(name = "ext_type_name", nullable = false)
+    @Column(name = "bp_name", nullable = false)
     private String name;
 
-    @Column(name = "is_image")
-    private Boolean isImage;
 }

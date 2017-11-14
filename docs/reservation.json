@@ -1,0 +1,12 @@
+{
+  "bpTypeId": "111",
+  "bpTypeName": "simple description",
+  "file": {
+    "id": null,
+    "fileName": "example.pdf",
+    "fileMd5Sum": "77D023226FF58A2889A6E711A5F45495",
+    "fileSize": 40,
+    "description": "example.doc",
+    "open": false
+  }
+}

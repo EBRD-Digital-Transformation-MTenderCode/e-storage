@@ -7,23 +7,23 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "bpe_ext")
-public class BpeTypeExtensionTypeEntity {
+@Table(name = "file_sizes")
+public class FileSizeEntity {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ext_size", nullable = false)
+    @Column(name = "size", nullable = false)
     private Integer size;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_bpe"))
-    private BpeTypeEntity bpeType;
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_bp_types"))
+    private BpTypeEntity bpType;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_ext"))
-    private ExtensionTypeEntity extensionType;
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_extensions"))
+    private ExtensionEntity extension;
 
 }

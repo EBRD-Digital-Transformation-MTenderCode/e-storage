@@ -7,48 +7,59 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="init" author="kolchev">
         <sql>
-            CREATE TABLE bpe_type (
-            bpe_type_pk varchar(100) NOT NULL PRIMARY KEY,
-            bpe_type_name varchar(100) NOT NULL
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            CREATE TABLE bp_types
+            (
+            bp_pk   VARCHAR(255) NOT NULL PRIMARY KEY,
+            bp_name VARCHAR(255) NOT NULL
+            );
 
-            CREATE TABLE ext_type(
-            ext_type_pk bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            ext_type_name varchar(10) NOT NULL,
-            is_image boolean NULL DEFAULT false
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            CREATE TABLE extensions
+            (
+            ext_pk   BIGINT AUTO_INCREMENT PRIMARY KEY,
+            is_image BOOLEAN NULL DEFAULT FALSE,
+            ext_name VARCHAR(255) NOT NULL
+            );
 
-            CREATE TABLE bpe_ext(
-            id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            ext_size integer NOT NULL,
-            bpe_type_bpe_type_pk varchar(100) NOT NULL,
-            extension_type_ext_type_pk bigint(20) NOT NULL,
-            CONSTRAINT fk_bpe FOREIGN KEY (bpe_type_bpe_type_pk) REFERENCES bpe_type (bpe_type_pk),
-            CONSTRAINT fk_ext FOREIGN KEY (extension_type_ext_type_pk) REFERENCES ext_type (ext_type_pk)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            CREATE TABLE file_sizes
+            (
+            id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+            size             INT          NOT NULL,
+            bp_type_bp_pk    VARCHAR(255) NOT NULL,
+            extension_ext_pk BIGINT       NOT NULL,
+            CONSTRAINT fk_bp_types
+            FOREIGN KEY (bp_type_bp_pk) REFERENCES bp_types (bp_pk),
+            CONSTRAINT fk_extensions
+            FOREIGN KEY (extension_ext_pk) REFERENCES extensions (ext_pk)
+            );
+            CREATE INDEX fk_bp_types ON file_sizes (bp_type_bp_pk);
+            CREATE INDEX fk_extensions ON file_sizes (extension_ext_pk);
 
-            CREATE TABLE files(
-            files_pk bigint(20) NOT NULL PRIMARY KEY,
-            files_client_id varchar(255) NOT NULL,
-            files_client_desc varchar(255) NULL,
-            files_last_change date NOT NULL,
-            files_full_file_name varchar(255) NOT NULL,
-            files_file_on_server varchar(255) NOT NULL,
-            files_file_desc varchar(255) NULL,
-            visible_all boolean NOT NULL,
-            files_file_size varchar(255),
-            files_file_md5sum varchar(100),
-            bpe_type_bpe_type_pk varchar(100) NOT NULL,
-            CONSTRAINT fk_files_bpe FOREIGN KEY (bpe_type_bpe_type_pk) REFERENCES bpe_type (bpe_type_pk)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            CREATE TABLE files
+            (
+            file_pk        BIGINT AUTO_INCREMENT PRIMARY KEY,
+            file_desc      VARCHAR(255) NOT NULL,
+            file_md5sum    VARCHAR(255) NULL,
+            file_on_server VARCHAR(255) NOT NULL,
+            file_size      VARCHAR(255) NULL,
+            full_file_name VARCHAR(255) NOT NULL,
+            last_change    DATETIME(6)  NOT NULL,
+            visible_all    BIT          NOT NULL,
+            bpe_type_bp_pk VARCHAR(255) NOT NULL,
+            CONSTRAINT fk_files_bp_types
+            FOREIGN KEY (bpe_type_bp_pk) REFERENCES bp_types (bp_pk)
+            );
+            CREATE INDEX fk_files_bp_types ON files (bpe_type_bp_pk);
 
-            CREATE TABLE files_url(
-            url_pk bigint(20) NOT NULL,
-            tmp_url varchar(255) NOT NULL,
-            file_files_pk bigint(20) NOT NULL,
-            PRIMARY KEY (url_pk),
-            CONSTRAINT fk_url_files FOREIGN KEY (file_files_pk) REFERENCES files (files_pk)
-            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            CREATE TABLE files_url
+            (
+            url_pk       BIGINT AUTO_INCREMENT PRIMARY KEY,
+            tmp_url      VARCHAR(255) NOT NULL,
+            file_file_pk BIGINT       NOT NULL,
+            CONSTRAINT fk_url_files
+            FOREIGN KEY (file_file_pk) REFERENCES files (file_pk)
+            );
+
+            CREATE INDEX fk_url_files ON files_url (file_file_pk);
         </sql>
     </changeSet>
 </databaseChangeLog>

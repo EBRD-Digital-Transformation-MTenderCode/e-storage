@@ -6,11 +6,17 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet id="insert" author="kolchev">
-        <!--<sql>-->
-            <!--SET nameS 'utf8';-->
-            <!--INSERT INTO mdmdb.languages (iso6391, name, family, description) VALUES ('aa', 'Afro-Asiatic', 'Afar', '');-->
-            <!--INSERT INTO mdmdb.languages (iso6391, name, family, description) VALUES ('ab', 'Northwest Caucasian',-->
-            <!--'Abkhaz', '');-->
-        <!--</sql>-->
+        <sql>
+            INSERT INTO bp_types (bp_pk, bp_name) VALUES ('111', 'bp1');
+            INSERT INTO bp_types (bp_pk, bp_name) VALUES ('112', 'bp2');
+
+            INSERT INTO extensions (is_image, ext_name) VALUES (0, 'pdf');
+            INSERT INTO extensions (is_image, ext_name) VALUES (0, 'doc');
+            INSERT INTO extensions (is_image, ext_name) VALUES (0, 'xls');
+            INSERT INTO extensions (is_image, ext_name) VALUES (1, 'png');
+
+            INSERT INTO file_sizes (size, bp_type_bp_pk, extension_ext_pk) VALUES (50, '111', 1);
+            INSERT INTO file_sizes (size, bp_type_bp_pk, extension_ext_pk) VALUES (50, '111', 2);
+        </sql>
     </changeSet>
 </databaseChangeLog>
