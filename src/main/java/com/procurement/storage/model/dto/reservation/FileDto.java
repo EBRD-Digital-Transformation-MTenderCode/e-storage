@@ -21,7 +21,7 @@ import lombok.Setter;
 public class FileDto {
     @JsonProperty("id")
     @JsonPropertyDescription("Id of the file in DB")
-    private Integer id;
+    private Long id;
 
     @JsonProperty("fileName")
     @JsonPropertyDescription("Name of the file")

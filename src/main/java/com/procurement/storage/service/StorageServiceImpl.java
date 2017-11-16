@@ -1,6 +1,8 @@
 package com.procurement.storage.service;
 
 import com.procurement.storage.exception.FileValidationException;
+import com.procurement.storage.model.dto.reservation.FileDto;
+import com.procurement.storage.model.dto.reservation.MessageDto;
 import com.procurement.storage.model.dto.reservation.ReservationRequestDto;
 import com.procurement.storage.model.dto.reservation.ReservationResponseDto;
 import com.procurement.storage.model.entity.BpTypeEntity;
@@ -38,9 +40,8 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public ReservationResponseDto makeReservation(ReservationRequestDto requestDto) {
         checkFileSize(requestDto);
-        reservePlaceForFile(requestDto);
-        covertDtoToEntity(requestDto);
-        return null;
+        ReservationResponseDto responseDto = reservePlaceForFile(requestDto);
+        return responseDto;
     }
 
     private void checkFileSize(final ReservationRequestDto requestDto) {
@@ -63,9 +64,9 @@ public class StorageServiceImpl implements StorageService {
         return fileSizeRule;
     }
 
-    private void reservePlaceForFile(ReservationRequestDto requestDto) {
+    private ReservationResponseDto reservePlaceForFile(ReservationRequestDto requestDto) {
         FileEntity fileEntity = savePlaceForFile(requestDto);
-        System.out.println(fileEntity.getId());
+        return covertEntityToDto(fileEntity);
     }
 
     public FileEntity savePlaceForFile(ReservationRequestDto requestDto) {
@@ -86,5 +87,26 @@ public class StorageServiceImpl implements StorageService {
         fileEntity.setLastChange(lastChange);
         fileEntity.setFileOnServer(uploadFilePath + lastChange.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         return fileEntity;
+    }
+
+    private ReservationResponseDto covertEntityToDto(FileEntity fileEntity) {
+        FileDto fileDto = new FileDto();
+        fileDto.setId(fileEntity.getId());
+        fileDto.setFileName(fileEntity.getFullFileName());
+        fileDto.setFileMd5Sum(fileEntity.getFileMd5Sum());
+        fileDto.setFileSize(fileEntity.getFileSize());
+        fileDto.setFileLink(fileEntity.getFileOnServer());
+        fileDto.setDescription(fileEntity.getFileDesc());
+        fileDto.setOpen(fileEntity.getVisibleAll());
+
+        BpTypeEntity bpTypeEntity = fileEntity.getBpeType();
+
+        MessageDto messageDto = new MessageDto();
+        messageDto.setBpTypeId(bpTypeEntity.getId());
+        messageDto.setBpTypeName(bpTypeEntity.getName());
+        messageDto.setFile(fileDto);
+        ReservationResponseDto responseDto = new ReservationResponseDto("200", "ok", messageDto);
+
+        return responseDto;
     }
 }
