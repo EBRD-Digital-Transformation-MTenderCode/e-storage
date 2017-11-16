@@ -100,13 +100,11 @@ public class StorageServiceImpl implements StorageService {
         fileDto.setOpen(fileEntity.getVisibleAll());
 
         BpTypeEntity bpTypeEntity = fileEntity.getBpeType();
-
         MessageDto messageDto = new MessageDto();
         messageDto.setBpTypeId(bpTypeEntity.getId());
         messageDto.setBpTypeName(bpTypeEntity.getName());
         messageDto.setFile(fileDto);
         ReservationResponseDto responseDto = new ReservationResponseDto("200", "ok", messageDto);
-
         return responseDto;
     }
 }
