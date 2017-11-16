@@ -32,10 +32,10 @@ public class FileEntity {
     private Boolean visibleAll;
 
     @Column(name = "file_size")
-    private String fileSize;
+    private Integer fileSize;
 
     @Column(name = "file_md5sum")
-    private String fileMd5sum;
+    private String fileMd5Sum;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_files_bp_types"))

@@ -14,3 +14,5 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL57Dialect
+
+upload.file.path: /home/user/storage/

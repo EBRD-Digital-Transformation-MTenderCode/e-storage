@@ -21,5 +21,4 @@ public class BpTypeEntity {
 
     @Column(name = "bp_name", nullable = false)
     private String name;
-
 }

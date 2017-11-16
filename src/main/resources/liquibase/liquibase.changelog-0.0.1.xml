@@ -9,57 +9,51 @@
         <sql>
             CREATE TABLE bp_types
             (
-            bp_pk   VARCHAR(255) NOT NULL PRIMARY KEY,
+            bp_pk VARCHAR(255) NOT NULL PRIMARY KEY,
             bp_name VARCHAR(255) NOT NULL
             );
 
-            CREATE TABLE extensions
+            CREATE TABLE file_rules
             (
-            ext_pk   BIGINT AUTO_INCREMENT PRIMARY KEY,
-            is_image BOOLEAN NULL DEFAULT FALSE,
-            ext_name VARCHAR(255) NOT NULL
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            file_ext VARCHAR(255) NOT NULL,
+            is_image BIT NULL DEFAULT 0,
+            file_size INT NOT NULL,
+            bp_type_bp_pk VARCHAR(255) NOT NULL,
+            CONSTRAINT fk_bp_types
+            FOREIGN KEY (bp_type_bp_pk) REFERENCES bp_types (bp_pk)
             );
 
-            CREATE TABLE file_sizes
-            (
-            id               BIGINT AUTO_INCREMENT PRIMARY KEY,
-            size             INT          NOT NULL,
-            bp_type_bp_pk    VARCHAR(255) NOT NULL,
-            extension_ext_pk BIGINT       NOT NULL,
-            CONSTRAINT fk_bp_types
-            FOREIGN KEY (bp_type_bp_pk) REFERENCES bp_types (bp_pk),
-            CONSTRAINT fk_extensions
-            FOREIGN KEY (extension_ext_pk) REFERENCES extensions (ext_pk)
-            );
-            CREATE INDEX fk_bp_types ON file_sizes (bp_type_bp_pk);
-            CREATE INDEX fk_extensions ON file_sizes (extension_ext_pk);
+            CREATE INDEX fk_bp_types ON file_rules (bp_type_bp_pk);
 
             CREATE TABLE files
             (
-            file_pk        BIGINT AUTO_INCREMENT PRIMARY KEY,
-            file_desc      VARCHAR(255) NOT NULL,
-            file_md5sum    VARCHAR(255) NULL,
+            file_pk BIGINT AUTO_INCREMENT PRIMARY KEY,
+            file_desc VARCHAR(255) NOT NULL,
+            file_md5sum VARCHAR(255) NULL,
             file_on_server VARCHAR(255) NOT NULL,
-            file_size      VARCHAR(255) NULL,
+            file_size INT NULL,
             full_file_name VARCHAR(255) NOT NULL,
-            last_change    DATETIME(6)  NOT NULL,
-            visible_all    BIT          NOT NULL,
+            last_change DATETIME(6) NOT NULL,
+            visible_all BIT NOT NULL,
             bpe_type_bp_pk VARCHAR(255) NOT NULL,
             CONSTRAINT fk_files_bp_types
             FOREIGN KEY (bpe_type_bp_pk) REFERENCES bp_types (bp_pk)
             );
+
             CREATE INDEX fk_files_bp_types ON files (bpe_type_bp_pk);
 
             CREATE TABLE files_url
             (
-            url_pk       BIGINT AUTO_INCREMENT PRIMARY KEY,
-            tmp_url      VARCHAR(255) NOT NULL,
-            file_file_pk BIGINT       NOT NULL,
+            url_pk BIGINT AUTO_INCREMENT PRIMARY KEY,
+            tmp_url VARCHAR(255) NOT NULL,
+            file_file_pk BIGINT NOT NULL,
             CONSTRAINT fk_url_files
             FOREIGN KEY (file_file_pk) REFERENCES files (file_pk)
             );
 
             CREATE INDEX fk_url_files ON files_url (file_file_pk);
+
         </sql>
     </changeSet>
 </databaseChangeLog>
