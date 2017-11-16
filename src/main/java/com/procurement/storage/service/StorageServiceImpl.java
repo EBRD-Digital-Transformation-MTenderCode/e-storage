@@ -12,9 +12,7 @@ import com.procurement.storage.repository.FileRepository;
 import com.procurement.storage.repository.FileRulesRepository;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
 import liquibase.util.file.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -78,14 +76,17 @@ public class StorageServiceImpl implements StorageService {
         BpTypeEntity bpTypeEntity = bpTypeRepository.getFirstById(requestDto.getBpTypeId());
         FileEntity fileEntity = new FileEntity();
         LocalDateTime lastChange = LocalDateTime.now();
+        FileDto fileDto = requestDto.getFile();
         fileEntity.setBpeType(bpTypeEntity);
-        fileEntity.setFullFileName(requestDto.getFile().getFileName());
-        fileEntity.setFileDesc(requestDto.getFile().getDescription());
-        fileEntity.setFileSize(requestDto.getFile().getFileSize());
-        fileEntity.setFileMd5Sum(requestDto.getFile().getFileMd5Sum());
-        fileEntity.setVisibleAll(requestDto.getFile().getOpen());
+        fileEntity.setFullFileName(fileDto.getFileName());
+        fileEntity.setFileDesc(fileDto.getDescription());
+        fileEntity.setFileSize(fileDto.getFileSize());
+        fileEntity.setFileMd5Sum(fileDto.getFileMd5Sum());
+        fileEntity.setVisibleAll(fileDto.getOpen());
         fileEntity.setLastChange(lastChange);
-        fileEntity.setFileOnServer(uploadFilePath + lastChange.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        fileEntity.setFileOnServer(uploadFilePath + lastChange.atZone(ZoneId.systemDefault())
+                                                              .toInstant()
+                                                              .toEpochMilli());
         return fileEntity;
     }
 
