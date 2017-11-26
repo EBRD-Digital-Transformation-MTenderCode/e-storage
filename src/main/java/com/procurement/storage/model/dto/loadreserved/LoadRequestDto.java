@@ -1,17 +1,17 @@
-package com.procurement.storage.model.dto.reservation;
+package com.procurement.storage.model.dto.loadreserved;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Setter;
+import lombok.Getter;
 
-@Setter
+@Getter
 @JsonPropertyOrder({
     "bpTypeId",
     "bpTypeName",
     "file"
 })
-public class MessageDto {
+public class LoadRequestDto {
 
     @JsonProperty("bpTypeId")
     @JsonPropertyDescription("Business process id")
@@ -23,6 +23,5 @@ public class MessageDto {
 
     @JsonProperty("file")
     @JsonPropertyDescription("File data")
-    private FileDto file;
-
+    private LoadFileDto file;
 }

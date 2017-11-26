@@ -11,7 +11,7 @@ import lombok.Setter;
 public class FileRulesEntity {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "rule_pk")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -25,6 +25,6 @@ public class FileRulesEntity {
     @Column(name = "file_size", nullable = false)
     private Integer fileSize;
 
-    @Column(name = "is_image")
-    private Boolean isImage;
+    @Column(name = "file_is_image")
+    private Boolean fileIsImage;
 }

@@ -15,9 +15,9 @@
 
             CREATE TABLE file_rules
             (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            rule_pk BIGINT AUTO_INCREMENT PRIMARY KEY,
             file_ext VARCHAR(255) NOT NULL,
-            is_image BIT NULL DEFAULT 0,
+            file_is_image BIT NULL DEFAULT 0,
             file_size INT NOT NULL,
             bp_type_bp_pk VARCHAR(255) NOT NULL,
             CONSTRAINT fk_bp_types
@@ -29,13 +29,14 @@
             CREATE TABLE files
             (
             file_pk BIGINT AUTO_INCREMENT PRIMARY KEY,
+            full_file_name VARCHAR(255) NOT NULL,
             file_desc VARCHAR(255) NOT NULL,
             file_md5sum VARCHAR(255) NULL,
-            file_on_server VARCHAR(255) NOT NULL,
             file_size INT NULL,
-            full_file_name VARCHAR(255) NOT NULL,
-            last_change DATETIME(6) NOT NULL,
-            visible_all BIT NOT NULL,
+            file_is_open BIT NOT NULL,
+            file_link VARCHAR(255) NOT NULL,
+            file_on_server VARCHAR(255) NOT NULL,
+            file_last_change DATETIME(6) NOT NULL,
             bpe_type_bp_pk VARCHAR(255) NOT NULL,
             CONSTRAINT fk_files_bp_types
             FOREIGN KEY (bpe_type_bp_pk) REFERENCES bp_types (bp_pk)

@@ -1,4 +1,4 @@
-package com.procurement.storage.model.dto.reservation;
+package com.procurement.storage.model.dto.loadreserved;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,7 +12,7 @@ import lombok.Setter;
     "errorMessage",
     "message"
 })
-public class ReservationResponseDto {
+public class LoadResponseDto {
 
     @JsonProperty("errorCode")
     @JsonPropertyDescription("Error code")
@@ -24,12 +24,12 @@ public class ReservationResponseDto {
 
     @JsonProperty("message")
     @JsonPropertyDescription("Response message")
-    private MessageDto message;
+    private LoadMessageDto message;
 
     @JsonCreator
-    public ReservationResponseDto(@JsonProperty("errorCode") final String errorCode,
+    public LoadResponseDto(@JsonProperty("errorCode") final String errorCode,
                            @JsonProperty("errorMessage") final String errorMessage,
-                           @JsonProperty("message") final MessageDto message) {
+                           @JsonProperty("message") final LoadMessageDto message) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
         this.message = message;

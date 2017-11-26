@@ -18,7 +18,7 @@ import lombok.Setter;
     "description",
     "open"
 })
-public class FileDto {
+public class ReservFileDto {
     @JsonProperty("id")
     @JsonPropertyDescription("Id of the file in DB")
     private Long id;

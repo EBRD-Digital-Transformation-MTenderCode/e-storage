@@ -1,9 +1,9 @@
 package com.procurement.storage.model.entity;
 
-import java.time.LocalDateTime;
-import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -16,26 +16,29 @@ public class FileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "last_change", nullable = false)
-    private LocalDateTime lastChange;
+    @Column(name = "file_last_change", nullable = false)
+    private long lastChange;
 
     @Column(name = "full_file_name", nullable = false)
-    private String fullFileName;
+    private String fullName;
 
     @Column(name = "file_on_server", nullable = false)
     private String fileOnServer;
 
-    @Column(name = "file_desc", nullable = false)
-    private String fileDesc;
+    @Column(name = "file_link", nullable = false)
+    private String link;
 
-    @Column(name = "visible_all", nullable = false)
-    private Boolean visibleAll;
+    @Column(name = "file_desc", nullable = false)
+    private String description;
+
+    @Column(name = "file_is_open", nullable = false)
+    private Boolean isOpen;
 
     @Column(name = "file_size")
-    private Integer fileSize;
+    private Integer size;
 
     @Column(name = "file_md5sum")
-    private String fileMd5Sum;
+    private String md5Sum;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_files_bp_types"))

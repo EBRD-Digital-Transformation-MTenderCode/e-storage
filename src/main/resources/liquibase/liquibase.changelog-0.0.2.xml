@@ -10,9 +10,9 @@
             INSERT INTO bp_types (bp_pk, bp_name) VALUES ('111', 'bp1');
             INSERT INTO bp_types (bp_pk, bp_name) VALUES ('112', 'bp2');
 
-            INSERT INTO file_rules (file_ext, is_image, file_size, bp_type_bp_pk) VALUES ('pdf', false, 50, '111');
-            INSERT INTO file_rules (file_ext, is_image, file_size, bp_type_bp_pk) VALUES ('doc', false, 50, '111');
-            INSERT INTO file_rules (file_ext, is_image, file_size, bp_type_bp_pk) VALUES ('png', true, 50, '112');
+            INSERT INTO file_rules (file_ext, file_is_image, file_size, bp_type_bp_pk) VALUES ('pdf', false, 50, '111');
+            INSERT INTO file_rules (file_ext, file_is_image, file_size, bp_type_bp_pk) VALUES ('doc', false, 50, '111');
+            INSERT INTO file_rules (file_ext, file_is_image, file_size, bp_type_bp_pk) VALUES ('png', true, 50, '112');
         </sql>
     </changeSet>
 </databaseChangeLog>
