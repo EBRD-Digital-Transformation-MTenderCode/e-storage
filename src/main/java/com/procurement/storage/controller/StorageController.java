@@ -1,18 +1,13 @@
 package com.procurement.storage.controller;
 
-import com.procurement.storage.model.dto.loadreserved.LoadRequestDto;
-import com.procurement.storage.model.dto.loadreserved.LoadResponseDto;
 import com.procurement.storage.model.dto.reservation.ReservRequestDto;
 import com.procurement.storage.model.dto.reservation.ReservResponseDto;
+import com.procurement.storage.model.dto.upload.LoadResponseDto;
 import com.procurement.storage.service.StorageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/files")
@@ -24,15 +19,16 @@ public class StorageController {
         this.storageService = storageService;
     }
 
-    @RequestMapping(value = "/reservation", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, value = "/reservation")
     public ResponseEntity<ReservResponseDto> makeReservation(@RequestBody ReservRequestDto requestDto) {
         ReservResponseDto responseDto = storageService.makeReservation(requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/loadreserved", method = RequestMethod.POST)
-    public ResponseEntity<LoadResponseDto> loadFile(@RequestBody LoadRequestDto requestDto) throws IOException {
-        LoadResponseDto responseDto = storageService.loadFile(requestDto);
+    @RequestMapping(method = RequestMethod.POST, value = "/loadreserved", consumes = "multipart/form-data")
+    public ResponseEntity<LoadResponseDto> loadFile(@RequestParam(value = "fileId") long fileId,
+                                                    @RequestParam(value = "file") MultipartFile file) {
+        LoadResponseDto responseDto = storageService.loadFile(fileId, file);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

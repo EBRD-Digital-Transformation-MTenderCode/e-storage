@@ -1,17 +1,15 @@
 package com.procurement.storage.service;
 
-import com.procurement.storage.model.dto.loadreserved.LoadRequestDto;
-import com.procurement.storage.model.dto.loadreserved.LoadResponseDto;
 import com.procurement.storage.model.dto.reservation.ReservRequestDto;
 import com.procurement.storage.model.dto.reservation.ReservResponseDto;
+import com.procurement.storage.model.dto.upload.LoadResponseDto;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public interface StorageService {
 
     ReservResponseDto makeReservation(ReservRequestDto requestDto);
 
-    LoadResponseDto loadFile(LoadRequestDto requestDto) throws IOException;
+    LoadResponseDto loadFile(long fileId, MultipartFile file);
 }

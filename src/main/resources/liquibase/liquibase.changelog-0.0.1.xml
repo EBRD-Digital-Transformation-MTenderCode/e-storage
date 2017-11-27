@@ -35,8 +35,8 @@
             file_size INT NULL,
             file_is_open BIT NOT NULL,
             file_link VARCHAR(255) NOT NULL,
-            file_on_server VARCHAR(255) NOT NULL,
-            file_last_change DATETIME(6) NOT NULL,
+            file_on_server VARCHAR(255),
+            file_last_change BIGINT NOT NULL,
             bpe_type_bp_pk VARCHAR(255) NOT NULL,
             CONSTRAINT fk_files_bp_types
             FOREIGN KEY (bpe_type_bp_pk) REFERENCES bp_types (bp_pk)

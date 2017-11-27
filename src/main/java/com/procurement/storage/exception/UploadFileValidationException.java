@@ -3,11 +3,11 @@ package com.procurement.storage.exception;
 import lombok.Getter;
 
 @Getter
-public class FileValidationException extends RuntimeException {
+public class UploadFileValidationException extends RuntimeException {
 
     private String message;
 
-    public FileValidationException(String message) {
+    public UploadFileValidationException(String message) {
         this.message = message;
     }
 }

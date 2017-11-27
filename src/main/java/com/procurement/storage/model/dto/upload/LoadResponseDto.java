@@ -1,4 +1,4 @@
-package com.procurement.storage.model.dto.loadreserved;
+package com.procurement.storage.model.dto.upload;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

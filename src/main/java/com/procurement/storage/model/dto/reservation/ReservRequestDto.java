@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @JsonPropertyOrder({
     "bpTypeId",
     "bpTypeName",
@@ -22,6 +24,6 @@ public class ReservRequestDto {
     private String bpTypeName;
 
     @JsonProperty("file")
-    @JsonPropertyDescription("File data")
+    @JsonPropertyDescription("File metadata")
     private ReservFileDto file;
 }

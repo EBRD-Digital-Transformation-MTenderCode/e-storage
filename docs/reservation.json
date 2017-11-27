@@ -1,12 +1,12 @@
 {
   "bpTypeId": "111",
-  "bpTypeName": "simple description",
+  "bpTypeName": "simple bp",
   "file": {
     "id": null,
     "fileName": "example.pdf",
-    "fileMd5Sum": "77D023226FF58A2889A6E711A5F45495",
+    "fileMd5Sum": "2316F43529644185F12CF9FA145ABFCC",
     "fileSize": 40,
-    "description": "example.doc",
+    "description": "example.pdf",
     "open": false
   }
 }
