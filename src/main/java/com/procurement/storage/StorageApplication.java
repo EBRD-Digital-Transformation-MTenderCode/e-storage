@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 @SpringBootApplication(scanBasePackageClasses = {ApplicationConfig.class},
     exclude = {LiquibaseAutoConfiguration.class})
 public class StorageApplication {
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SpringApplication.run(StorageApplication.class, args);
     }
 }
