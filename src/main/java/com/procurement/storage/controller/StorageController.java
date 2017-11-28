@@ -25,10 +25,18 @@ public class StorageController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/loadreserved", consumes = "multipart/form-data")
-    public ResponseEntity<LoadResponseDto> loadFile(@RequestParam(value = "fileId") long fileId,
-                                                    @RequestParam(value = "file") MultipartFile file) {
-        LoadResponseDto responseDto = storageService.loadFile(fileId, file);
+    @RequestMapping(method = RequestMethod.POST, value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<LoadResponseDto> uploadFile(@RequestParam(value = "fileId") long fileId,
+                                                      @RequestParam(value = "file") MultipartFile file) {
+        LoadResponseDto responseDto = storageService.uploadFile(fileId, file);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/byId")
+    public ResponseEntity<byte[]> getFile(@RequestParam(value = "fileId") long fileId) {
+        byte[] response = storageService.getFileById(fileId);
+        HttpStatus status = (response.length == 0) ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+        return new ResponseEntity<>(response, status);
+    }
+
 }

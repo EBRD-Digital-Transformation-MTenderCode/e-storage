@@ -1,5 +1,6 @@
 package com.procurement.storage.service;
 
+import com.procurement.storage.exception.GetFileException;
 import com.procurement.storage.exception.ReservFileValidationException;
 import com.procurement.storage.exception.UploadFileValidationException;
 import com.procurement.storage.model.dto.reservation.ReservFileDto;
@@ -24,6 +25,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -87,17 +90,16 @@ public class StorageServiceImpl implements StorageService {
 
     private FileEntity covertReservRequestDtoToEntity(ReservRequestDto requestDto) {
         BpTypeEntity bpTypeEntity = bpTypeRepository.getFirstById(requestDto.getBpTypeId());
-        FileEntity fileEntity = new FileEntity();
-        long lastChange = new Date().getTime();
         ReservFileDto reservFileDto = requestDto.getFile();
+        FileEntity fileEntity = new FileEntity();
+        fileEntity.setId(new Date().getTime());
         fileEntity.setBpeType(bpTypeEntity);
         fileEntity.setFullName(reservFileDto.getFileName());
         fileEntity.setDescription(reservFileDto.getDescription());
         fileEntity.setSize(reservFileDto.getFileSize());
         fileEntity.setMd5Sum(reservFileDto.getFileMd5Sum());
-        fileEntity.setLink("/storage/" + fileEntity.getMd5Sum());
+        fileEntity.setLink("/storage/" + fileEntity.getId());
         fileEntity.setIsOpen(reservFileDto.getOpen());
-        fileEntity.setLastChange(lastChange);
         return fileEntity;
     }
 
@@ -107,7 +109,7 @@ public class StorageServiceImpl implements StorageService {
         reservFileDto.setFileName(fileEntity.getFullName());
         reservFileDto.setFileMd5Sum(fileEntity.getMd5Sum());
         reservFileDto.setFileSize(fileEntity.getSize());
-        reservFileDto.setFileLink("/storage/" + fileEntity.getMd5Sum());
+        reservFileDto.setFileLink("/storage/" + fileEntity.getId());
         reservFileDto.setDescription(fileEntity.getDescription());
         reservFileDto.setOpen(fileEntity.getIsOpen());
 
@@ -120,9 +122,8 @@ public class StorageServiceImpl implements StorageService {
         return responseDto;
     }
 
-
     @Override
-    public LoadResponseDto loadFile(long fileId, MultipartFile uploadFileBody) {
+    public LoadResponseDto uploadFile(long fileId, MultipartFile uploadFileBody) {
         FileEntity fileEntity = fileRepository.getOne(fileId);
         byte[] uploadBytes = getFileBytes(uploadFileBody);
         /**checking the size of the file*/
@@ -166,8 +167,8 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private String writeFileToDisk(FileEntity fileEntity, byte[] uploadBytes) {
-        String url = uploadFilePath + fileEntity.getLastChange();
         try {
+            String url = uploadFilePath + fileEntity.getId();
             BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File(url)));
             stream.write(uploadBytes);
             stream.close();
@@ -181,8 +182,7 @@ public class StorageServiceImpl implements StorageService {
         LoadFileDto fileDto = new LoadFileDto();
         fileDto.setId(fileEntity.getId());
         fileDto.setFileName(fileEntity.getFullName());
-        fileDto.setFileLink("/storage/" + fileEntity.getMd5Sum());
-
+        fileDto.setFileLink("/storage/" + fileEntity.getId());
         BpTypeEntity bpTypeEntity = fileEntity.getBpeType();
         LoadMessageDto messageDto = new LoadMessageDto();
         messageDto.setBpTypeId(bpTypeEntity.getId());
@@ -190,6 +190,20 @@ public class StorageServiceImpl implements StorageService {
         messageDto.setFile(fileDto);
         LoadResponseDto responseDto = new LoadResponseDto("200", "ok", messageDto);
         return responseDto;
+    }
+
+    @Override
+    public byte[] getFileById(long fileId) {
+        FileEntity fileEntity = fileRepository.getOne(fileId);
+        return readFileFromDisk(fileEntity.getFileOnServer());
+    }
+
+    private byte[] readFileFromDisk(String fileOnServer) {
+        try {
+            return Files.readAllBytes(Paths.get(fileOnServer));
+        } catch (IOException e) {
+            throw new GetFileException(e.getMessage());
+        }
     }
 
 }

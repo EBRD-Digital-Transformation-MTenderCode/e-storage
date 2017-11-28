@@ -13,11 +13,7 @@ public class FileEntity {
 
     @Id
     @Column(name = "file_pk")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "file_last_change", nullable = false)
-    private long lastChange;
 
     @Column(name = "full_file_name", nullable = false)
     private String fullName;

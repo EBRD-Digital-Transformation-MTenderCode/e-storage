@@ -11,5 +11,7 @@ public interface StorageService {
 
     ReservResponseDto makeReservation(ReservRequestDto requestDto);
 
-    LoadResponseDto loadFile(long fileId, MultipartFile file);
+    LoadResponseDto uploadFile(long fileId, MultipartFile file);
+
+    byte[] getFileById(long fileId);
 }
