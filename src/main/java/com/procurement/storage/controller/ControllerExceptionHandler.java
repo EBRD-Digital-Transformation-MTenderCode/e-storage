@@ -41,13 +41,13 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ReservFileValidationException.class)
     public ReservResponseDto handleErrorInsertException(final ReservFileValidationException e) {
-        return new ReservResponseDto("400", e.getMessage(), null);
+        return new ReservResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
     }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UploadFileValidationException.class)
     public LoadResponseDto handleErrorInsertException(final UploadFileValidationException e) {
-        return new LoadResponseDto("400", e.getMessage(), null);
+        return new LoadResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
     }
 }

@@ -33,8 +33,8 @@ public class FileEntity {
     @Column(name = "file_size")
     private Integer size;
 
-    @Column(name = "file_md5sum")
-    private String md5Sum;
+    @Column(name = "file_hash")
+    private String hash;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_files_bp_types"))

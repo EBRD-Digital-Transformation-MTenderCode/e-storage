@@ -13,29 +13,29 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/files")
 public class StorageController {
 
-    private StorageService storageService;
+    private final StorageService storageService;
 
-    public StorageController(StorageService storageService) {
+    public StorageController(final StorageService storageService) {
         this.storageService = storageService;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/reservation")
-    public ResponseEntity<ReservResponseDto> makeReservation(@RequestBody ReservRequestDto requestDto) {
-        ReservResponseDto responseDto = storageService.makeReservation(requestDto);
+    public ResponseEntity<ReservResponseDto> makeReservation(@RequestBody final ReservRequestDto requestDto) {
+        final ReservResponseDto responseDto = storageService.makeReservation(requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/upload", consumes = "multipart/form-data")
-    public ResponseEntity<LoadResponseDto> uploadFile(@RequestParam(value = "fileId") long fileId,
-                                                      @RequestParam(value = "file") MultipartFile file) {
-        LoadResponseDto responseDto = storageService.uploadFile(fileId, file);
+    public ResponseEntity<LoadResponseDto> uploadFile(@RequestParam(value = "fileId") final long fileId,
+                                                      @RequestParam(value = "file") final MultipartFile file) {
+        final LoadResponseDto responseDto = storageService.uploadFile(fileId, file);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/byId")
-    public ResponseEntity<byte[]> getFile(@RequestParam(value = "fileId") long fileId) {
-        byte[] response = storageService.getFileById(fileId);
-        HttpStatus status = (response.length == 0) ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+    public ResponseEntity<byte[]> getFile(@RequestParam(value = "fileId") final long fileId) {
+        final byte[] response = storageService.getFileById(fileId);
+        final HttpStatus status = (response.length == 0) ? HttpStatus.NOT_FOUND : HttpStatus.OK;
         return new ResponseEntity<>(response, status);
     }
 

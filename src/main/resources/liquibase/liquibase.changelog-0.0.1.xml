@@ -31,7 +31,7 @@
             file_pk BIGINT PRIMARY KEY,
             full_file_name VARCHAR(255) NOT NULL,
             file_desc VARCHAR(255) NOT NULL,
-            file_md5sum VARCHAR(255) NULL,
+            file_hash VARCHAR(255) NULL,
             file_size INT NULL,
             file_is_open BIT NOT NULL,
             file_link VARCHAR(255) NOT NULL,

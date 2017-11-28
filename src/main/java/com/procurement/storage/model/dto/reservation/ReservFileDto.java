@@ -3,7 +3,6 @@ package com.procurement.storage.model.dto.reservation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,9 +26,9 @@ public class ReservFileDto {
     @JsonPropertyDescription("Name of the file")
     private String fileName;
 
-    @JsonProperty("fileMd5Sum")
-    @JsonPropertyDescription("Md5Sum of the file")
-    private String fileMd5Sum;
+    @JsonProperty("fileHash")
+    @JsonPropertyDescription("Md5 sum of the file")
+    private String fileHash;
 
     @JsonProperty("fileSize")
     @JsonPropertyDescription("Size of the file")

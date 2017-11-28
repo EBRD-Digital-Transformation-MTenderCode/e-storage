@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class GetFileException extends RuntimeException {
 
-    private String message;
+    private final String message;
 
-    public GetFileException(String message) {
+    public GetFileException(final String message) {
         this.message = message;
     }
 }

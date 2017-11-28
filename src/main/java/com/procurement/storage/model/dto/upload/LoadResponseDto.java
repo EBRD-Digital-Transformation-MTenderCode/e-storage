@@ -16,7 +16,7 @@ public class LoadResponseDto {
 
     @JsonProperty("errorCode")
     @JsonPropertyDescription("Error code")
-    private String errorCode;
+    private Integer errorCode;
 
     @JsonProperty("errorMessage")
     @JsonPropertyDescription("Error message")
@@ -27,7 +27,7 @@ public class LoadResponseDto {
     private LoadMessageDto message;
 
     @JsonCreator
-    public LoadResponseDto(@JsonProperty("errorCode") final String errorCode,
+    public LoadResponseDto(@JsonProperty("errorCode") final Integer errorCode,
                            @JsonProperty("errorMessage") final String errorMessage,
                            @JsonProperty("message") final LoadMessageDto message) {
         this.errorCode = errorCode;

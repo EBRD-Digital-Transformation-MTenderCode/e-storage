@@ -16,7 +16,7 @@ public class ReservResponseDto {
 
     @JsonProperty("errorCode")
     @JsonPropertyDescription("Error code")
-    private String errorCode;
+    private Integer errorCode;
 
     @JsonProperty("errorMessage")
     @JsonPropertyDescription("Error message")
@@ -27,7 +27,7 @@ public class ReservResponseDto {
     private ReservMessageDto message;
 
     @JsonCreator
-    public ReservResponseDto(@JsonProperty("errorCode") final String errorCode,
+    public ReservResponseDto(@JsonProperty("errorCode") final Integer errorCode,
                              @JsonProperty("errorMessage") final String errorMessage,
                              @JsonProperty("message") final ReservMessageDto message) {
         this.errorCode = errorCode;

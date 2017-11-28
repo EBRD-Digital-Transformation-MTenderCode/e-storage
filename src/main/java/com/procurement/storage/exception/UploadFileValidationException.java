@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class UploadFileValidationException extends RuntimeException {
 
-    private String message;
+    private final String message;
 
-    public UploadFileValidationException(String message) {
+    public UploadFileValidationException(final String message) {
         this.message = message;
     }
 }

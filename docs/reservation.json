@@ -4,7 +4,7 @@
   "file": {
     "id": null,
     "fileName": "example.pdf",
-    "fileMd5Sum": "2316F43529644185F12CF9FA145ABFCC",
+    "fileHash": "2316F43529644185F12CF9FA145ABFCC",
     "fileSize": 40,
     "description": "example.pdf",
     "open": false
