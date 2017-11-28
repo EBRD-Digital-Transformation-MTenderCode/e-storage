@@ -36,12 +36,12 @@
             file_is_open BIT NOT NULL,
             file_link VARCHAR(255) NOT NULL,
             file_on_server VARCHAR(255),
-            bpe_type_bp_pk VARCHAR(255) NOT NULL,
+            bp_type_bp_pk VARCHAR(255) NOT NULL,
             CONSTRAINT fk_files_bp_types
-            FOREIGN KEY (bpe_type_bp_pk) REFERENCES bp_types (bp_pk)
+            FOREIGN KEY (bp_type_bp_pk) REFERENCES bp_types (bp_pk)
             );
 
-            CREATE INDEX fk_files_bp_types ON files (bpe_type_bp_pk);
+            CREATE INDEX fk_files_bp_types ON files (bp_type_bp_pk);
 
             CREATE TABLE files_url
             (
