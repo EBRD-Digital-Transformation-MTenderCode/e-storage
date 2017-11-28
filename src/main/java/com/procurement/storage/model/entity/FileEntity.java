@@ -38,5 +38,5 @@ public class FileEntity {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_files_bp_types"))
-    private BpTypeEntity bpeType;
+    private BpTypeEntity bpType;
 }

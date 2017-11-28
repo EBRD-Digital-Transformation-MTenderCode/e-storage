@@ -93,7 +93,7 @@ public class StorageServiceImpl implements StorageService {
         ReservFileDto reservFileDto = requestDto.getFile();
         FileEntity fileEntity = new FileEntity();
         fileEntity.setId(new Date().getTime());
-        fileEntity.setBpeType(bpTypeEntity);
+        fileEntity.setBpType(bpTypeEntity);
         fileEntity.setFullName(reservFileDto.getFileName());
         fileEntity.setDescription(reservFileDto.getDescription());
         fileEntity.setSize(reservFileDto.getFileSize());
@@ -113,7 +113,7 @@ public class StorageServiceImpl implements StorageService {
         reservFileDto.setDescription(fileEntity.getDescription());
         reservFileDto.setOpen(fileEntity.getIsOpen());
 
-        BpTypeEntity bpTypeEntity = fileEntity.getBpeType();
+        BpTypeEntity bpTypeEntity = fileEntity.getBpType();
         ReservMessageDto reservMessageDto = new ReservMessageDto();
         reservMessageDto.setBpTypeId(bpTypeEntity.getId());
         reservMessageDto.setBpTypeName(bpTypeEntity.getName());
@@ -183,7 +183,7 @@ public class StorageServiceImpl implements StorageService {
         fileDto.setId(fileEntity.getId());
         fileDto.setFileName(fileEntity.getFullName());
         fileDto.setFileLink("/storage/" + fileEntity.getId());
-        BpTypeEntity bpTypeEntity = fileEntity.getBpeType();
+        BpTypeEntity bpTypeEntity = fileEntity.getBpType();
         LoadMessageDto messageDto = new LoadMessageDto();
         messageDto.setBpTypeId(bpTypeEntity.getId());
         messageDto.setBpTypeName(bpTypeEntity.getName());
