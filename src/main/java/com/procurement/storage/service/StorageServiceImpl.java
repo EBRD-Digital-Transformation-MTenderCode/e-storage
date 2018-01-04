@@ -3,18 +3,12 @@ package com.procurement.storage.service;
 import com.procurement.storage.exception.GetFileException;
 import com.procurement.storage.exception.ReservFileValidationException;
 import com.procurement.storage.exception.UploadFileValidationException;
-import com.procurement.storage.model.dto.reservation.ReservFileDto;
-import com.procurement.storage.model.dto.reservation.ReservMessageDto;
-import com.procurement.storage.model.dto.reservation.ReservRequestDto;
-import com.procurement.storage.model.dto.reservation.ReservResponseDto;
+import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
+import com.procurement.storage.model.dto.registration.RegistrationResponseDto;
 import com.procurement.storage.model.dto.upload.LoadFileDto;
 import com.procurement.storage.model.dto.upload.LoadMessageDto;
 import com.procurement.storage.model.dto.upload.LoadResponseDto;
-import com.procurement.storage.model.entity.BpTypeEntity;
-import com.procurement.storage.model.entity.FileEntity;
-import com.procurement.storage.repository.BpTypeRepository;
-import com.procurement.storage.repository.FileRepository;
-import com.procurement.storage.repository.FileRulesRepository;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +16,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+
+import com.procurement.storage.repository.FileRepository;
 import liquibase.util.file.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,41 +29,36 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class StorageServiceImpl implements StorageService {
 
-    private final FileRulesRepository fileRulesRepository;
-    private final BpTypeRepository bpTypeRepository;
     private final FileRepository fileRepository;
+
     private final String linkPath = "/storage/";
+
     @Value("${upload.file.path}")
     private String uploadFilePath;
+    @Value("${upload.file.extensions}")
+    private List<String> fileExtensions;
+    @Value("${spring.servlet.multipart.max-file-size}")
+    private Integer maxFileSize;
 
-    public StorageServiceImpl(final FileRulesRepository fileRulesRepository,
-                              final BpTypeRepository bpTypeRepository,
-                              final FileRepository fileRepository) {
-        this.fileRulesRepository = fileRulesRepository;
-        this.bpTypeRepository = bpTypeRepository;
+    public StorageServiceImpl(final FileRepository fileRepository) {
         this.fileRepository = fileRepository;
     }
 
     @Override
-    public ReservResponseDto makeReservation(final ReservRequestDto requestDto) {
-        final ReservFileDto fileDto = requestDto.getFile();
-        final int maxFileSize = getFileSize(requestDto.getBpTypeId(), fileDto);
-        fileDto.setFileSize(maxFileSize);
-        requestDto.setFile(fileDto);
-        final ReservResponseDto responseDto = reservePlaceForFile(requestDto);
+    public RegistrationResponseDto makeRegistration(final RegistrationRequestDto dto) {
+        checkFileSize(dto.getWeight());
+        checkFileExtension(dto.getFileName());
+        final RegistrationResponseDto responseDto = reservePlaceForFile(requestDto);
         return responseDto;
     }
 
-    private int getFileSize(final String bpTypeId, final ReservFileDto fileDto) {
-        final String fileExtension = getFileExtension(fileDto.getFileName());
-        final int fileSize = getFileSizeRule(bpTypeId, fileExtension);
-        if (fileSize < fileDto.getFileSize()) {
-            throw new ReservFileValidationException("Invalid file size for reservation.");
+    private int checkFileSize(final int fileWeight) {
+        if (maxFileSize < fileWeight) {
+            throw new ReservFileValidationException("Invalid file size for registration.");
         }
-        return fileSize;
     }
 
-    private String getFileExtension(final String fileName) {
+    private String checkFileExtension(final String fileName) {
         return FilenameUtils.getExtension(fileName);
     }
 
@@ -78,17 +70,17 @@ public class StorageServiceImpl implements StorageService {
         return fileSizeRule;
     }
 
-    private ReservResponseDto reservePlaceForFile(final ReservRequestDto requestDto) {
+    private RegistrationResponseDto reservePlaceForFile(final RegistrationRequestDto requestDto) {
         final FileEntity fileEntity = savePlaceForFile(requestDto);
         return covertEntityToReservResponseDto(fileEntity);
     }
 
-    public FileEntity savePlaceForFile(final ReservRequestDto requestDto) {
+    public FileEntity savePlaceForFile(final RegistrationRequestDto requestDto) {
         final FileEntity fileEntity = covertReservRequestDtoToEntity(requestDto);
         return fileRepository.save(fileEntity);
     }
 
-    private FileEntity covertReservRequestDtoToEntity(final ReservRequestDto requestDto) {
+    private FileEntity covertReservRequestDtoToEntity(final RegistrationRequestDto requestDto) {
         final BpTypeEntity bpTypeEntity = bpTypeRepository.getFirstById(requestDto.getBpTypeId());
         final ReservFileDto reservFileDto = requestDto.getFile();
         final FileEntity fileEntity = new FileEntity();
@@ -103,7 +95,7 @@ public class StorageServiceImpl implements StorageService {
         return fileEntity;
     }
 
-    private ReservResponseDto covertEntityToReservResponseDto(final FileEntity fileEntity) {
+    private RegistrationResponseDto covertEntityToReservResponseDto(final FileEntity fileEntity) {
         final ReservFileDto reservFileDto = new ReservFileDto();
         reservFileDto.setId(fileEntity.getId());
         reservFileDto.setFileName(fileEntity.getFullName());
@@ -118,7 +110,7 @@ public class StorageServiceImpl implements StorageService {
         reservMessageDto.setBpTypeId(bpTypeEntity.getId());
         reservMessageDto.setBpTypeName(bpTypeEntity.getName());
         reservMessageDto.setFile(reservFileDto);
-        final ReservResponseDto responseDto = new ReservResponseDto(null, null, reservMessageDto);
+        final RegistrationResponseDto responseDto = new RegistrationResponseDto(null, null, reservMessageDto);
         return responseDto;
     }
 

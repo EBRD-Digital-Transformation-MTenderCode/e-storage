@@ -1,7 +1,7 @@
 package com.procurement.storage.controller;
 
-import com.procurement.storage.model.dto.reservation.ReservRequestDto;
-import com.procurement.storage.model.dto.reservation.ReservResponseDto;
+import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
+import com.procurement.storage.model.dto.registration.RegistrationResponseDto;
 import com.procurement.storage.model.dto.upload.LoadResponseDto;
 import com.procurement.storage.service.StorageService;
 import org.springframework.http.HttpStatus;
@@ -19,10 +19,10 @@ public class StorageController {
         this.storageService = storageService;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/reservation")
-    public ResponseEntity<ReservResponseDto> makeReservation(@RequestBody final ReservRequestDto requestDto) {
-        final ReservResponseDto responseDto = storageService.makeReservation(requestDto);
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.POST, value = "/registration")
+    public ResponseEntity<RegistrationResponseDto> makeRegistration(@RequestBody final RegistrationRequestDto dto) {
+        final RegistrationResponseDto response = storageService.makeRegistration(dto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/upload", consumes = "multipart/form-data")

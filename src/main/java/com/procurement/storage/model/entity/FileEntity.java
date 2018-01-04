@@ -1,41 +1,49 @@
 package com.procurement.storage.model.entity;
 
-import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.cassandra.core.cql.Ordering;
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
+import org.springframework.data.cassandra.core.mapping.Column;
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.Table;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
-@Entity
-@Table(name = "files")
+@Table("storage_files")
 public class FileEntity {
 
-    @Id
-    @Column(name = "file_pk")
-    private Long id;
+    @PrimaryKeyColumn(name = "file_id", type = PrimaryKeyType.PARTITIONED)
+    private UUID id;
 
-    @Column(name = "full_file_name", nullable = false)
-    private String fullName;
-
-    @Column(name = "file_on_server", nullable = false)
-    private String fileOnServer;
-
-    @Column(name = "file_link", nullable = false)
-    private String link;
-
-    @Column(name = "file_desc", nullable = false)
-    private String description;
-
-    @Column(name = "file_is_open", nullable = false)
+    @PrimaryKeyColumn(name = "file_is_open", type = PrimaryKeyType.CLUSTERED)
     private Boolean isOpen;
 
-    @Column(name = "file_size")
-    private Integer size;
+    @PrimaryKeyColumn(name = "date_modified", type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    private Date dateModified;
 
-    @Column(name = "file_hash")
+    @Column(value = "date_published")
+    private Date datePublished;
+
+    @Column(value = "file_hash")
     private String hash;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_files_bp_types"))
-    private BpTypeEntity bpType;
+    @Column(value = "file_weight")
+    private Integer weight;
+
+    @Column(value = "file_name")
+    private String fileName;
+
+    @Column(value = "file_on_server")
+    private String fileOnServer;
+
+    @Column(value = "file_url")
+    private String url;
+
+    @Column(value = "file_desc")
+    private String description;
+
 }

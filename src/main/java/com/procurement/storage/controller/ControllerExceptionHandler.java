@@ -2,7 +2,7 @@ package com.procurement.storage.controller;
 
 import com.procurement.storage.exception.ReservFileValidationException;
 import com.procurement.storage.exception.UploadFileValidationException;
-import com.procurement.storage.model.dto.reservation.ReservResponseDto;
+import com.procurement.storage.model.dto.registration.RegistrationResponseDto;
 import com.procurement.storage.model.dto.upload.LoadResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -40,8 +40,8 @@ public class ControllerExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ReservFileValidationException.class)
-    public ReservResponseDto handleErrorInsertException(final ReservFileValidationException e) {
-        return new ReservResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+    public RegistrationResponseDto handleErrorInsertException(final ReservFileValidationException e) {
+        return new RegistrationResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
     }
 
     @ResponseBody

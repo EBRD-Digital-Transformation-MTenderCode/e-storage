@@ -1,7 +1,7 @@
 package com.procurement.storage.service;
 
-import com.procurement.storage.model.dto.reservation.ReservRequestDto;
-import com.procurement.storage.model.dto.reservation.ReservResponseDto;
+import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
+import com.procurement.storage.model.dto.registration.RegistrationResponseDto;
 import com.procurement.storage.model.dto.upload.LoadResponseDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public interface StorageService {
 
-    ReservResponseDto makeReservation(ReservRequestDto requestDto);
+    RegistrationResponseDto makeRegistration(RegistrationRequestDto requestDto);
 
     LoadResponseDto uploadFile(long fileId, MultipartFile file);
 
