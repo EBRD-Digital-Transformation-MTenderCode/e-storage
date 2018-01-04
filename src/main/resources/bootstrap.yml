@@ -1,7 +1,2 @@
-#-Dspring.cloud.config.uri=http://IP:PORT
 server:
-  port: 8080
-
-spring:
-  application:
-    name: e-storage
+  port: @project.service.port@

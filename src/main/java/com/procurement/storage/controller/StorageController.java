@@ -1,16 +1,19 @@
 package com.procurement.storage.controller;
 
+import com.procurement.storage.model.dto.registration.FileDto;
 import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
-import com.procurement.storage.model.dto.registration.RegistrationResponseDto;
-import com.procurement.storage.model.dto.upload.LoadResponseDto;
+import com.procurement.storage.model.dto.registration.ResponseDto;
 import com.procurement.storage.service.StorageService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+
 @RestController
-@RequestMapping("/files")
 public class StorageController {
 
     private final StorageService storageService;
@@ -20,23 +23,32 @@ public class StorageController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/registration")
-    public ResponseEntity<RegistrationResponseDto> makeRegistration(@RequestBody final RegistrationRequestDto dto) {
-        final RegistrationResponseDto response = storageService.makeRegistration(dto);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ResponseDto> makeRegistration(@RequestBody final RegistrationRequestDto dto) {
+        return new ResponseEntity<>(storageService.registerFile(dto), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/upload", consumes = "multipart/form-data")
-    public ResponseEntity<LoadResponseDto> uploadFile(@RequestParam(value = "fileId") final long fileId,
-                                                      @RequestParam(value = "file") final MultipartFile file) {
-        final LoadResponseDto responseDto = storageService.uploadFile(fileId, file);
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.POST, value = "/upload/{fileId}", consumes = "multipart/form-data")
+    public ResponseEntity<ResponseDto> uploadFile(@PathVariable(value = "fileId", required = true) final String fileId,
+                                                  @RequestParam(value = "file") final MultipartFile file) {
+        return new ResponseEntity<>(storageService.uploadFile(fileId, file), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/byId")
-    public ResponseEntity<byte[]> getFile(@RequestParam(value = "fileId") final long fileId) {
-        final byte[] response = storageService.getFileById(fileId);
-        final HttpStatus status = (response.length == 0) ? HttpStatus.NOT_FOUND : HttpStatus.OK;
-        return new ResponseEntity<>(response, status);
+    @RequestMapping(method = RequestMethod.POST, value = "/datePublished")
+    public ResponseEntity<ResponseDto> setPublishDate(@RequestParam(value = "fileId") final String fileId,
+                                                      @RequestParam(value = "datePublished")
+                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                      final LocalDateTime datePublished) {
+        return new ResponseEntity<>(storageService.setPublishDate(fileId, datePublished), HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/get/{fileId}")
+    public ResponseEntity<Resource> getFile(@PathVariable(value = "fileId") final String fileId) {
+        final FileDto file = storageService.getFileById(fileId);
+        final ByteArrayResource resource = file.getResource();
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/octet-stream"));
+        headers.setContentDisposition(ContentDisposition.parse("attachment; filename=" + file.getFileName()));
+        headers.setContentLength(resource.contentLength());
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+   }
 }

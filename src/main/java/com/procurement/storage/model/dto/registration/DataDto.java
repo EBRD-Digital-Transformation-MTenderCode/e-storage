@@ -1,22 +1,18 @@
 package com.procurement.storage.model.dto.registration;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.procurement.storage.databinding.LocalDateTimeSerializer;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Setter
 @JsonPropertyOrder({
         "errorCode",
         "errorMessage",
         "message"
 })
-public class RegistrationResponseDto {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DataDto {
 
     @JsonProperty("id")
     @JsonPropertyDescription("File id")
@@ -30,13 +26,20 @@ public class RegistrationResponseDto {
     @JsonPropertyDescription("Вate of file modification")
     private LocalDateTime dateModified;
 
+    @JsonProperty("datePublished")
+    @JsonPropertyDescription("Вate of file modification")
+    private LocalDateTime datePublished;
+
     @JsonCreator
-    public RegistrationResponseDto(@JsonProperty("id") final String id,
-                                   @JsonProperty("url") final String url,
-                                   @JsonProperty("dateModified")
-                                   @JsonSerialize(using = LocalDateTimeSerializer.class) final LocalDateTime dateModified) {
+    public DataDto(@JsonProperty("id") final String id,
+                   @JsonProperty("url") final String url,
+                   @JsonProperty("dateModified")
+                   @JsonSerialize(using = LocalDateTimeSerializer.class) final LocalDateTime dateModified,
+                   @JsonProperty("datePublished")
+                   @JsonSerialize(using = LocalDateTimeSerializer.class) final LocalDateTime datePublished) {
         this.id = id;
         this.url = url;
         this.dateModified = dateModified;
+        this.datePublished = datePublished;
     }
 }

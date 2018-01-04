@@ -1,17 +1,22 @@
 package com.procurement.storage.service;
 
+import com.procurement.storage.model.dto.registration.FileDto;
 import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
-import com.procurement.storage.model.dto.registration.RegistrationResponseDto;
-import com.procurement.storage.model.dto.upload.LoadResponseDto;
+import com.procurement.storage.model.dto.registration.ResponseDto;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
 
 @Service
 public interface StorageService {
 
-    RegistrationResponseDto makeRegistration(RegistrationRequestDto requestDto);
+    ResponseDto registerFile(RegistrationRequestDto requestDto);
 
-    LoadResponseDto uploadFile(long fileId, MultipartFile file);
+    ResponseDto uploadFile(String fileId, MultipartFile file);
 
-    byte[] getFileById(long fileId);
+    ResponseDto setPublishDate(String fileId, LocalDateTime datePublished);
+
+    FileDto getFileById(String fileId);
 }

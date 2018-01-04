@@ -1,32 +1,21 @@
 spring:
-   application:
-     name: e-access
-   data:
-     cassandra:
-       contact-points: 127.0.0.1
-       keyspace-name: ocds
-       port: 9042
-       username: cassandra
-       password: cassandra
-   servlet:
-     multipart:
-       enabled: true
-       max-file-size: 60Mb
+ application:
+   name: e-storage
+ data:
+   cassandra:
+     contact-points: 127.0.0.1
+     keyspace-name: ocds
+     port: 9042
+     username: cassandra
+     password: cassandra
+ servlet:
+   multipart:
+     enabled: true
+     max-file-size: 60Mb
 
 upload:
-  file:
-     path: /home/user/storage/
-     extensions:
-       - jpg
-       - png
-       - gif
-       - tif
-       - rar
-       - zip
-       - 7s
-       - doc
-       - docx
-       - xls
-       - xlsx
-       - pdf
-       - rtf
+ file:
+   max-weight: 60
+   path: https://storage.eprocurement.systems/get/
+   folder: /home/user/storage/
+   extensions: jpg,png,gif,tif,rar,zip,7s,doc,docx,xls,xlsx,pdf,rtf,txt

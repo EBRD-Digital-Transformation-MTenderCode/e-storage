@@ -1,53 +1,32 @@
 package com.procurement.storage.controller;
 
-import com.procurement.storage.exception.ReservFileValidationException;
+import com.procurement.storage.exception.GetFileException;
+import com.procurement.storage.exception.RegistrationValidationException;
 import com.procurement.storage.exception.UploadFileValidationException;
-import com.procurement.storage.model.dto.registration.RegistrationResponseDto;
-import com.procurement.storage.model.dto.upload.LoadResponseDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
-//    @ResponseBody
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(ValidationException.class)
-//    public ValidationErrorResponse handleValidationContractProcessPeriod(
-//        final ValidationException e) {
-//        String message = "Houston we have a problem";
-//        return new ValidationErrorResponse(
-//            message,
-//            e.getErrors().getFieldErrors().stream()
-//             .map(f -> new ValidationErrorResponse.ErrorPoint(
-//                 f.getField(),
-//                 f.getDefaultMessage(),
-//                 f.getCode()))
-//             .collect(Collectors.toList()));
-//    }
-//
-//    @ResponseBody
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(JsonMappingException.class)
-//    public MappingErrorResponse handleJsonMappingExceptionException(final JsonMappingException e) {
-//        String message = "Houston we have a problem";
-//        return new MappingErrorResponse(message, e);
-//    }
-
     @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(ReservFileValidationException.class)
-    public RegistrationResponseDto handleErrorInsertException(final ReservFileValidationException e) {
-        return new RegistrationResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+    @ExceptionHandler(RegistrationValidationException.class)
+    public ResponseEntity<String> handleErrorInsertException(final RegistrationValidationException e) {
+        return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UploadFileValidationException.class)
-    public LoadResponseDto handleErrorInsertException(final UploadFileValidationException e) {
-        return new LoadResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
+    public ResponseEntity<String> handleErrorInsertException(final UploadFileValidationException e) {
+        return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(GetFileException.class)
+    public ResponseEntity<String> handleErrorInsertException(final GetFileException e) {
+        return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

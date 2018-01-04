@@ -23,7 +23,7 @@ public class RegistrationRequestDto {
 
     @JsonProperty("weight")
     @JsonPropertyDescription("File weight")
-    private Integer weight;
+    private Long weight;
 
     @JsonProperty("fileName")
     @JsonPropertyDescription("File name")
