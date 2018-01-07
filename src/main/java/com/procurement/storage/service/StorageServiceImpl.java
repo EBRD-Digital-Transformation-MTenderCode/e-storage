@@ -83,14 +83,13 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public ResponseDto setPublishDate(String fileId, LocalDateTime datePublished) {
+    public void setPublishDate(String fileId, LocalDateTime datePublished) {
         final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
         if (entityOptional.isPresent()) {
             FileEntity fileEntity = entityOptional.get();
             fileEntity.setDatePublished(datePublished);
             fileEntity.setIsOpen(true);
             fileRepository.save(fileEntity);
-            return getPublishDateResponseDto(fileEntity);
         } else {
             throw new UploadFileValidationException("File not found.");
         }
@@ -196,11 +195,5 @@ public class StorageServiceImpl implements StorageService {
         final String id = entity.getId().toString();
         final String url = uploadFilePath + id;
         return new ResponseDto(new DataDto(null, url, null, null));
-    }
-
-    private ResponseDto getPublishDateResponseDto(final FileEntity entity) {
-        final String id = entity.getId().toString();
-        final LocalDateTime datePublished = entity.getDatePublished();
-        return new ResponseDto(new DataDto(id, null, null, datePublished));
     }
 }

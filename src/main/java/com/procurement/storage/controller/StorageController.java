@@ -34,11 +34,11 @@ public class StorageController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/datePublished")
-    public ResponseEntity<ResponseDto> setPublishDate(@RequestParam(value = "fileId") final String fileId,
+    public ResponseEntity<String> setPublishDate(@RequestParam(value = "fileId") final String fileId,
                                                       @RequestParam(value = "datePublished")
                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                       final LocalDateTime datePublished) {
-        return new ResponseEntity<>(storageService.setPublishDate(fileId, datePublished), HttpStatus.OK);
+        return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/get/{fileId}")

@@ -16,7 +16,7 @@ public interface StorageService {
 
     ResponseDto uploadFile(String fileId, MultipartFile file);
 
-    ResponseDto setPublishDate(String fileId, LocalDateTime datePublished);
+    void setPublishDate(String fileId, LocalDateTime datePublished);
 
     FileDto getFileById(String fileId);
 }
