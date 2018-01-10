@@ -38,6 +38,7 @@ public class StorageController {
                                                       @RequestParam(value = "datePublished")
                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                       final LocalDateTime datePublished) {
+        storageService.setPublishDate(fileId, datePublished);
         return new ResponseEntity<>("ok", HttpStatus.OK);
     }
 
