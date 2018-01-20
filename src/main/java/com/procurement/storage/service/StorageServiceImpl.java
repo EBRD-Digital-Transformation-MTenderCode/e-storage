@@ -11,14 +11,6 @@ import com.procurement.storage.model.dto.registration.ResponseDto;
 import com.procurement.storage.model.entity.FileEntity;
 import com.procurement.storage.repository.FileRepository;
 import com.procurement.storage.utils.DateUtil;
-import liquibase.util.file.FilenameUtils;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +22,12 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import liquibase.util.file.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class StorageServiceImpl implements StorageService {
@@ -152,7 +150,10 @@ public class StorageServiceImpl implements StorageService {
 
     private String writeFileToDisk(final FileEntity fileEntity, final byte[] uploadBytes) {
         try {
-            final String url = uploadFileFolder + fileEntity.getId();
+            final String fileID = fileEntity.getId().toString();
+            final String dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/";
+            Files.createDirectories(Paths.get(dir));
+            final String url = dir + fileID;
             final BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File(url)));
             stream.write(uploadBytes);
             stream.close();

@@ -6,11 +6,11 @@ spring:
    name: e-storage
  data:
    cassandra:
-     contact-points: 127.0.0.1
+     contact-points: ac-node1.eprocurement.systems,ac-node2.eprocurement.systems,ac-node3.eprocurement.systems
      keyspace-name: ocds
      port: 9042
-     username: cassandra
-     password: cassandra
+     username: caclient
+     password: brT4Kn27RQs
  servlet:
    multipart:
      enabled: true
@@ -20,5 +20,5 @@ upload:
  file:
    max-weight: 60
    path: https://storage.eprocurement.systems/get/
-   folder: /home/user/storage/
+   folder: /home/user/storage
    extensions: jpg,png,gif,tif,rar,zip,7s,doc,docx,xls,xlsx,pdf,rtf,txt
