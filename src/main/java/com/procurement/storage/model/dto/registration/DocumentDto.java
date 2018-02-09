@@ -14,9 +14,7 @@ public class DocumentDto {
     private final String id;
 
     @JsonCreator
-    public DocumentDto(@JsonProperty("id") final String id
-    ) {
+    public DocumentDto(@JsonProperty("id") final String id) {
         this.id = id;
-
     }
 }
