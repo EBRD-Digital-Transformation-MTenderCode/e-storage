@@ -6,10 +6,7 @@ import com.procurement.storage.exception.PublishFileException;
 import com.procurement.storage.exception.RegistrationValidationException;
 import com.procurement.storage.exception.UploadFileValidationException;
 import com.procurement.storage.model.dto.bpe.ResponseDto;
-import com.procurement.storage.model.dto.registration.DataDto;
-import com.procurement.storage.model.dto.registration.DocumentsDto;
-import com.procurement.storage.model.dto.registration.FileDto;
-import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
+import com.procurement.storage.model.dto.registration.*;
 import com.procurement.storage.model.entity.FileEntity;
 import com.procurement.storage.repository.FileRepository;
 import com.procurement.storage.utils.DateUtil;
@@ -90,7 +87,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public ResponseDto setPublishDateBatch(final LocalDateTime datePublished, final DocumentsDto requestDto) {
-        for (DocumentsDto.Document document : requestDto.getDocuments()) {
+        for (DocumentDto document : requestDto.getDocuments()) {
             publish(document.getId(), datePublished);
         }
         return new ResponseDto(true, null, "ok");

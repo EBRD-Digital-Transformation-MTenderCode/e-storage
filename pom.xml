@@ -81,6 +81,15 @@
     </profiles>
 
     <dependencies>
+        <!--Spring Cloud-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
         <!--Web-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -97,15 +106,6 @@
             <version>${netty.version}</version>
             <classifier>linux-x86_64</classifier>
             <scope>runtime</scope>
-        </dependency>
-        <!--Spring Cloud-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <!--Utils-->
         <dependency>
