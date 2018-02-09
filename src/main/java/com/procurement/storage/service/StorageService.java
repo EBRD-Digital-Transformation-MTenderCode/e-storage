@@ -1,13 +1,12 @@
 package com.procurement.storage.service;
 
+import com.procurement.storage.model.dto.bpe.ResponseDto;
+import com.procurement.storage.model.dto.registration.DocumentsDto;
 import com.procurement.storage.model.dto.registration.FileDto;
 import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
-import com.procurement.storage.model.dto.registration.ResponseDto;
-import org.springframework.core.io.ByteArrayResource;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 
 @Service
 public interface StorageService {
@@ -16,7 +15,9 @@ public interface StorageService {
 
     ResponseDto uploadFile(String fileId, MultipartFile file);
 
-    void setPublishDate(String fileId, LocalDateTime datePublished);
+    ResponseDto setPublishDate(String fileId, LocalDateTime datePublished);
+
+    ResponseDto setPublishDateBatch(LocalDateTime datePublished, DocumentsDto requestDto);
 
     FileDto getFileById(String fileId);
 }

@@ -2,12 +2,14 @@ package com.procurement.storage.service;
 
 import com.datastax.driver.core.utils.UUIDs;
 import com.procurement.storage.exception.GetFileException;
+import com.procurement.storage.exception.PublishFileException;
 import com.procurement.storage.exception.RegistrationValidationException;
 import com.procurement.storage.exception.UploadFileValidationException;
+import com.procurement.storage.model.dto.bpe.ResponseDto;
 import com.procurement.storage.model.dto.registration.DataDto;
+import com.procurement.storage.model.dto.registration.DocumentsDto;
 import com.procurement.storage.model.dto.registration.FileDto;
 import com.procurement.storage.model.dto.registration.RegistrationRequestDto;
-import com.procurement.storage.model.dto.registration.ResponseDto;
 import com.procurement.storage.model.entity.FileEntity;
 import com.procurement.storage.repository.FileRepository;
 import com.procurement.storage.utils.DateUtil;
@@ -81,16 +83,17 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void setPublishDate(String fileId, LocalDateTime datePublished) {
-        final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
-        if (entityOptional.isPresent()) {
-            FileEntity fileEntity = entityOptional.get();
-            fileEntity.setDatePublished(datePublished);
-            fileEntity.setIsOpen(true);
-            fileRepository.save(fileEntity);
-        } else {
-            throw new UploadFileValidationException("File not found.");
+    public ResponseDto setPublishDate(String fileId, LocalDateTime datePublished) {
+        publish(fileId, datePublished);
+        return new ResponseDto(true, null, "ok");
+    }
+
+    @Override
+    public ResponseDto setPublishDateBatch(final LocalDateTime datePublished, final DocumentsDto requestDto) {
+        for (DocumentsDto.Document document : requestDto.getDocuments()) {
+            publish(document.getId(), datePublished);
         }
+        return new ResponseDto(true, null, "ok");
     }
 
     @Override
@@ -101,6 +104,18 @@ public class StorageServiceImpl implements StorageService {
             return new FileDto(fileEntity.getFileName(), readFileFromDisk(fileEntity.getFileOnServer()));
         } else {
             throw new GetFileException("File not found or closed.");
+        }
+    }
+
+    public void publish(String fileId, LocalDateTime datePublished) {
+        final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
+        if (entityOptional.isPresent()) {
+            FileEntity fileEntity = entityOptional.get();
+            fileEntity.setDatePublished(datePublished);
+            fileEntity.setIsOpen(true);
+            fileRepository.save(fileEntity);
+        } else {
+            throw new PublishFileException("File not found by id: " + fileId);
         }
     }
 
@@ -189,12 +204,12 @@ public class StorageServiceImpl implements StorageService {
         final String id = entity.getId().toString();
         final String url = uploadFilePath + id;
         final LocalDateTime dateModified = entity.getDateModified();
-        return new ResponseDto(new DataDto(id, url, dateModified, null));
+        return new ResponseDto(true, null, new DataDto(id, url, dateModified, null));
     }
 
     private ResponseDto getUploadResponseDto(final FileEntity entity) {
         final String id = entity.getId().toString();
         final String url = uploadFilePath + id;
-        return new ResponseDto(new DataDto(null, url, null, null));
+        return new ResponseDto(true, null, new DataDto(null, url, null, null));
     }
 }
