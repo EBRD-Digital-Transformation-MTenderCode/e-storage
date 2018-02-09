@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,25 +19,11 @@ public class DocumentsDto {
 
     @JsonProperty("documents")
     @Valid
-    private final List<Document> documents;
+    private final List<DocumentDto> documents;
 
     @JsonCreator
-    public DocumentsDto(@JsonProperty("documents") final List<Document> documents) {
+    public DocumentsDto(@JsonProperty("documents") final List<DocumentDto> documents) {
         this.documents = documents;
     }
 
-    @Getter
-    @Setter
-    public class Document {
-        @JsonProperty("id")
-        @NotNull
-        private final String id;
-
-        @JsonCreator
-        public Document(@JsonProperty("id") final String id
-        ) {
-            this.id = id;
-
-        }
-    }
 }
