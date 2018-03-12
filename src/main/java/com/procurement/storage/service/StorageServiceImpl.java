@@ -95,12 +95,16 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public FileDto getFileById(final String fileId) {
-        final Optional<FileEntity> entityOptional = fileRepository.getOpenById(UUID.fromString(fileId), true);
+        final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
         if (entityOptional.isPresent()) {
             FileEntity fileEntity = entityOptional.get();
-            return new FileDto(fileEntity.getFileName(), readFileFromDisk(fileEntity.getFileOnServer()));
+            if (fileEntity.getIsOpen()) {
+                return new FileDto(fileEntity.getFileName(), readFileFromDisk(fileEntity.getFileOnServer()));
+            } else {
+                throw new GetFileException("File is closed.");
+            }
         } else {
-            throw new GetFileException("File not found or closed.");
+            throw new GetFileException("File not found.");
         }
     }
 

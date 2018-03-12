@@ -10,8 +10,7 @@ CREATE TABLE IF NOT EXISTS  ocds.storage_files (
     file_name text,
     file_on_server text,
     file_owner text,
-    primary key(file_id, file_is_open)
-
+    primary key(file_id)
 );
 
 SELECT * FROM ocds.storage_files;
