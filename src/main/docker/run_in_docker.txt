@@ -29,3 +29,6 @@ docker run -d --name=storage-1 \
   --dns 10.0.10.115 \
   -v storage-vol:/storage \
   docker-registry.eprocurement.systems/e-storage:17.12.1
+
+
+http://bpe.eprocurement.systems/api/v1/storage/get/c21bf660-25de-11e8-bedf-936505382827
