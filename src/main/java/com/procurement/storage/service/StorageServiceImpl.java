@@ -121,7 +121,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private void checkFileWeight(final long fileWeight) {
-        if (maxFileWeight < fileWeight) {
+        if ((fileWeight==0)||(maxFileWeight < fileWeight)) {
             throw new RegistrationValidationException("Invalid file size for registration.");
         }
     }
