@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class RegistrationRequestDto {
     @JsonProperty("weight")
     @NotNull
     @JsonPropertyDescription("File weight")
+    @Min(1)
     private Long weight;
 
     @JsonProperty("fileName")

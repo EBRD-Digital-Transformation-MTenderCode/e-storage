@@ -147,7 +147,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private void checkFileSize(final FileEntity fileEntity, final MultipartFile file) {
-        final long fileSizeMb = file.getSize() / 1024 / 1024;
+        final long fileSizeMb = file.getSize();
         if (fileSizeMb > fileEntity.getWeight()) {
             throw new UploadFileValidationException("Invalid file size.");
         }
