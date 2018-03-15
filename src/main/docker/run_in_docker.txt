@@ -23,12 +23,9 @@ docker push docker-registry.eprocurement.systems/e-storage:17.12.1
 docker run -d --name=storage-1 \
   --env __PROP_spring_cloud_config_uri=http://config-server-1:8700 \
   --env __PROP_spring_profiles_active=default \
-  --env __PROP_spring_cloud_config_label=a470cf2 \
+  --env __PROP_spring_cloud_config_label=9e276f1 \
   --publish 9131:8080 \
   --network ocds-network \
   --dns 10.0.10.115 \
   -v storage-vol:/storage \
   docker-registry.eprocurement.systems/e-storage:17.12.1
-
-
-http://bpe.eprocurement.systems/api/v1/storage/get/c21bf660-25de-11e8-bedf-936505382827

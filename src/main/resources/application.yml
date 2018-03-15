@@ -1,5 +1,5 @@
 server:
-  port: 8600
+  port: 8080
 
 spring:
  application:
@@ -15,10 +15,11 @@ spring:
    multipart:
      enabled: true
      max-file-size: 50Mb
+     max-request-size: 50Mb
 
 upload:
  file:
    max-weight: 52428800
-   path: https://storage.eprocurement.systems/get/
+   path: http://bpe.eprocurement.systems/api/v1/storage/get/
    folder: /home/user/storage
    extensions: jpg,png,gif,tif,rar,zip,7s,doc,docx,xls,xlsx,pdf,rtf,txt

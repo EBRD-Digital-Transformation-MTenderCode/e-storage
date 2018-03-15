@@ -10,10 +10,10 @@ import com.procurement.storage.model.dto.registration.*;
 import com.procurement.storage.model.entity.FileEntity;
 import com.procurement.storage.repository.FileRepository;
 import com.procurement.storage.utils.DateUtil;
-import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import liquibase.util.file.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -66,14 +67,18 @@ public class StorageServiceImpl implements StorageService {
         final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
         if (entityOptional.isPresent()) {
             FileEntity fileEntity = entityOptional.get();
-            checkFileName(fileEntity, file);
-            final byte[] uploadBytes = getFileBytes(file);
-            checkFileHash(fileEntity, getFileBytes(file));
-            checkFileSize(fileEntity, file);
-            final String fileOnServerURL = writeFileToDisk(fileEntity, uploadBytes);
-            fileEntity.setFileOnServer(fileOnServerURL);
-            fileRepository.save(fileEntity);
-            return getUploadResponseDto(fileEntity);
+            try {
+                BufferedInputStream inputStream = new BufferedInputStream(file.getInputStream());
+                checkFileName(fileEntity, file);
+                checkFileSize(fileEntity, file);
+                checkFileHash(fileEntity, inputStream);
+                final String fileOnServerURL = writeFileToDisk(fileEntity, inputStream);
+                fileEntity.setFileOnServer(fileOnServerURL);
+                fileRepository.save(fileEntity);
+                return getUploadResponseDto(fileEntity);
+            } catch (IOException e) {
+                throw new UploadFileValidationException("File read exception.");
+            }
         } else {
             throw new UploadFileValidationException("File not found.");
         }
@@ -121,7 +126,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private void checkFileWeight(final long fileWeight) {
-        if ((fileWeight==0)||(maxFileWeight < fileWeight)) {
+        if ((fileWeight == 0) || (maxFileWeight < fileWeight)) {
             throw new RegistrationValidationException("Invalid file size for registration.");
         }
     }
@@ -133,10 +138,14 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    private void checkFileHash(final FileEntity fileEntity, final byte[] uploadFileBytes) {
-        final String uploadFileHash = DigestUtils.md5DigestAsHex(uploadFileBytes).toUpperCase();
-        if (!uploadFileHash.equals(fileEntity.getHash())) {
-            throw new UploadFileValidationException("Invalid file hash.");
+    private void checkFileHash(final FileEntity fileEntity, final InputStream inputStream) {
+        try {
+            final String uploadFileHash = DigestUtils.md5DigestAsHex(inputStream).toUpperCase();
+            if (!uploadFileHash.equals(fileEntity.getHash())) {
+                throw new UploadFileValidationException("Invalid file hash.");
+            }
+        } catch (IOException e) {
+            throw new UploadFileValidationException("File read exception.");
         }
     }
 
@@ -153,26 +162,14 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    private byte[] getFileBytes(final MultipartFile uploadFileBody) {
-        if (uploadFileBody == null || uploadFileBody.isEmpty()) {
-            throw new UploadFileValidationException("The file is empty.");
-        }
-        try {
-            return uploadFileBody.getBytes();
-        } catch (IOException e) {
-            throw new UploadFileValidationException("Error reading file contents.");
-        }
-    }
-
-    private String writeFileToDisk(final FileEntity fileEntity, final byte[] uploadBytes) {
+    private String writeFileToDisk(final FileEntity fileEntity, final InputStream inputStream) {
         try {
             final String fileID = fileEntity.getId().toString();
             final String dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/";
             Files.createDirectories(Paths.get(dir));
             final String url = dir + fileID;
-            final BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File(url)));
-            stream.write(uploadBytes);
-            stream.close();
+            File targetFile = new File(url);
+            FileUtils.copyInputStreamToFile(inputStream, targetFile);
             return url;
         } catch (IOException e) {
             throw new UploadFileValidationException(e.getMessage());
@@ -195,7 +192,7 @@ public class StorageServiceImpl implements StorageService {
         fileEntity.setId(UUIDs.timeBased());
         fileEntity.setIsOpen(false);
         fileEntity.setDateModified(dateUtil.getNowUTC());
-        fileEntity.setHash(dto.getHash());
+        fileEntity.setHash(dto.getHash().toUpperCase());
         fileEntity.setWeight(dto.getWeight());
         fileEntity.setFileName(dto.getFileName());
         return fileEntity;
