@@ -14,11 +14,11 @@ spring:
  servlet:
    multipart:
      enabled: true
-     max-file-size: 60Mb
+     max-file-size: 50Mb
 
 upload:
  file:
-   max-weight: 60
+   max-weight: 52428800
    path: https://storage.eprocurement.systems/get/
    folder: /home/user/storage
    extensions: jpg,png,gif,tif,rar,zip,7s,doc,docx,xls,xlsx,pdf,rtf,txt
