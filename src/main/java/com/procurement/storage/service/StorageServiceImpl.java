@@ -78,17 +78,11 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public ResponseDto setPublishDate(String fileId, LocalDateTime datePublished) {
-        publish(fileId, datePublished);
-        return new ResponseDto(true, null, "ok");
-    }
-
-    @Override
-    public ResponseDto setPublishDateBatch(final LocalDateTime datePublished, final DocumentsDto requestDto) {
-        for (DocumentDto document : requestDto.getDocuments()) {
-            publish(document.getId(), datePublished);
+    public ResponseDto setPublishDateBatch(final LocalDateTime datePublished, final DocumentsDto dto) {
+        for (DocumentDto document : dto.getDocuments()) {
+            publish(document, datePublished);
         }
-        return new ResponseDto(true, null, "ok");
+        return new ResponseDto(true, null, dto);
     }
 
     @Override
@@ -106,15 +100,18 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    public void publish(String fileId, LocalDateTime datePublished) {
-        final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
+    public void publish(DocumentDto document, LocalDateTime datePublished) {
+        final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(document.getId()));
         if (entityOptional.isPresent()) {
             FileEntity fileEntity = entityOptional.get();
-            fileEntity.setDatePublished(datePublished);
-            fileEntity.setIsOpen(true);
-            fileRepository.save(fileEntity);
+            if (!fileEntity.getIsOpen()) {
+                fileEntity.setDatePublished(datePublished);
+                fileEntity.setIsOpen(true);
+                fileRepository.save(fileEntity);
+                document.setDatePublished(datePublished);
+            }
         } else {
-            throw new PublishFileException("File not found by id: " + fileId);
+            throw new PublishFileException("File not found by id: " + document.getId());
         }
     }
 
