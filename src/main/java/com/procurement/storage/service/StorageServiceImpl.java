@@ -10,10 +10,8 @@ import com.procurement.storage.model.dto.registration.*;
 import com.procurement.storage.model.entity.FileEntity;
 import com.procurement.storage.repository.FileRepository;
 import com.procurement.storage.utils.DateUtil;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,18 +65,13 @@ public class StorageServiceImpl implements StorageService {
         final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
         if (entityOptional.isPresent()) {
             FileEntity fileEntity = entityOptional.get();
-            try {
-                BufferedInputStream inputStream = new BufferedInputStream(file.getInputStream());
-                checkFileName(fileEntity, file);
-                checkFileSize(fileEntity, file);
-                checkFileHash(fileEntity, inputStream);
-                final String fileOnServerURL = writeFileToDisk(fileEntity, inputStream);
-                fileEntity.setFileOnServer(fileOnServerURL);
-                fileRepository.save(fileEntity);
-                return getUploadResponseDto(fileEntity);
-            } catch (IOException e) {
-                throw new UploadFileValidationException("File read exception.");
-            }
+            checkFileName(fileEntity, file);
+            checkFileSize(fileEntity, file);
+            checkFileHash(fileEntity, file);
+            final String fileOnServerURL = writeFileToDisk(fileEntity, file);
+            fileEntity.setFileOnServer(fileOnServerURL);
+            fileRepository.save(fileEntity);
+            return getUploadResponseDto(fileEntity);
         } else {
             throw new UploadFileValidationException("File not found.");
         }
@@ -138,9 +131,9 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    private void checkFileHash(final FileEntity fileEntity, final InputStream inputStream) {
+    private void checkFileHash(final FileEntity fileEntity, final MultipartFile file) {
         try {
-            final String uploadFileHash = DigestUtils.md5DigestAsHex(inputStream).toUpperCase();
+            final String uploadFileHash = DigestUtils.md5DigestAsHex(file.getInputStream()).toUpperCase();
             if (!uploadFileHash.equals(fileEntity.getHash())) {
                 throw new UploadFileValidationException("Invalid file hash.");
             }
@@ -162,14 +155,23 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    private String writeFileToDisk(final FileEntity fileEntity, final InputStream inputStream) {
+    private String writeFileToDisk(final FileEntity fileEntity, final MultipartFile file) {
         try {
+            final String fileName = file.getOriginalFilename();
+            if (file.isEmpty()) {
+                throw new UploadFileValidationException("Failed to store empty file " + fileName);
+            }
+            if (fileName.contains("..")) {
+                throw new UploadFileValidationException(
+                        "Cannot store file with relative path outside current directory."
+                                + fileName);
+            }
             final String fileID = fileEntity.getId().toString();
             final String dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/";
             Files.createDirectories(Paths.get(dir));
             final String url = dir + fileID;
             File targetFile = new File(url);
-            FileUtils.copyInputStreamToFile(inputStream, targetFile);
+            FileUtils.copyInputStreamToFile(file.getInputStream(), targetFile);
             return url;
         } catch (IOException e) {
             throw new UploadFileValidationException(e.getMessage());

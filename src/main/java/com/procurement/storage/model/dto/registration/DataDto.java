@@ -6,28 +6,19 @@ import com.procurement.storage.databinding.LocalDateTimeSerializer;
 
 import java.time.LocalDateTime;
 
-@JsonPropertyOrder({
-        "errorCode",
-        "errorMessage",
-        "message"
-})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DataDto {
 
     @JsonProperty("id")
-    @JsonPropertyDescription("File id")
     private String id;
 
     @JsonProperty("url")
-    @JsonPropertyDescription("URL to access the file")
     private String url;
 
     @JsonProperty("dateModified")
-    @JsonPropertyDescription("Вate of file modification")
     private LocalDateTime dateModified;
 
     @JsonProperty("datePublished")
-    @JsonPropertyDescription("Вate of file modification")
     private LocalDateTime datePublished;
 
     @JsonCreator
