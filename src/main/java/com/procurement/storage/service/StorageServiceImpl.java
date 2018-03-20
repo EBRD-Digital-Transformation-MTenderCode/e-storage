@@ -10,9 +10,7 @@ import com.procurement.storage.model.dto.registration.*;
 import com.procurement.storage.model.entity.FileEntity;
 import com.procurement.storage.repository.FileRepository;
 import com.procurement.storage.utils.DateUtil;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +20,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import liquibase.util.file.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -67,10 +66,9 @@ public class StorageServiceImpl implements StorageService {
         if (entityOptional.isPresent()) {
             FileEntity fileEntity = entityOptional.get();
             checkFileName(fileEntity, file);
-            final byte[] uploadBytes = getFileBytes(file);
-            checkFileHash(fileEntity, getFileBytes(file));
             checkFileSize(fileEntity, file);
-            final String fileOnServerURL = writeFileToDisk(fileEntity, uploadBytes);
+            checkFileHash(fileEntity, file);
+            final String fileOnServerURL = writeFileToDisk(fileEntity, file);
             fileEntity.setFileOnServer(fileOnServerURL);
             fileRepository.save(fileEntity);
             return getUploadResponseDto(fileEntity);
@@ -80,44 +78,49 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public ResponseDto setPublishDate(String fileId, LocalDateTime datePublished) {
-        publish(fileId, datePublished);
-        return new ResponseDto(true, null, "ok");
-    }
-
-    @Override
-    public ResponseDto setPublishDateBatch(final LocalDateTime datePublished, final DocumentsDto requestDto) {
-        for (DocumentDto document : requestDto.getDocuments()) {
-            publish(document.getId(), datePublished);
+    public ResponseDto setPublishDateBatch(final LocalDateTime datePublished, final DocumentsDto dto) {
+        for (DocumentDto document : dto.getDocuments()) {
+            publish(document, datePublished);
         }
-        return new ResponseDto(true, null, "ok");
+        return new ResponseDto(true, null, dto);
     }
 
     @Override
     public FileDto getFileById(final String fileId) {
-        final Optional<FileEntity> entityOptional = fileRepository.getOpenById(UUID.fromString(fileId), true);
-        if (entityOptional.isPresent()) {
-            FileEntity fileEntity = entityOptional.get();
-            return new FileDto(fileEntity.getFileName(), readFileFromDisk(fileEntity.getFileOnServer()));
-        } else {
-            throw new GetFileException("File not found or closed.");
-        }
-    }
-
-    public void publish(String fileId, LocalDateTime datePublished) {
         final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(fileId));
         if (entityOptional.isPresent()) {
             FileEntity fileEntity = entityOptional.get();
-            fileEntity.setDatePublished(datePublished);
-            fileEntity.setIsOpen(true);
-            fileRepository.save(fileEntity);
+            if (fileEntity.getIsOpen()) {
+                return new FileDto(fileEntity.getFileName(), readFileFromDisk(fileEntity.getFileOnServer()));
+            } else {
+                throw new GetFileException("File is closed.");
+            }
         } else {
-            throw new PublishFileException("File not found by id: " + fileId);
+            throw new GetFileException("File not found.");
+        }
+    }
+
+    public void publish(DocumentDto document, LocalDateTime datePublished) {
+        final Optional<FileEntity> entityOptional = fileRepository.getOneById(UUID.fromString(document.getId()));
+        if (entityOptional.isPresent()) {
+            FileEntity fileEntity = entityOptional.get();
+            if (!fileEntity.getIsOpen()) {
+                fileEntity.setDatePublished(datePublished);
+                fileEntity.setIsOpen(true);
+                fileRepository.save(fileEntity);
+                document.setDatePublished(datePublished);
+                document.setUrl(uploadFilePath + document.getId());
+            }else {
+                document.setDatePublished(fileEntity.getDatePublished());
+                document.setUrl(uploadFilePath + document.getId());
+            }
+        } else {
+            throw new PublishFileException("File not found by id: " + document.getId());
         }
     }
 
     private void checkFileWeight(final long fileWeight) {
-        if (maxFileWeight < fileWeight) {
+        if ((fileWeight == 0) || (maxFileWeight < fileWeight)) {
             throw new RegistrationValidationException("Invalid file size for registration.");
         }
     }
@@ -129,10 +132,14 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    private void checkFileHash(final FileEntity fileEntity, final byte[] uploadFileBytes) {
-        final String uploadFileHash = DigestUtils.md5DigestAsHex(uploadFileBytes).toUpperCase();
-        if (!uploadFileHash.equals(fileEntity.getHash())) {
-            throw new UploadFileValidationException("Invalid file hash.");
+    private void checkFileHash(final FileEntity fileEntity, final MultipartFile file) {
+        try {
+            final String uploadFileHash = DigestUtils.md5DigestAsHex(file.getInputStream()).toUpperCase();
+            if (!uploadFileHash.equals(fileEntity.getHash())) {
+                throw new UploadFileValidationException("Invalid file hash.");
+            }
+        } catch (IOException e) {
+            throw new UploadFileValidationException("File read exception.");
         }
     }
 
@@ -143,32 +150,29 @@ public class StorageServiceImpl implements StorageService {
     }
 
     private void checkFileSize(final FileEntity fileEntity, final MultipartFile file) {
-        final long fileSizeMb = file.getSize() / 1024 / 1024;
+        final long fileSizeMb = file.getSize();
         if (fileSizeMb > fileEntity.getWeight()) {
             throw new UploadFileValidationException("Invalid file size.");
         }
     }
 
-    private byte[] getFileBytes(final MultipartFile uploadFileBody) {
-        if (uploadFileBody == null || uploadFileBody.isEmpty()) {
-            throw new UploadFileValidationException("The file is empty.");
-        }
+    private String writeFileToDisk(final FileEntity fileEntity, final MultipartFile file) {
         try {
-            return uploadFileBody.getBytes();
-        } catch (IOException e) {
-            throw new UploadFileValidationException("Error reading file contents.");
-        }
-    }
-
-    private String writeFileToDisk(final FileEntity fileEntity, final byte[] uploadBytes) {
-        try {
+            final String fileName = file.getOriginalFilename();
+            if (file.isEmpty()) {
+                throw new UploadFileValidationException("Failed to store empty file " + fileName);
+            }
+            if (fileName.contains("..")) {
+                throw new UploadFileValidationException(
+                        "Cannot store file with relative path outside current directory."
+                                + fileName);
+            }
             final String fileID = fileEntity.getId().toString();
             final String dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/";
             Files.createDirectories(Paths.get(dir));
             final String url = dir + fileID;
-            final BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File(url)));
-            stream.write(uploadBytes);
-            stream.close();
+            File targetFile = new File(url);
+            FileUtils.copyInputStreamToFile(file.getInputStream(), targetFile);
             return url;
         } catch (IOException e) {
             throw new UploadFileValidationException(e.getMessage());
@@ -191,7 +195,7 @@ public class StorageServiceImpl implements StorageService {
         fileEntity.setId(UUIDs.timeBased());
         fileEntity.setIsOpen(false);
         fileEntity.setDateModified(dateUtil.getNowUTC());
-        fileEntity.setHash(dto.getHash());
+        fileEntity.setHash(dto.getHash().toUpperCase());
         fileEntity.setWeight(dto.getWeight());
         fileEntity.setFileName(dto.getFileName());
         return fileEntity;

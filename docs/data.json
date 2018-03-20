@@ -1,7 +1,15 @@
 {
-  "fileName": "BPMN.pdf",
-  "hash": "7DFFD685149F9B14B452EBAA7C957E99",
-  "weight": 10
+  "fileName": "Devplan.txt",
+  "hash": "0a3f76fa26f2bad5bf5d98136e6523a9",
+  "weight": 3885
 }
 
 http://localhost:8080/get/530685d0-f17a-11e7-94bb-eb8c394964b8
+
+
+http://bpe.eprocurement.systems/api/v1/storage/get/c21bf660-25de-11e8-bedf-936505382827
+
+
+curl -F file=@"/home/user/Downloads/BPMN.pdf" http://10.0.10.116:9131/storage/upload/fc4c21f0-2851-11e8-8618-29a9da6bd5f6
+
+curl -F file=@"/home/user/Downloads/BPMN.pdf" http://bpe.eprocurement.systems/api/v1/storage/get/c21bf660-25de-11e8-bedf-936505382827

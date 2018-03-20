@@ -12,7 +12,4 @@ import java.util.UUID;
 public interface FileRepository extends CassandraRepository<FileEntity, String> {
     @Query(value = "select * from storage_files where file_id=?0 LIMIT 1")
     Optional<FileEntity> getOneById(UUID fileId);
-
-    @Query(value = "select * from storage_files where file_id=?0 and file_is_open=?1 LIMIT 1")
-    Optional<FileEntity> getOpenById(UUID fileId, Boolean isOpen);
 }

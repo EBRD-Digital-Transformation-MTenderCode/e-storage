@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@RequestMapping("/storage")
 public class StorageController {
 
     private final StorageService storageService;
@@ -28,22 +29,15 @@ public class StorageController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/upload/{fileId}", consumes = "multipart/form-data")
-    public ResponseEntity<ResponseDto> uploadFile(@PathVariable(value = "fileId", required = true) final String fileId,
+    public ResponseEntity<ResponseDto> uploadFile(@PathVariable(value = "fileId") final String fileId,
                                                   @RequestParam(value = "file") final MultipartFile file) {
         return new ResponseEntity<>(storageService.uploadFile(fileId, file), HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/publish")
-    public ResponseEntity<ResponseDto> setPublishDate(@RequestParam(value = "fileId") final String fileId,
-                                                 @RequestParam(value = "datePublished")
-                                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final LocalDateTime datePublished) {
-        return new ResponseEntity<>(storageService.setPublishDate(fileId, datePublished), HttpStatus.OK);
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/publishBatch")
-    public ResponseEntity<ResponseDto> setPublishDateBatch(@RequestParam(value = "datePublished")
-                                                           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final LocalDateTime datePublished,
-                                                           @RequestBody final DocumentsDto dto) {
+    public ResponseEntity<ResponseDto> setPublishDate(@RequestParam(value = "datePublished")
+                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final LocalDateTime datePublished,
+                                                      @RequestBody final DocumentsDto dto) {
         return new ResponseEntity<>(storageService.setPublishDateBatch(datePublished, dto), HttpStatus.OK);
     }
 
