@@ -109,6 +109,10 @@ public class StorageServiceImpl implements StorageService {
                 fileEntity.setIsOpen(true);
                 fileRepository.save(fileEntity);
                 document.setDatePublished(datePublished);
+                document.setUrl(uploadFilePath + document.getId());
+            }else {
+                document.setDatePublished(fileEntity.getDatePublished());
+                document.setUrl(uploadFilePath + document.getId());
             }
         } else {
             throw new PublishFileException("File not found by id: " + document.getId());

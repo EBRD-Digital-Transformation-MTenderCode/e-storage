@@ -44,7 +44,7 @@ public class DocumentDto {
     private final String description;
 
     @JsonProperty("url")
-    private final String url;
+    private String url;
 
     @JsonProperty("datePublished")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
