@@ -17,6 +17,10 @@ spring:
      max-file-size: 50Mb
      max-request-size: 50Mb
 
+eureka:
+  client:
+    enabled: false
+
 upload:
  file:
    max-weight: 52428800
