@@ -48,3 +48,18 @@
     ]
   }
 }
+
+{
+  "documents": [
+    {
+      "id": "e81f4e60-3813-11e8-ac76-4940f127948b",
+      "documentType": "tenderNotice",
+      "title": "Title Test CN document to tender",
+      "description": "Description Test CN document to tender",
+      "language": "ro",
+      "relatedLots": [
+        "97dcd061-38bf-11e8-bbe5-f516c066baa5"
+      ]
+    }
+  ]
+}
