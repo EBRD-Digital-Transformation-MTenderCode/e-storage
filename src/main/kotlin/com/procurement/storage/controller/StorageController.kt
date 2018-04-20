@@ -1,6 +1,5 @@
 package com.procurement.storage.controller
 
-import com.procurement.storage.model.dto.bpe.ResponseDto
 import com.procurement.storage.model.dto.registration.DocumentsRequestDto
 import com.procurement.storage.model.dto.registration.RegistrationRequestDto
 import com.procurement.storage.service.StorageService
@@ -16,20 +15,24 @@ import java.time.LocalDateTime
 class StorageController(private val storageService: StorageService) {
 
     @PostMapping(value = ["/registration"])
-    fun makeRegistration(@RequestBody dto: RegistrationRequestDto) =
-            ResponseEntity(storageService.registerFile(dto), HttpStatus.OK)
+    fun makeRegistration(@RequestBody dto: RegistrationRequestDto) {
 
+        ResponseEntity(storageService.registerFile(dto), HttpStatus.OK)
+    }
 
     @PostMapping(value = ["/upload/{fileId}"], consumes = ["multipart/form-data"])
     fun uploadFile(@PathVariable(value = "fileId") fileId: String,
-                   @RequestParam(value = "file") file: MultipartFile) =
-            ResponseEntity(storageService.uploadFile(fileId, file), HttpStatus.CREATED)
+                   @RequestParam(value = "file") file: MultipartFile) {
+
+        ResponseEntity(storageService.uploadFile(fileId, file), HttpStatus.CREATED)
+    }
 
     @PostMapping(value = ["/publish"])
     fun setPublishDate(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                        @RequestParam(value = "datePublished") datePublished: LocalDateTime,
-                       @RequestBody dto: DocumentsRequestDto):ResponseEntity<ResponseDto> {
-        return ResponseEntity(storageService.setPublishDateBatch(datePublished, dto), HttpStatus.OK)
+                       @RequestBody dto: DocumentsRequestDto) {
+
+        ResponseEntity(storageService.setPublishDateBatch(datePublished, dto), HttpStatus.OK)
     }
 
     @GetMapping(value = ["/get/{fileId}"])
