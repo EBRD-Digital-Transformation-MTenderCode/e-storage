@@ -22,13 +22,13 @@ data class FileEntity(
         var datePublished: Date?,
 
         @Column(value = "file_hash")
-        var hash: String?,
+        var hash: String,
 
         @Column(value = "file_weight")
-        var weight: Long?,
+        var weight: Long,
 
         @Column(value = "file_name")
-        var fileName: String?,
+        var fileName: String,
 
         @Column(value = "file_on_server")
         var fileOnServer: String?,

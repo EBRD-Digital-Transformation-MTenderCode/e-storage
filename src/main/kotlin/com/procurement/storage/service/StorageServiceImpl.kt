@@ -83,11 +83,12 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
         val fileEntity = fileRepository.getOneById(UUID.fromString(fileId))
         if (fileEntity != null)
             return if (fileEntity.isOpen) {
-                FileData(fileEntity.fileName!!, readFileFromDisk(fileEntity.fileOnServer))
+                if (fileEntity.fileOnServer == null) {throw GetFileException("No file on server.")}
+                FileData(fileEntity.fileName, readFileFromDisk(fileEntity.fileOnServer))
             } else {
                 throw GetFileException("FileData is closed.")
             }
-        else throw GetFileException("FileData not found.")
+        else throw GetFileException("File not found.")
     }
 
     fun publish(document: DocumentDto, datePublished: LocalDateTime) {
@@ -137,7 +138,7 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
 
     private fun checkFileSize(fileEntity: FileEntity, file: MultipartFile) {
         val fileSizeMb = file.size
-        if (fileSizeMb > fileEntity.weight!!)
+        if (fileSizeMb > fileEntity.weight)
             throw UploadFileValidationException("Invalid file size.")
     }
 
