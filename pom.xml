@@ -29,7 +29,7 @@
         <maven-failsafe-plugin.version>2.19</maven-failsafe-plugin.version>
         <docker-image-profile></docker-image-profile>
         <docker-maven-plugin.version>0.23.0</docker-maven-plugin.version>
-        <docker-registry>docker-registry.eprocurement.systems</docker-registry>
+        <docker-registry>dev.docker-registry.eprocurement.systems</docker-registry>
         <netty.version>4.1.17.Final</netty.version>
         <kotlin.version>1.2.10</kotlin.version>
     </properties>
