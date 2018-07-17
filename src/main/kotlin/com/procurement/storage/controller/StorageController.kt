@@ -18,7 +18,7 @@ class StorageController(private val storageService: StorageService) {
     @PostMapping(value = ["/registration"])
     fun makeRegistration(@RequestBody dto: RegistrationRequestDto): ResponseEntity<ResponseDto<*>> {
 
-        return ResponseEntity(storageService.registerFile(dto), HttpStatus.OK)
+        return ResponseEntity(storageService.registerFile(dto), HttpStatus.CREATED)
     }
 
     @PostMapping(value = ["/upload/{fileId}"], consumes = ["multipart/form-data"])
@@ -33,7 +33,7 @@ class StorageController(private val storageService: StorageService) {
                        @RequestParam(value = "datePublished") datePublished: LocalDateTime,
                        @RequestBody dto: DocumentsRequestDto): ResponseEntity<ResponseDto<*>> {
 
-        return ResponseEntity(storageService.setPublishDateBatch(datePublished, dto), HttpStatus.OK)
+        return ResponseEntity(storageService.setPublishDateBatch(datePublished, dto), HttpStatus.CREATED)
     }
 
     @GetMapping(value = ["/get/{fileId}"])
