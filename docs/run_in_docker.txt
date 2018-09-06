@@ -8,6 +8,7 @@ docker network create \
   --gateway 192.168.100.1 \
   ocds-network
 
+docker volume create storage-vol
 
 #****************************************#
 # Run E-STORAGE                          #
