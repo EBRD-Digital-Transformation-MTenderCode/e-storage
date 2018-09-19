@@ -1,10 +1,12 @@
 package com.procurement.storage.service
 
 import com.datastax.driver.core.utils.UUIDs
+import com.procurement.notice.exception.ErrorException
+import com.procurement.notice.exception.ErrorType
 import com.procurement.storage.exception.GetFileException
-import com.procurement.storage.exception.PublishFileException
 import com.procurement.storage.exception.RegistrationValidationException
 import com.procurement.storage.exception.UploadFileValidationException
+import com.procurement.storage.model.dto.bpe.CommandMessage
 import com.procurement.storage.model.dto.bpe.ResponseDto
 import com.procurement.storage.model.dto.registration.*
 import com.procurement.storage.model.entity.FileEntity
@@ -12,6 +14,7 @@ import com.procurement.storage.repository.FileRepository
 import com.procurement.storage.utils.nowUTC
 import com.procurement.storage.utils.toDate
 import com.procurement.storage.utils.toLocal
+import com.procurement.storage.utils.toObject
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
 import org.springframework.beans.factory.annotation.Value
@@ -28,13 +31,15 @@ import java.util.*
 
 interface StorageService {
 
-    fun registerFile(dto: RegistrationRequestDto): ResponseDto<*>
+    fun registerFile(dto: RegistrationRq): ResponseDto
 
-    fun uploadFile(fileId: String, file: MultipartFile): ResponseDto<*>
+    fun uploadFile(fileId: String, file: MultipartFile): ResponseDto
 
-    fun setPublishDateBatch(datePublished: LocalDateTime, dto: DocumentsRequestDto): ResponseDto<*>
+    fun getFileById(fileId: String): FileDataRs
 
-    fun getFileById(fileId: String): FileData
+    fun setPublishDateBatch(cm: CommandMessage): ResponseDto
+
+    fun validateDocuments(cm: CommandMessage): ResponseDto
 }
 
 @Service
@@ -52,14 +57,14 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
     @Value("\${upload.file.max-weight}")
     private var maxFileWeight: Int? = null
 
-    override fun registerFile(dto: RegistrationRequestDto): ResponseDto<Any> {
+    override fun registerFile(dto: RegistrationRq): ResponseDto {
         checkFileWeight(dto.weight)
         checkFileExtension(dto.fileName)
         val fileEntity = fileRepository.save(getEntity(dto))
         return getResponseDto(fileEntity)
     }
 
-    override fun uploadFile(fileId: String, file: MultipartFile): ResponseDto<Any> {
+    override fun uploadFile(fileId: String, file: MultipartFile): ResponseDto {
         val fileEntity = fileRepository.getOneById(UUID.fromString(fileId))
         if (fileEntity != null) {
             checkFileName(fileEntity, file)
@@ -69,29 +74,41 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
             fileRepository.save(fileEntity)
             return getResponseDto(fileEntity)
         } else
-            throw UploadFileValidationException("FileData not found.")
+            throw UploadFileValidationException("File not found.")
     }
 
-    override fun setPublishDateBatch(datePublished: LocalDateTime, dto: DocumentsRequestDto): ResponseDto<DocumentsRequestDto> {
+    override fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
+        val datePublished = cm.context.startDate.toLocal()
+        val dto = toObject(DocumentsRq::class.java, cm.data)
         for (document in dto.documents) {
             publish(document, datePublished)
         }
-        return ResponseDto(success = true, details = null, data = dto)
+        return ResponseDto(data = dto)
     }
 
-    override fun getFileById(fileId: String): FileData {
+    override fun validateDocuments(cm: CommandMessage): ResponseDto {
+        val dto = toObject(DocumentsRq::class.java, cm.data)
+        for (document in dto.documents) {
+            validate(document)
+        }
+        return ResponseDto(data = dto)
+    }
+
+    override fun getFileById(fileId: String): FileDataRs {
         val fileEntity = fileRepository.getOneById(UUID.fromString(fileId))
         if (fileEntity != null)
             return if (fileEntity.isOpen) {
-                if (fileEntity.fileOnServer == null) {throw GetFileException("No file on server.")}
-                FileData(fileEntity.fileName, readFileFromDisk(fileEntity.fileOnServer))
+                if (fileEntity.fileOnServer == null) {
+                    throw GetFileException("No file on server.")
+                }
+                FileDataRs(fileEntity.fileName, readFileFromDisk(fileEntity.fileOnServer))
             } else {
-                throw GetFileException("FileData is closed.")
+                throw GetFileException("File is closed.")
             }
         else throw GetFileException("File not found.")
     }
 
-    fun publish(document: DocumentDto, datePublished: LocalDateTime) {
+    fun publish(document: Document, datePublished: LocalDateTime) {
         val fileEntity = fileRepository.getOneById(UUID.fromString(document.id))
         if (fileEntity != null) {
             if (!fileEntity.isOpen) {
@@ -105,8 +122,12 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
                 document.url = uploadFilePath + document.id
             }
         } else {
-            throw PublishFileException("FileData not found by id: " + document.id)
+            throw ErrorException(ErrorType.DATA_NOT_FOUND)
         }
+    }
+
+    fun validate(document: Document) {
+        fileRepository.getOneById(UUID.fromString(document.id)) ?: throw  ErrorException(ErrorType.DATA_NOT_FOUND)
     }
 
     private fun checkFileWeight(fileWeight: Long) {
@@ -127,7 +148,7 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
                 throw UploadFileValidationException("Invalid file hash.")
             }
         } catch (e: IOException) {
-            throw UploadFileValidationException("FileData read exception.")
+            throw UploadFileValidationException("File read exception.")
         }
     }
 
@@ -171,7 +192,7 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
 
     }
 
-    private fun getEntity(dto: RegistrationRequestDto): FileEntity {
+    private fun getEntity(dto: RegistrationRq): FileEntity {
         return FileEntity(
                 id = UUIDs.timeBased(),
                 isOpen = false,
@@ -184,15 +205,13 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
                 owner = null)
     }
 
-    private fun getResponseDto(entity: FileEntity): ResponseDto<DataDto> {
-        return ResponseDto(
-                success = true,
-                details = null,
-                data = DataDto(
-                        id = entity.id.toString(),
-                        url = uploadFilePath!! + entity.id.toString(),
-                        dateModified = entity.dateModified?.toLocal(),
-                        datePublished = entity.datePublished?.toLocal())
+    private fun getResponseDto(entity: FileEntity): ResponseDto {
+        return ResponseDto(data = DataRs(
+                id = entity.id.toString(),
+                url = uploadFilePath!! + entity.id.toString(),
+                dateModified = entity.dateModified?.toLocal(),
+                datePublished = entity.datePublished?.toLocal())
         )
+
     }
 }
