@@ -1,4 +1,4 @@
-package com.procurement.notice.exception
+package com.procurement.storage.exception
 
 enum class ErrorType constructor(val code: String, val message: String) {
     DATA_NOT_FOUND("00.01", "File not found by id"),

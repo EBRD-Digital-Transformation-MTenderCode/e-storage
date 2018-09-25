@@ -1,4 +1,4 @@
-package com.procurement.notice.exception
+package com.procurement.storage.exception
 
 
 class ErrorException(error: ErrorType, message: String? = null) : RuntimeException(message) {

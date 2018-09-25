@@ -1,9 +1,8 @@
 package com.procurement.storage.model.dto.registration
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.procurement.point.databinding.JsonDateSerializer
+import com.procurement.storage.databinding.JsonDateSerializer
 import java.time.LocalDateTime
 
 data class DataRs @JsonCreator constructor(

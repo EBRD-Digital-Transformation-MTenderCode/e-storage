@@ -24,7 +24,7 @@ class JsonConfig(private val mapper: ObjectMapper) {
         }
     }
 
-    object DateFormatter{
+    object DateFormatter {
         lateinit var formatter: DateTimeFormatter
         fun init() {
             formatter = DateTimeFormatterBuilder()

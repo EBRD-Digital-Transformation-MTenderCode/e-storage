@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Import
 
 
 @Configuration
-@Import(CassandraConfig::class, JsonConfig::class, ServiceConfig::class, WebConfig::class)
+@Import(DaoConfiguration::class, JsonConfig::class, ServiceConfig::class, WebConfig::class)
 class ApplicationConfig

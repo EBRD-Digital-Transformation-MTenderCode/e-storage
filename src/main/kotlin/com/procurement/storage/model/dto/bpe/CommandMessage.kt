@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
-import com.procurement.notice.exception.ErrorException
+import com.procurement.storage.exception.ErrorException
 
 data class CommandMessage @JsonCreator constructor(
 

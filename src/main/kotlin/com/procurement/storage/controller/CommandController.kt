@@ -1,6 +1,6 @@
 package com.procurement.storage.controller
 
-import com.procurement.notice.exception.ErrorException
+import com.procurement.storage.exception.ErrorException
 import com.procurement.storage.model.dto.bpe.*
 import com.procurement.storage.service.StorageService
 import org.springframework.http.HttpStatus

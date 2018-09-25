@@ -1,16 +1,12 @@
 package com.procurement.storage.service
 
 import com.datastax.driver.core.utils.UUIDs
-import com.procurement.notice.exception.ErrorException
-import com.procurement.notice.exception.ErrorType
-import com.procurement.storage.exception.GetFileException
-import com.procurement.storage.exception.RegistrationValidationException
-import com.procurement.storage.exception.UploadFileValidationException
+import com.procurement.storage.dao.FileDao
+import com.procurement.storage.exception.*
 import com.procurement.storage.model.dto.bpe.CommandMessage
 import com.procurement.storage.model.dto.bpe.ResponseDto
 import com.procurement.storage.model.dto.registration.*
 import com.procurement.storage.model.entity.FileEntity
-import com.procurement.storage.repository.FileRepository
 import com.procurement.storage.utils.nowUTC
 import com.procurement.storage.utils.toDate
 import com.procurement.storage.utils.toLocal
@@ -43,7 +39,7 @@ interface StorageService {
 }
 
 @Service
-class StorageServiceImpl(private val fileRepository: FileRepository) : StorageService {
+class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
 
     @Value("\${upload.file.path}")
     private var uploadFilePath: String? = null
@@ -60,18 +56,18 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
     override fun registerFile(dto: RegistrationRq): ResponseDto {
         checkFileWeight(dto.weight)
         checkFileExtension(dto.fileName)
-        val fileEntity = fileRepository.save(getEntity(dto))
+        val fileEntity = fileDao.save(getEntity(dto))
         return getResponseDto(fileEntity)
     }
 
     override fun uploadFile(fileId: String, file: MultipartFile): ResponseDto {
-        val fileEntity = fileRepository.getOneById(UUID.fromString(fileId))
+        val fileEntity = fileDao.getOneById(UUID.fromString(fileId))
         if (fileEntity != null) {
             checkFileName(fileEntity, file)
             checkFileSize(fileEntity, file)
             checkFileHash(fileEntity, file)
             fileEntity.fileOnServer = writeFileToDisk(fileEntity, file)
-            fileRepository.save(fileEntity)
+            fileDao.save(fileEntity)
             return getResponseDto(fileEntity)
         } else
             throw UploadFileValidationException("File not found.")
@@ -95,7 +91,7 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
     }
 
     override fun getFileById(fileId: String): FileDataRs {
-        val fileEntity = fileRepository.getOneById(UUID.fromString(fileId))
+        val fileEntity = fileDao.getOneById(UUID.fromString(fileId))
         if (fileEntity != null)
             return if (fileEntity.isOpen) {
                 if (fileEntity.fileOnServer == null) {
@@ -109,12 +105,12 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
     }
 
     fun publish(document: Document, datePublished: LocalDateTime) {
-        val fileEntity = fileRepository.getOneById(UUID.fromString(document.id))
+        val fileEntity = fileDao.getOneById(UUID.fromString(document.id))
         if (fileEntity != null) {
             if (!fileEntity.isOpen) {
                 fileEntity.datePublished = datePublished.toDate()
                 fileEntity.isOpen = true
-                fileRepository.save(fileEntity)
+                fileDao.save(fileEntity)
                 document.datePublished = datePublished
                 document.url = uploadFilePath + document.id
             } else {
@@ -127,7 +123,7 @@ class StorageServiceImpl(private val fileRepository: FileRepository) : StorageSe
     }
 
     fun validate(document: Document) {
-        fileRepository.getOneById(UUID.fromString(document.id)) ?: throw  ErrorException(ErrorType.DATA_NOT_FOUND)
+        fileDao.getOneById(UUID.fromString(document.id)) ?: throw  ErrorException(ErrorType.DATA_NOT_FOUND)
     }
 
     private fun checkFileWeight(fileWeight: Long) {
