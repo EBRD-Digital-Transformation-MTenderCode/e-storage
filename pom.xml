@@ -29,6 +29,8 @@
         <docker-maven-plugin.version>0.24.0</docker-maven-plugin.version>
         <!--Spring-->
         <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
+        <!--Libs-->
+        <springfox-swagger2.version>2.6.1</springfox-swagger2.version>
         <!--Logging-->
         <logstash.logback.encoder.version>4.11</logstash.logback.encoder.version>
         <!--Database-->
@@ -82,37 +84,21 @@
             <artifactId>cassandra-driver-mapping</artifactId>
             <version>${cassandra-driver.version}</version>
         </dependency>
-        <!--Kotlin-->
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-annotation-processing-maven</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <!--Jackson-->
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-        </dependency>
         <!--Swagger-->
         <dependency>
             <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.6.1</version>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox-swagger2.version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.6.1</version>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox-swagger2.version}</version>
+        </dependency>
+        <!--Utils-->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
         </dependency>
         <!--Apache lib-->
         <dependency>
@@ -125,11 +111,7 @@
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
         </dependency>
-        <!--Utils-->
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-        </dependency>
+
         <!--Logging-->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -154,7 +136,28 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>4.11</version>
+            <version>${logstash.logback.encoder.version}</version>
+        </dependency>
+        <!--Kotlin-->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-annotation-processing-maven</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <!--Jackson-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
     </dependencies>
 
