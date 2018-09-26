@@ -17,9 +17,9 @@ data class CommandMessage @JsonCreator constructor(
 
 data class Context @JsonCreator constructor(
         val operationId: String,
-        val cpid: String,
+        val cpid: String?,
         val ocid: String?,
-        val stage: String,
+        val stage: String?,
         val prevStage: String?,
         val processType: String?,
         val operationType: String,
