@@ -84,7 +84,10 @@ class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
 
     override fun validateDocuments(cm: CommandMessage): ResponseDto {
         val dto = toObject(DocumentsRq::class.java, cm.data)
-        for (document in dto.documents) {
+        val documentsDto = dto.documents
+        val docIdsSet = documentsDto.asSequence().map { it.id }.toHashSet()
+        if (docIdsSet.size != documentsDto.size) throw  ErrorException(ErrorType.INVALID_ID)
+        for (document in documentsDto) {
             validate(document)
         }
         return ResponseDto(data = dto)
