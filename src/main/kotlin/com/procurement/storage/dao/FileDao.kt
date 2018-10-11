@@ -6,18 +6,10 @@ import com.procurement.storage.model.entity.FileEntity
 import org.springframework.stereotype.Service
 import java.util.*
 
-interface FileDao {
-
-    fun getOneById(fileId: UUID): FileEntity?
-
-    fun save(entity: FileEntity): FileEntity
-
-}
-
 @Service
-class FileDaoImpl(private val session: Session) : FileDao {
+class FileDao(private val session: Session) {
 
-    override fun getOneById(fileId: UUID): FileEntity? {
+    fun getOneById(fileId: UUID): FileEntity? {
         val query = select()
                 .from(FILES_TABLE)
                 .where(eq(ID, fileId))
@@ -35,7 +27,7 @@ class FileDaoImpl(private val session: Session) : FileDao {
                 owner = row.getString(OWNER)) else null
     }
 
-    override fun save(entity: FileEntity): FileEntity {
+    fun save(entity: FileEntity): FileEntity {
         val insert = insertInto(FILES_TABLE)
                 .value(ID, entity.id)
                 .value(IS_OPEN, entity.isOpen)

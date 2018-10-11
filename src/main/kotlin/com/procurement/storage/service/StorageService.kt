@@ -25,21 +25,8 @@ import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.*
 
-interface StorageService {
-
-    fun registerFile(dto: RegistrationRq): ResponseDto
-
-    fun uploadFile(fileId: String, file: MultipartFile): ResponseDto
-
-    fun getFileById(fileId: String): FileDataRs
-
-    fun setPublishDateBatch(cm: CommandMessage): ResponseDto
-
-    fun validateDocuments(cm: CommandMessage): ResponseDto
-}
-
 @Service
-class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
+class StorageService(private val fileDao: FileDao) {
 
     @Value("\${upload.file.path}")
     private var uploadFilePath: String? = null
@@ -53,14 +40,14 @@ class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
     @Value("\${upload.file.max-weight}")
     private var maxFileWeight: Int? = null
 
-    override fun registerFile(dto: RegistrationRq): ResponseDto {
+    fun registerFile(dto: RegistrationRq): ResponseDto {
         checkFileWeight(dto.weight)
         checkFileExtension(dto.fileName)
         val fileEntity = fileDao.save(getEntity(dto))
         return getResponseDto(fileEntity)
     }
 
-    override fun uploadFile(fileId: String, file: MultipartFile): ResponseDto {
+    fun uploadFile(fileId: String, file: MultipartFile): ResponseDto {
         val fileEntity = fileDao.getOneById(UUID.fromString(fileId))
         if (fileEntity != null) {
             checkFileName(fileEntity, file)
@@ -73,7 +60,7 @@ class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
             throw UploadFileValidationException("File not found.")
     }
 
-    override fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
+    fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
         val datePublished = cm.context.startDate.toLocal()
         val dto = toObject(DocumentsRq::class.java, cm.data)
         for (document in dto.documents) {
@@ -82,7 +69,7 @@ class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
         return ResponseDto(data = dto)
     }
 
-    override fun validateDocuments(cm: CommandMessage): ResponseDto {
+    fun validateDocuments(cm: CommandMessage): ResponseDto {
         val dto = toObject(DocumentsRq::class.java, cm.data)
         val documentsDto = dto.documents
         val docIdsSet = documentsDto.asSequence().map { it.id }.toHashSet()
@@ -93,7 +80,7 @@ class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
         return ResponseDto(data = dto)
     }
 
-    override fun getFileById(fileId: String): FileDataRs {
+    fun getFileById(fileId: String): FileDataRs {
         val fileEntity = fileDao.getOneById(UUID.fromString(fileId))
         if (fileEntity != null)
             return if (fileEntity.isOpen) {
@@ -107,7 +94,7 @@ class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
         else throw GetFileException("File not found.")
     }
 
-    fun publish(document: Document, datePublished: LocalDateTime) {
+    private fun publish(document: Document, datePublished: LocalDateTime) {
         val fileEntity = fileDao.getOneById(UUID.fromString(document.id))
         if (fileEntity != null) {
             if (!fileEntity.isOpen) {
@@ -125,7 +112,7 @@ class StorageServiceImpl(private val fileDao: FileDao) : StorageService {
         }
     }
 
-    fun validate(document: Document) {
+    private fun validate(document: Document) {
         fileDao.getOneById(UUID.fromString(document.id)) ?: throw  ErrorException(ErrorType.DATA_NOT_FOUND)
     }
 
