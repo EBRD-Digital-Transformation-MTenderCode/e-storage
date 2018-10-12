@@ -20,6 +20,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDateTime
+import java.util.regex.Pattern
 
 @Service
 class StorageService(private val fileDao: FileDao) {
@@ -176,7 +177,10 @@ class StorageService(private val fileDao: FileDao) {
 
     private fun getEntity(dto: RegistrationRq): FileEntity {
         val fileId = if (dto.id != null) {
-            dto.id.substring(0, 36) + "-" + milliNowUTC()
+            val id = dto.id.substring(0, 36)
+            val p = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+            if (!p.matcher(id).matches()) throw RegistrationValidationException("Invalid id.")
+            id + "-" + milliNowUTC()
         } else {
             UUIDs.random().toString() + "-" + milliNowUTC()
         }
