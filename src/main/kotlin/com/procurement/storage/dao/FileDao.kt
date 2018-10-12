@@ -4,12 +4,11 @@ import com.datastax.driver.core.Session
 import com.datastax.driver.core.querybuilder.QueryBuilder.*
 import com.procurement.storage.model.entity.FileEntity
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class FileDao(private val session: Session) {
 
-    fun getOneById(fileId: UUID): FileEntity? {
+    fun getOneById(fileId: String): FileEntity? {
         val query = select()
                 .from(FILES_TABLE)
                 .where(eq(ID, fileId))

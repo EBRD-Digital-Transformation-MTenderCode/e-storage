@@ -20,7 +20,6 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDateTime
-import java.util.*
 
 @Service
 class StorageService(private val fileDao: FileDao) {
@@ -45,7 +44,7 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     fun uploadFile(fileId: String, file: MultipartFile): ResponseDto {
-        val fileEntity = fileDao.getOneById(UUID.fromString(fileId))
+        val fileEntity = fileDao.getOneById(fileId)
         if (fileEntity != null) {
             checkFileName(fileEntity, file)
             checkFileSize(fileEntity, file)
@@ -78,7 +77,7 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     fun getFileById(fileId: String): FileDataRs {
-        val fileEntity = fileDao.getOneById(UUID.fromString(fileId))
+        val fileEntity = fileDao.getOneById(fileId)
         if (fileEntity != null)
             return if (fileEntity.isOpen) {
                 if (fileEntity.fileOnServer == null) {
@@ -92,7 +91,7 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     private fun publish(document: Document, datePublished: LocalDateTime) {
-        val fileEntity = fileDao.getOneById(UUID.fromString(document.id))
+        val fileEntity = fileDao.getOneById(document.id)
         if (fileEntity != null) {
             if (!fileEntity.isOpen) {
                 fileEntity.datePublished = datePublished.toDate()
@@ -110,7 +109,7 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     private fun validate(document: Document) {
-        fileDao.getOneById(UUID.fromString(document.id)) ?: throw  ErrorException(ErrorType.DATA_NOT_FOUND)
+        fileDao.getOneById(document.id) ?: throw  ErrorException(ErrorType.DATA_NOT_FOUND)
     }
 
     private fun checkFileWeight(fileWeight: Long) {
