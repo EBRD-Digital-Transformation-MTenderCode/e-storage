@@ -177,9 +177,9 @@ class StorageService(private val fileDao: FileDao) {
 
     private fun getEntity(dto: RegistrationRq): FileEntity {
         val fileId = if (dto.id != null) {
-            dto.id.toString() + milliNowUTC()
+            dto.id.toString() + "." + milliNowUTC()
         } else {
-            UUIDs.random().toString() + milliNowUTC()
+            UUIDs.random().toString() + "." + milliNowUTC()
         }
         return FileEntity(
                 id = fileId,
