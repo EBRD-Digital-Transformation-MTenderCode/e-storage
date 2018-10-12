@@ -16,7 +16,7 @@ class FileDao(private val session: Session) {
                 .limit(1)
         val row = session.execute(query).one()
         return if (row != null) FileEntity(
-                id = row.getUUID(ID),
+                id = row.getString(ID),
                 isOpen = row.getBool(IS_OPEN),
                 dateModified = row.getTimestamp(MODIFIED),
                 datePublished = row.getTimestamp(PUBLISHED),

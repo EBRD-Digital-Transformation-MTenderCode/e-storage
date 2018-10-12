@@ -1,7 +1,7 @@
 CREATE KEYSPACE IF NOT EXISTS ocds WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};
 
 CREATE TABLE IF NOT EXISTS  ocds.storage_files (
-    file_id UUID,
+    file_id text,
     file_is_open boolean,
     date_modified timestamp,
     date_published timestamp,

@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile
 class StorageController(private val storageService: StorageService) {
 
     @PostMapping(value = ["/registration"])
-    fun makeRegistration(@RequestBody dto: RegistrationRq): ResponseEntity<ResponseDto> {
+    fun registration(@RequestBody dto: RegistrationRq): ResponseEntity<ResponseDto> {
 
         return ResponseEntity(storageService.registerFile(dto), HttpStatus.CREATED)
     }

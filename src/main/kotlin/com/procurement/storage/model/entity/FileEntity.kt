@@ -4,7 +4,7 @@ import java.util.*
 
 data class FileEntity(
 
-        var id: UUID,
+        var id: String,
 
         var isOpen: Boolean,
 

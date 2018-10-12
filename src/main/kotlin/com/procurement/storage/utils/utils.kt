@@ -50,7 +50,7 @@ fun String.toLocal(): LocalDateTime {
     return LocalDateTime.parse(this, JsonMapper.dateTimeFormatter)
 }
 
-fun nowUTC() = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC)
+fun nowUTC(): LocalDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC)
 
 fun LocalDateTime.toDate(): Date {
     return Date.from(this.toInstant(ZoneOffset.UTC))
@@ -58,6 +58,10 @@ fun LocalDateTime.toDate(): Date {
 
 fun Date.toLocal(): LocalDateTime {
     return LocalDateTime.ofInstant(this.toInstant(), ZoneOffset.UTC)
+}
+
+fun milliNowUTC(): Long {
+    return nowUTC().toInstant(ZoneOffset.UTC).toEpochMilli()
 }
 
 fun <T> toObject(clazz: Class<T>, json: String): T {

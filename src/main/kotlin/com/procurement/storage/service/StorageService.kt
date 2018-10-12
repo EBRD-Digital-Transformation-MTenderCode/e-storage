@@ -7,10 +7,7 @@ import com.procurement.storage.model.dto.bpe.CommandMessage
 import com.procurement.storage.model.dto.bpe.ResponseDto
 import com.procurement.storage.model.dto.registration.*
 import com.procurement.storage.model.entity.FileEntity
-import com.procurement.storage.utils.nowUTC
-import com.procurement.storage.utils.toDate
-import com.procurement.storage.utils.toLocal
-import com.procurement.storage.utils.toObject
+import com.procurement.storage.utils.*
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
 import org.springframework.beans.factory.annotation.Value
@@ -155,7 +152,7 @@ class StorageService(private val fileDao: FileDao) {
             if (file.isEmpty) throw UploadFileValidationException("Failed to store empty file " + fileName!!)
             if (fileName!!.contains(".."))
                 throw UploadFileValidationException("Cannot store file with relative path outside current directory.$fileName")
-            val fileID = fileEntity.id.toString()
+            val fileID = fileEntity.id
             val dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/"
             Files.createDirectories(Paths.get(dir))
             val url = dir + fileID
@@ -179,8 +176,13 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     private fun getEntity(dto: RegistrationRq): FileEntity {
+        val fileId = if (dto.id != null) {
+            dto.id.toString() + milliNowUTC()
+        } else {
+            UUIDs.random().toString() + milliNowUTC()
+        }
         return FileEntity(
-                id = UUIDs.timeBased(),
+                id = fileId,
                 isOpen = false,
                 dateModified = nowUTC().toDate(),
                 hash = dto.hash.toUpperCase(),
@@ -193,8 +195,8 @@ class StorageService(private val fileDao: FileDao) {
 
     private fun getResponseDto(entity: FileEntity): ResponseDto {
         return ResponseDto(data = DataRs(
-                id = entity.id.toString(),
-                url = uploadFilePath!! + entity.id.toString(),
+                id = entity.id,
+                url = uploadFilePath!! + entity.id,
                 dateModified = entity.dateModified?.toLocal(),
                 datePublished = entity.datePublished?.toLocal())
         )
