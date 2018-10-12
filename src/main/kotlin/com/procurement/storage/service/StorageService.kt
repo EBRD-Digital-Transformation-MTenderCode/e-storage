@@ -37,8 +37,8 @@ class StorageService(private val fileDao: FileDao) {
     private var maxFileWeight: Int? = null
 
     fun registerFile(dto: RegistrationRq): ResponseDto {
-        checkFileWeight(dto.weight)
-        checkFileExtension(dto.fileName)
+//        checkFileWeight(dto.weight)
+//        checkFileExtension(dto.fileName)
         val fileEntity = fileDao.save(getEntity(dto))
         return getResponseDto(fileEntity)
     }
@@ -176,7 +176,7 @@ class StorageService(private val fileDao: FileDao) {
 
     private fun getEntity(dto: RegistrationRq): FileEntity {
         val fileId = if (dto.id != null) {
-            dto.id.toString() + "-" + milliNowUTC()
+            dto.id.substring(0, 36) + "-" + milliNowUTC()
         } else {
             UUIDs.random().toString() + "-" + milliNowUTC()
         }
