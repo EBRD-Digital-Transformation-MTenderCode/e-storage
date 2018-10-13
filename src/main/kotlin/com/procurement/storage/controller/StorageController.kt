@@ -50,13 +50,13 @@ class StorageController(private val storageService: StorageService) {
     @ResponseBody
     @ExceptionHandler(UploadFileValidationException::class)
     fun uploadFileValidation(e: UploadFileValidationException): ResponseEntity<ErrorException> {
-        return ResponseEntity(ErrorException(e.message, "/storage/upload/{fileId}"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(ErrorException(e.message, "/storage/upload/fileId"), HttpStatus.BAD_REQUEST)
     }
 
     @ResponseBody
     @ExceptionHandler(GetFileException::class)
     fun getFile(e: GetFileException) : ResponseEntity<ErrorException> {
-        return ResponseEntity(ErrorException(e.message, "/storage/get/{fileId}"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(ErrorException(e.message, "/storage/get/fileId"), HttpStatus.BAD_REQUEST)
     }
 
 }
