@@ -41,6 +41,12 @@ class StorageController(private val storageService: StorageService) {
         return ResponseEntity(resource, headers, HttpStatus.OK)
     }
 
+//    @ResponseBody
+//    @ExceptionHandler(Exception::class)
+//    fun exception(e: Exception): ResponseEntity<ErrorException> {
+//        return ResponseEntity(ErrorException(e.message, "/storage/registration"), HttpStatus.BAD_REQUEST)
+//    }
+
     @ResponseBody
     @ExceptionHandler(RegistrationValidationException::class)
     fun registrationValidation(e: RegistrationValidationException): ResponseEntity<ErrorException> {

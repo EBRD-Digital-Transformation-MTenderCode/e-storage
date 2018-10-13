@@ -5,7 +5,7 @@ import com.procurement.storage.utils.nowUTC
 
 
 @JsonPropertyOrder("timestamp", "status", "error", "message", "path")
-class ErrorException(msg: String, path: String) {
+class ErrorException(msg: String?, path: String) {
 
     var timestamp = nowUTC()
     var status = 400
