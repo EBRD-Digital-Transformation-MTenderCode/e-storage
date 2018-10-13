@@ -3,7 +3,6 @@ package com.procurement.storage.controller
 import com.procurement.storage.exception.GetFileException
 import com.procurement.storage.exception.RegistrationValidationException
 import com.procurement.storage.exception.UploadFileValidationException
-import com.procurement.storage.model.dto.bpe.ResponseDto
 import com.procurement.storage.model.dto.registration.RegistrationRq
 import com.procurement.storage.model.dto.registration.RegistrationRs
 import com.procurement.storage.model.dto.registration.UploadRs
