@@ -1,6 +1,6 @@
 package com.procurement.storage.controller
 
-import com.procurement.storage.exception.ErrorException
+import com.procurement.storage.exception.BpeErrorException
 import com.procurement.storage.model.dto.bpe.*
 import com.procurement.storage.service.StorageService
 import org.springframework.http.HttpStatus
@@ -30,7 +30,7 @@ class CommandController(private val storageService: StorageService) {
     @ExceptionHandler(Exception::class)
     fun exception(ex: Exception): ResponseDto {
         return when (ex) {
-            is ErrorException -> getErrorExceptionResponseDto(ex)
+            is BpeErrorException -> getErrorExceptionResponseDto(ex)
             else -> getExceptionResponseDto(ex)
         }
     }

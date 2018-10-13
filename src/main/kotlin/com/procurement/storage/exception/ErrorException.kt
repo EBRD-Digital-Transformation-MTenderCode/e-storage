@@ -1,16 +1,15 @@
 package com.procurement.storage.exception
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import com.procurement.storage.utils.nowUTC
 
-class ErrorException(error: ErrorType, message: String? = null) : RuntimeException(message) {
 
-    var code: String = error.code
-    var msg: String
+@JsonPropertyOrder("timestamp", "status", "error", "message", "path")
+class ErrorException(msg: String, path: String) {
 
-    init {
-        when (message) {
-            null -> this.msg = error.message
-            else -> this.msg = error.message + message
-        }
-    }
-
+    var timestamp = nowUTC()
+    var status = 400
+    var error = "Bad Request"
+    var message = msg
+    var path = path
 }

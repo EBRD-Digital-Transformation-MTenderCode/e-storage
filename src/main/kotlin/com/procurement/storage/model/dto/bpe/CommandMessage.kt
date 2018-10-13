@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
-import com.procurement.storage.exception.ErrorException
+import com.procurement.storage.exception.BpeErrorException
 
 data class CommandMessage @JsonCreator constructor(
 
@@ -83,7 +83,7 @@ fun getExceptionResponseDto(exception: Exception): ResponseDto {
             )))
 }
 
-fun getErrorExceptionResponseDto(error: ErrorException, id: String? = null): ResponseDto {
+fun getErrorExceptionResponseDto(error: BpeErrorException, id: String? = null): ResponseDto {
     return ResponseDto(
             errors = listOf(ResponseErrorDto(
                     code = "400.14." + error.code,

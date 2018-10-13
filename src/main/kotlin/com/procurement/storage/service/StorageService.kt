@@ -80,7 +80,7 @@ class StorageService(private val fileDao: FileDao) {
         val dto = toObject(DocumentsRq::class.java, cm.data)
         val documentsDto = dto.documents
         val docIdsSet = documentsDto.asSequence().map { it.id }.toHashSet()
-        if (docIdsSet.size != documentsDto.size) throw  ErrorException(ErrorType.INVALID_ID)
+        if (docIdsSet.size != documentsDto.size) throw  BpeErrorException(ErrorType.INVALID_ID)
         for (document in documentsDto) {
             validate(document)
         }
@@ -115,12 +115,12 @@ class StorageService(private val fileDao: FileDao) {
                 document.url = uploadFilePath + document.id
             }
         } else {
-            throw ErrorException(ErrorType.DATA_NOT_FOUND)
+            throw BpeErrorException(ErrorType.DATA_NOT_FOUND)
         }
     }
 
     private fun validate(document: Document) {
-        fileDao.getOneById(document.id) ?: throw  ErrorException(ErrorType.DATA_NOT_FOUND)
+        fileDao.getOneById(document.id) ?: throw  BpeErrorException(ErrorType.DATA_NOT_FOUND)
     }
 
     private fun checkFileWeight(fileWeight: Long) {

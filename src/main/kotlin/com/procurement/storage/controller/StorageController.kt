@@ -1,5 +1,6 @@
 package com.procurement.storage.controller
 
+import com.procurement.storage.exception.ErrorException
 import com.procurement.storage.exception.GetFileException
 import com.procurement.storage.exception.RegistrationValidationException
 import com.procurement.storage.exception.UploadFileValidationException
@@ -42,13 +43,20 @@ class StorageController(private val storageService: StorageService) {
 
     @ResponseBody
     @ExceptionHandler(RegistrationValidationException::class)
-    fun registrationValidation(e: RegistrationValidationException) = ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
+    fun registrationValidation(e: RegistrationValidationException): ResponseEntity<ErrorException> {
+        return ResponseEntity(ErrorException(e.message, "/storage/registration"), HttpStatus.BAD_REQUEST)
+    }
 
     @ResponseBody
     @ExceptionHandler(UploadFileValidationException::class)
-    fun uploadFileValidation(e: UploadFileValidationException) = ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
+    fun uploadFileValidation(e: UploadFileValidationException): ResponseEntity<ErrorException> {
+        return ResponseEntity(ErrorException(e.message, "/storage/upload/{fileId}"), HttpStatus.BAD_REQUEST)
+    }
 
     @ResponseBody
     @ExceptionHandler(GetFileException::class)
-    fun getFile(e: GetFileException) = ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
+    fun getFile(e: GetFileException) : ResponseEntity<ErrorException> {
+        return ResponseEntity(ErrorException(e.message, "/storage/get/{fileId}"), HttpStatus.BAD_REQUEST)
+    }
+
 }
