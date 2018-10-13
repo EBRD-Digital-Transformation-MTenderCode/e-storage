@@ -37,14 +37,19 @@ class StorageService(private val fileDao: FileDao) {
     @Value("\${upload.file.max-weight}")
     private var maxFileWeight: Int? = null
 
-    fun registerFile(dto: RegistrationRq): ResponseDto {
-//        checkFileWeight(dto.weight)
-//        checkFileExtension(dto.fileName)
+    fun registerFile(dto: RegistrationRq): RegistrationRs {
+        checkFileWeight(dto.weight)
+        checkFileExtension(dto.fileName)
         val fileEntity = fileDao.save(getEntity(dto))
-        return getResponseDto(fileEntity)
+        return RegistrationRs(data = RegistrationDataRs(
+                id = fileEntity.id,
+                url = uploadFilePath!! + fileEntity.id,
+                dateModified = fileEntity.dateModified?.toLocal(),
+                datePublished = fileEntity.datePublished?.toLocal())
+        )
     }
 
-    fun uploadFile(fileId: String, file: MultipartFile): ResponseDto {
+    fun uploadFile(fileId: String, file: MultipartFile): UploadRs {
         val fileEntity = fileDao.getOneById(fileId)
         if (fileEntity != null) {
             checkFileName(fileEntity, file)
@@ -52,7 +57,12 @@ class StorageService(private val fileDao: FileDao) {
             checkFileHash(fileEntity, file)
             fileEntity.fileOnServer = writeFileToDisk(fileEntity, file)
             fileDao.save(fileEntity)
-            return getResponseDto(fileEntity)
+            return UploadRs(data = UploadDataRs(
+                    id = fileEntity.id,
+                    url = uploadFilePath!! + fileEntity.id,
+                    dateModified = fileEntity.dateModified?.toLocal(),
+                    datePublished = fileEntity.datePublished?.toLocal())
+            )
         } else
             throw UploadFileValidationException("File not found.")
     }
@@ -194,15 +204,5 @@ class StorageService(private val fileDao: FileDao) {
                 datePublished = null,
                 fileOnServer = null,
                 owner = null)
-    }
-
-    private fun getResponseDto(entity: FileEntity): ResponseDto {
-        return ResponseDto(data = DataRs(
-                id = entity.id,
-                url = uploadFilePath!! + entity.id,
-                dateModified = entity.dateModified?.toLocal(),
-                datePublished = entity.datePublished?.toLocal())
-        )
-
     }
 }

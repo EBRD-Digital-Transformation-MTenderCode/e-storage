@@ -5,7 +5,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.procurement.storage.databinding.JsonDateSerializer
 import java.time.LocalDateTime
 
-data class DataRs @JsonCreator constructor(
+data class UploadRs @JsonCreator constructor(
+
+        val data: UploadDataRs
+)
+
+data class UploadDataRs @JsonCreator constructor(
 
         val id: String?,
 
@@ -17,4 +22,3 @@ data class DataRs @JsonCreator constructor(
         @JsonSerialize(using = JsonDateSerializer::class)
         val datePublished: LocalDateTime?
 )
-
