@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
 import com.procurement.storage.exception.BpeErrorException
+import com.procurement.storage.exception.ExternalException
 
 data class CommandMessage @JsonCreator constructor(
 
@@ -81,6 +82,15 @@ fun getExceptionResponseDto(exception: Exception): ResponseDto {
                     code = "400.14.00",
                     description = exception.message
             )))
+}
+
+fun getExternalExceptionResponseDto(error: ExternalException, id: String? = null): ResponseDto {
+    return ResponseDto(
+            errors = listOf(ResponseErrorDto(
+                    code = "400.14." + error.code,
+                    description = error.msg
+            )),
+            id = id)
 }
 
 fun getErrorExceptionResponseDto(error: BpeErrorException, id: String? = null): ResponseDto {

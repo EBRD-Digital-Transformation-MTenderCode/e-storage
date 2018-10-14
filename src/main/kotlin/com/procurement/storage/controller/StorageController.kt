@@ -1,9 +1,9 @@
 package com.procurement.storage.controller
 
-import com.procurement.storage.exception.ErrorException
-import com.procurement.storage.exception.GetFileException
-import com.procurement.storage.exception.RegistrationValidationException
-import com.procurement.storage.exception.UploadFileValidationException
+import com.procurement.storage.exception.ExternalException
+import com.procurement.storage.model.dto.bpe.ResponseDto
+import com.procurement.storage.model.dto.bpe.getExceptionResponseDto
+import com.procurement.storage.model.dto.bpe.getExternalExceptionResponseDto
 import com.procurement.storage.model.dto.registration.RegistrationRq
 import com.procurement.storage.model.dto.registration.RegistrationRs
 import com.procurement.storage.model.dto.registration.UploadRs
@@ -41,28 +41,14 @@ class StorageController(private val storageService: StorageService) {
         return ResponseEntity(resource, headers, HttpStatus.OK)
     }
 
-//    @ResponseBody
-//    @ExceptionHandler(Exception::class)
-//    fun exception(e: Exception): ResponseEntity<ErrorException> {
-//        return ResponseEntity(ErrorException(e.message, "/storage/registration"), HttpStatus.BAD_REQUEST)
-//    }
-
     @ResponseBody
-    @ExceptionHandler(RegistrationValidationException::class)
-    fun registrationValidation(e: RegistrationValidationException): ResponseEntity<ErrorException> {
-        return ResponseEntity(ErrorException(e.message, "/storage/registration"), HttpStatus.BAD_REQUEST)
-    }
-
-    @ResponseBody
-    @ExceptionHandler(UploadFileValidationException::class)
-    fun uploadFileValidation(e: UploadFileValidationException): ResponseEntity<ErrorException> {
-        return ResponseEntity(ErrorException(e.message, "/storage/upload/fileId"), HttpStatus.BAD_REQUEST)
-    }
-
-    @ResponseBody
-    @ExceptionHandler(GetFileException::class)
-    fun getFile(e: GetFileException) : ResponseEntity<ErrorException> {
-        return ResponseEntity(ErrorException(e.message, "/storage/get/fileId"), HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(Exception::class)
+    fun exception(ex: Exception): ResponseDto {
+        return when (ex) {
+            is ExternalException -> getExternalExceptionResponseDto(ex)
+            else -> getExceptionResponseDto(ex)
+        }
     }
 
 }

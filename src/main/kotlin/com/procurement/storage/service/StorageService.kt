@@ -2,7 +2,9 @@ package com.procurement.storage.service
 
 import com.datastax.driver.core.utils.UUIDs
 import com.procurement.storage.dao.FileDao
-import com.procurement.storage.exception.*
+import com.procurement.storage.exception.BpeErrorException
+import com.procurement.storage.exception.ErrorType
+import com.procurement.storage.exception.ExternalException
 import com.procurement.storage.model.dto.bpe.CommandMessage
 import com.procurement.storage.model.dto.bpe.ResponseDto
 import com.procurement.storage.model.dto.registration.*
@@ -64,7 +66,7 @@ class StorageService(private val fileDao: FileDao) {
                     datePublished = fileEntity.datePublished?.toLocal())
             )
         } else
-            throw UploadFileValidationException("File not found.")
+            throw ExternalException(ErrorType.FILE_NOT_FOUND)
     }
 
     fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
@@ -92,13 +94,14 @@ class StorageService(private val fileDao: FileDao) {
         if (fileEntity != null)
             return if (fileEntity.isOpen) {
                 if (fileEntity.fileOnServer == null) {
-                    throw GetFileException("No file on server.")
+                    throw ExternalException(ErrorType.NO_FILE_ON_SERVER)
                 }
                 FileDataRs(fileEntity.fileName, readFileFromDisk(fileEntity.fileOnServer))
             } else {
-                throw GetFileException("File is closed.")
+                throw ExternalException(ErrorType.FILE_IS_CLOSED)
             }
-        else throw GetFileException("File not found.")
+        else
+            throw ExternalException(ErrorType.FILE_NOT_FOUND)
     }
 
     private fun publish(document: Document, datePublished: LocalDateTime) {
@@ -115,53 +118,51 @@ class StorageService(private val fileDao: FileDao) {
                 document.url = uploadFilePath + document.id
             }
         } else {
-            throw BpeErrorException(ErrorType.DATA_NOT_FOUND)
+            throw BpeErrorException(ErrorType.FILE_NOT_FOUND)
         }
     }
 
     private fun validate(document: Document) {
-        fileDao.getOneById(document.id) ?: throw  BpeErrorException(ErrorType.DATA_NOT_FOUND)
+        fileDao.getOneById(document.id) ?: throw  BpeErrorException(ErrorType.FILE_NOT_FOUND)
     }
 
     private fun checkFileWeight(fileWeight: Long) {
-        if (fileWeight == 0L || maxFileWeight!! < fileWeight)
-            throw RegistrationValidationException("Invalid file size for registration.")
+        if (fileWeight == 0L || maxFileWeight!! < fileWeight) throw ExternalException(ErrorType.INVALID_SIZE)
     }
 
     private fun checkFileExtension(fileName: String) {
         val fileExtension: String = FilenameUtils.getExtension(fileName)
-        if (fileExtension !in fileExtensions!!)
-            throw RegistrationValidationException("Invalid file extension for registration.")
+        if (fileExtension !in fileExtensions!!) throw ExternalException(ErrorType.INVALID_EXTENSION)
     }
 
     private fun checkFileHash(fileEntity: FileEntity, file: MultipartFile) {
         try {
             val uploadFileHash = DigestUtils.md5DigestAsHex(file.inputStream).toUpperCase()
             if (uploadFileHash != fileEntity.hash) {
-                throw UploadFileValidationException("Invalid file hash.")
+                throw ExternalException(ErrorType.INVALID_HASH)
             }
         } catch (e: IOException) {
-            throw UploadFileValidationException("File read exception.")
+            throw ExternalException(ErrorType.READ_EXCEPTION)
         }
     }
 
     private fun checkFileName(fileEntity: FileEntity, file: MultipartFile) {
         if (file.originalFilename != fileEntity.fileName)
-            throw UploadFileValidationException("Invalid file name.")
+            throw ExternalException(ErrorType.INVALID_NAME)
     }
 
     private fun checkFileSize(fileEntity: FileEntity, file: MultipartFile) {
         val fileSizeMb = file.size
         if (fileSizeMb > fileEntity.weight)
-            throw UploadFileValidationException("Invalid file size.")
+            throw ExternalException(ErrorType.INVALID_SIZE)
     }
 
     private fun writeFileToDisk(fileEntity: FileEntity, file: MultipartFile): String {
         try {
             val fileName = file.originalFilename
-            if (file.isEmpty) throw UploadFileValidationException("Failed to store empty file " + fileName!!)
+            if (file.isEmpty) throw ExternalException(ErrorType.EMPTY_FILE, fileName!!)
             if (fileName!!.contains(".."))
-                throw UploadFileValidationException("Cannot store file with relative path outside current directory.$fileName")
+                throw ExternalException(ErrorType.INVALID_PATH, fileName)
             val fileID = fileEntity.id
             val dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/"
             Files.createDirectories(Paths.get(dir))
@@ -170,7 +171,7 @@ class StorageService(private val fileDao: FileDao) {
             FileUtils.copyInputStreamToFile(file.inputStream, targetFile)
             return url
         } catch (e: IOException) {
-            throw UploadFileValidationException(e.message!!)
+            throw ExternalException(ErrorType.WRITE_EXCEPTION, e.message!!)
         }
 
     }
@@ -180,7 +181,7 @@ class StorageService(private val fileDao: FileDao) {
             val path = Paths.get(fileOnServer)
             return ByteArrayResource(Files.readAllBytes(path))
         } catch (e: IOException) {
-            throw GetFileException(e.message!!)
+            throw ExternalException(ErrorType.READ_EXCEPTION, e.message!!)
         }
 
     }
@@ -189,7 +190,7 @@ class StorageService(private val fileDao: FileDao) {
         val fileId = if (dto.id != null) {
             val id = dto.id.substring(0, 36)
             val p = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
-            if (!p.matcher(id).matches()) throw RegistrationValidationException("Invalid id.")
+            if (!p.matcher(id).matches()) throw ExternalException(ErrorType.INVALID_FILE_ID)
             id + "-" + milliNowUTC()
         } else {
             UUIDs.random().toString() + "-" + milliNowUTC()
