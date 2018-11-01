@@ -29,6 +29,7 @@ private object JsonMapper {
         mapper.registerModule(module)
         mapper.registerKotlinModule()
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        mapper.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true)
 
         dateTimeFormatter = DateTimeFormatterBuilder()
                 .parseCaseInsensitive()
