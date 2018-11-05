@@ -118,12 +118,12 @@ class StorageService(private val fileDao: FileDao) {
                 document.url = uploadFilePath + document.id
             }
         } else {
-            throw BpeErrorException(ErrorType.FILE_NOT_FOUND)
+            throw BpeErrorException(ErrorType.FILE_NOT_FOUND, document.id)
         }
     }
 
     private fun validate(document: Document) {
-        fileDao.getOneById(document.id) ?: throw  BpeErrorException(ErrorType.FILE_NOT_FOUND)
+        fileDao.getOneById(document.id) ?: throw  BpeErrorException(ErrorType.FILE_NOT_FOUND, document.id)
     }
 
     private fun checkFileWeight(fileWeight: Long) {
