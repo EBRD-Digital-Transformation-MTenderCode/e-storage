@@ -41,7 +41,7 @@ class StorageService(private val fileDao: FileDao) {
 
     fun registerFile(dto: RegistrationRq): RegistrationRs {
         checkFileWeight(dto.weight)
-        checkFileExtension(dto.fileName)
+        checkFileNameAndExtension(dto.fileName)
         val fileEntity = fileDao.save(getEntity(dto))
         return RegistrationRs(data = RegistrationDataRs(
                 id = fileEntity.id,
@@ -130,7 +130,9 @@ class StorageService(private val fileDao: FileDao) {
         if (fileWeight == 0L || maxFileWeight!! < fileWeight) throw ExternalException(ErrorType.INVALID_SIZE)
     }
 
-    private fun checkFileExtension(fileName: String) {
+    private fun checkFileNameAndExtension(fileName: String) {
+        val baseName = FilenameUtils.getBaseName(fileName)
+        if (baseName.contains(".")) throw ExternalException(ErrorType.INVALID_NAME, fileName)
         val fileExtension: String = FilenameUtils.getExtension(fileName)
         if (fileExtension !in fileExtensions!!) throw ExternalException(ErrorType.INVALID_EXTENSION)
     }
