@@ -1,9 +1,12 @@
 package com.procurement.storage.dao
 
 import com.datastax.driver.core.Session
+import com.datastax.driver.core.querybuilder.Insert
+import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder.*
 import com.procurement.storage.model.entity.FileEntity
 import org.springframework.stereotype.Service
+import java.util.ArrayList
 
 @Service
 class FileDao(private val session: Session) {
@@ -26,6 +29,28 @@ class FileDao(private val session: Session) {
                 owner = row.getString(OWNER)) else null
     }
 
+    fun getAllByIds(fileIds: Set<String>): List<FileEntity> {
+        val query = select()
+                .all()
+                .from(FILES_TABLE)
+                .where(`in`(ID, *fileIds.toTypedArray()))
+        val resultSet = session.execute(query)
+        val entities = ArrayList<FileEntity>()
+        resultSet.forEach { row ->
+            entities.add(FileEntity(
+                    id = row.getString(ID),
+                    isOpen = row.getBool(IS_OPEN),
+                    dateModified = row.getTimestamp(MODIFIED),
+                    datePublished = row.getTimestamp(PUBLISHED),
+                    hash = row.getString(HASH),
+                    weight = row.getLong(WEIGHT),
+                    fileName = row.getString(NAME),
+                    fileOnServer = row.getString(ON_SERVER),
+                    owner = row.getString(OWNER)))
+        }
+        return entities
+    }
+
     fun save(entity: FileEntity): FileEntity {
         val insert = insertInto(FILES_TABLE)
                 .value(ID, entity.id)
@@ -39,6 +64,25 @@ class FileDao(private val session: Session) {
                 .value(OWNER, entity.owner)
         session.execute(insert)
         return entity
+    }
+
+    fun saveAll(entities: List<FileEntity>) {
+        val operations = ArrayList<Insert>()
+        entities.forEach { entity ->
+            operations.add(QueryBuilder.insertInto(FILES_TABLE)
+                    .value(ID, entity.id)
+                    .value(IS_OPEN, entity.isOpen)
+                    .value(MODIFIED, entity.dateModified)
+                    .value(PUBLISHED, entity.datePublished)
+                    .value(HASH, entity.hash)
+                    .value(WEIGHT, entity.weight)
+                    .value(NAME, entity.fileName)
+                    .value(ON_SERVER, entity.fileOnServer)
+                    .value(OWNER, entity.owner)
+            )
+        }
+        val batch = QueryBuilder.batch(*operations.toTypedArray())
+        session.execute(batch)
     }
 
     companion object {
