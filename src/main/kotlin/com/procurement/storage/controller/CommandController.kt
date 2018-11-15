@@ -20,8 +20,8 @@ class CommandController(private val storageService: StorageService) {
 
     fun execute(cm: CommandMessage): ResponseDto {
         return when (cm.command) {
+            CommandType.VALIDATE -> storageService.validateDocumentsBatch(cm)
             CommandType.PUBLISH -> storageService.setPublishDateBatch(cm)
-            CommandType.VALIDATE -> storageService.validateDocuments(cm)
         }
     }
 

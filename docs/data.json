@@ -1,15 +1,15 @@
 {
-  "id": "ea832301-e37d-11e8-8646-b9f962ffbb06",
+  "id": "a346d912-d851-11e8-9578-e3566d9e113a",
   "command": "publish",
   "context": {
-    "operationId": "ea832301-e37d-11e8-8646-b9f962ffbb06",
-    "operationType": "auctionPeriodEnd",
-    "startDate": "2018-11-09T10:44:17Z"
+    "operationId": "a346d912-d851-11e8-9578-e3566d9e113a",
+    "operationType": "tenderPeriodEndEv",
+    "startDate": "2018-11-08T20:00:01Z"
   },
   "data": {
     "documents": [
       {
-        "id": "ab7cdb63-da5c-4285-ad7a-b30910e23e1d-1541759517713"
+        "id": "36334614-cdd2-409c-95ea-0fafc99bdb1b-1541709349036"
       }
     ]
   },

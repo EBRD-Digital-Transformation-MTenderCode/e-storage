@@ -69,23 +69,44 @@ class StorageService(private val fileDao: FileDao) {
             throw ExternalException(ErrorType.FILE_NOT_FOUND)
     }
 
-    fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
-        val datePublished = cm.context.startDate.toLocal()
-        val dto = toObject(DocumentsRq::class.java, cm.data)
-        for (document in dto.documents) {
-            publish(document, datePublished)
-        }
-        return ResponseDto(data = dto)
-    }
-
-    fun validateDocuments(cm: CommandMessage): ResponseDto {
+    fun validateDocumentsBatch(cm: CommandMessage): ResponseDto {
         val dto = toObject(DocumentsRq::class.java, cm.data)
         val documentsDto = dto.documents
         val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
         if (docDtoIds.size != documentsDto.size) throw  BpeErrorException(ErrorType.INVALID_ID)
         val fileEntities = fileDao.getAllByIds(docDtoIds)
+        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND)
         val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
         if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND, (docDtoIds - docDbIds).toString())
+        return ResponseDto(data = dto)
+    }
+
+    fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
+        val datePublished = cm.context.startDate.toLocal()
+        val dto = toObject(DocumentsRq::class.java, cm.data)
+        val documentsDto = dto.documents
+        val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
+        //validation
+        val fileEntities = fileDao.getAllByIds(docDtoIds)
+        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND)
+        val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
+        if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND, (docDtoIds - docDbIds).toString())
+        //update
+        val updatedFiles: MutableList<FileEntity> = mutableListOf()
+        fileEntities.forEach { fileEntity ->
+            val document = documentsDto.first{ it.id == fileEntity.id}
+            if (fileEntity.isOpen) {
+                fileEntity.datePublished = datePublished.toDate()
+                fileEntity.isOpen = true
+                updatedFiles.add(fileEntity)
+                document.datePublished = datePublished
+                document.url = uploadFilePath + document.id
+            } else {
+                document.datePublished = fileEntity.datePublished?.toLocal()
+                document.url = uploadFilePath + document.id
+            }
+        }
+        if (updatedFiles.isNotEmpty()) fileDao.saveAll(updatedFiles)
         return ResponseDto(data = dto)
     }
 
@@ -102,46 +123,6 @@ class StorageService(private val fileDao: FileDao) {
             }
         else
             throw ExternalException(ErrorType.FILE_NOT_FOUND)
-    }
-
-    private fun publish(document: Document, datePublished: LocalDateTime) {
-        val fileEntity = fileDao.getOneById(document.id)
-        if (fileEntity != null) {
-            if (!fileEntity.isOpen) {
-                fileEntity.datePublished = datePublished.toDate()
-                fileEntity.isOpen = true
-                fileDao.save(fileEntity)
-                document.datePublished = datePublished
-                document.url = uploadFilePath + document.id
-            } else {
-                document.datePublished = fileEntity.datePublished?.toLocal()
-                document.url = uploadFilePath + document.id
-            }
-        } else {
-            throw BpeErrorException(ErrorType.FILE_NOT_FOUND, document.id)
-        }
-    }
-
-    private fun publishBatch(document: Document, datePublished: LocalDateTime) {
-        val fileEntity = fileDao.getOneById(document.id)
-        if (fileEntity != null) {
-            if (!fileEntity.isOpen) {
-                fileEntity.datePublished = datePublished.toDate()
-                fileEntity.isOpen = true
-                fileDao.save(fileEntity)
-                document.datePublished = datePublished
-                document.url = uploadFilePath + document.id
-            } else {
-                document.datePublished = fileEntity.datePublished?.toLocal()
-                document.url = uploadFilePath + document.id
-            }
-        } else {
-            throw BpeErrorException(ErrorType.FILE_NOT_FOUND, document.id)
-        }
-    }
-
-    private fun validate(document: Document) {
-        fileDao.getOneById(document.id) ?: throw  BpeErrorException(ErrorType.FILE_NOT_FOUND, document.id)
     }
 
     private fun checkFileWeight(fileWeight: Long) {

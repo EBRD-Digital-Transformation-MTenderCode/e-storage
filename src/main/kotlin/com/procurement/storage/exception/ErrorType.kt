@@ -2,7 +2,7 @@ package com.procurement.storage.exception
 
 enum class ErrorType constructor(val code: String, val message: String) {
 
-    FILE_NOT_FOUND("00.01", "File not found by id"),
+    FILE_NOT_FOUND("00.01", "Files not found by id"),
     INVALID_ID("00.02", "Invalid documents id"),
     INVALID_SIZE("00.03", "Invalid file size for registration."),
     INVALID_EXTENSION("00.04", "Invalid file extension for registration."),
