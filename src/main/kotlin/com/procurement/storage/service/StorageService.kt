@@ -21,23 +21,22 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 @Service
 class StorageService(private val fileDao: FileDao) {
 
     @Value("\${upload.file.path}")
-    private var uploadFilePath: String? = null
+    private var uploadFilePath: String = ""
 
     @Value("\${upload.file.folder}")
-    private var uploadFileFolder: String? = null
+    private var uploadFileFolder: String = ""
 
     @Value("\${upload.file.extensions}")
-    private var fileExtensions: Array<String>? = null
+    private var fileExtensions: Array<String> = arrayOf()
 
     @Value("\${upload.file.max-weight}")
-    private var maxFileWeight: Int? = null
+    private var maxFileWeight: Int = 0
 
     fun registerFile(dto: RegistrationRq): RegistrationRs {
         checkFileWeight(dto.weight)
@@ -45,7 +44,7 @@ class StorageService(private val fileDao: FileDao) {
         val fileEntity = fileDao.save(getEntity(dto))
         return RegistrationRs(data = RegistrationDataRs(
                 id = fileEntity.id,
-                url = uploadFilePath!! + fileEntity.id,
+                url = uploadFilePath + fileEntity.id,
                 dateModified = fileEntity.dateModified?.toLocal(),
                 datePublished = fileEntity.datePublished?.toLocal())
         )
@@ -61,7 +60,7 @@ class StorageService(private val fileDao: FileDao) {
             fileDao.save(fileEntity)
             return UploadRs(data = UploadDataRs(
                     id = fileEntity.id,
-                    url = uploadFilePath!! + fileEntity.id,
+                    url = uploadFilePath + fileEntity.id,
                     dateModified = fileEntity.dateModified?.toLocal(),
                     datePublished = fileEntity.datePublished?.toLocal())
             )
@@ -75,9 +74,9 @@ class StorageService(private val fileDao: FileDao) {
         val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
         if (docDtoIds.size != documentsDto.size) throw  BpeErrorException(ErrorType.INVALID_ID)
         val fileEntities = fileDao.getAllByIds(docDtoIds)
-        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND)
+        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
         val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
-        if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND, (docDtoIds - docDbIds).toString())
+        if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, (docDtoIds - docDbIds).toString())
         return ResponseDto(data = dto)
     }
 
@@ -88,13 +87,13 @@ class StorageService(private val fileDao: FileDao) {
         val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
         //validation
         val fileEntities = fileDao.getAllByIds(docDtoIds)
-        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND)
+        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
         val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
-        if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILE_NOT_FOUND, (docDtoIds - docDbIds).toString())
+        if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, (docDtoIds - docDbIds).toString())
         //update
         val updatedFiles: MutableList<FileEntity> = mutableListOf()
         fileEntities.forEach { fileEntity ->
-            val document = documentsDto.first{ it.id == fileEntity.id}
+            val document = documentsDto.first { it.id == fileEntity.id }
             if (fileEntity.isOpen) {
                 fileEntity.datePublished = datePublished.toDate()
                 fileEntity.isOpen = true
@@ -115,25 +114,27 @@ class StorageService(private val fileDao: FileDao) {
         if (fileEntity != null)
             return if (fileEntity.isOpen) {
                 if (fileEntity.fileOnServer == null) {
-                    throw ExternalException(ErrorType.NO_FILE_ON_SERVER)
+                    throw ExternalException(ErrorType.NO_FILE_ON_SERVER, fileId)
                 }
                 FileDataRs(fileEntity.fileName, readFileFromDisk(fileEntity.fileOnServer))
             } else {
-                throw ExternalException(ErrorType.FILE_IS_CLOSED)
+                throw ExternalException(ErrorType.FILE_IS_CLOSED, fileId)
             }
         else
-            throw ExternalException(ErrorType.FILE_NOT_FOUND)
+            throw ExternalException(ErrorType.FILE_NOT_FOUND, fileId)
     }
 
     private fun checkFileWeight(fileWeight: Long) {
-        if (fileWeight == 0L || maxFileWeight!! < fileWeight) throw ExternalException(ErrorType.INVALID_SIZE)
+        if (fileWeight == 0L || maxFileWeight < fileWeight)
+            throw ExternalException(ErrorType.INVALID_SIZE, maxFileWeight.toString())
     }
 
     private fun checkFileNameAndExtension(fileName: String) {
         val baseName = FilenameUtils.getBaseName(fileName)
         if (baseName.contains(".")) throw ExternalException(ErrorType.INVALID_NAME, fileName)
         val fileExtension: String = FilenameUtils.getExtension(fileName)
-        if (fileExtension !in fileExtensions!!) throw ExternalException(ErrorType.INVALID_EXTENSION)
+        if (fileExtension !in fileExtensions )
+            throw ExternalException(ErrorType.INVALID_EXTENSION, fileExtensions.toString())
     }
 
     private fun checkFileHash(fileEntity: FileEntity, file: MultipartFile) {
@@ -160,9 +161,9 @@ class StorageService(private val fileDao: FileDao) {
 
     private fun writeFileToDisk(fileEntity: FileEntity, file: MultipartFile): String {
         try {
-            val fileName = file.originalFilename
-            if (file.isEmpty) throw ExternalException(ErrorType.EMPTY_FILE, fileName!!)
-            if (fileName!!.contains(".."))
+            val fileName = file.originalFilename!!
+            if (file.isEmpty) throw ExternalException(ErrorType.EMPTY_FILE, fileName)
+            if (fileName.contains(".."))
                 throw ExternalException(ErrorType.INVALID_PATH, fileName)
             val fileID = fileEntity.id
             val dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/"

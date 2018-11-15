@@ -1,6 +1,6 @@
 {
   "id": "a346d912-d851-11e8-9578-e3566d9e113a",
-  "command": "publish",
+  "command": "validate",
   "context": {
     "operationId": "a346d912-d851-11e8-9578-e3566d9e113a",
     "operationType": "tenderPeriodEndEv",
@@ -9,7 +9,16 @@
   "data": {
     "documents": [
       {
-        "id": "36334614-cdd2-409c-95ea-0fafc99bdb1b-1541709349036"
+        "id": "6f2bf2af-5e70-419d-8547-2fd36285e0d5-1542116052437"
+      },
+      {
+        "id": "fe51de0b-6d5e-4b89-818f-c2ecdda822fc-1542196822314 "
+      },
+      {
+        "id": "62390fd1-48b1-41f5-af6b-1ae1921e2df9-1542205042566"
+      },
+      {
+        "id": "c5e7acc8-977d-4b65-955e-8af9492b46bf-1542197782908"
       }
     ]
   },

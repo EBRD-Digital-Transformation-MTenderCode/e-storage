@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ -n "$1" ]
 then
-  command="java -Xmx256m -XX:MaxDirectMemorySize=512m -Dlogging.config=/maven/config/logback.xml"
+  command="java -Xmx64m -XX:MaxDirectMemorySize=64m -Dlogging.config=/maven/config/logback.xml"
 
   for param in `printenv | awk '/^__PROP_/{print $0}'`
   do

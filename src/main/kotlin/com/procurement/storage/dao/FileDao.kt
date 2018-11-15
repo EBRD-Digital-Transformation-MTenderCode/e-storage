@@ -36,6 +36,7 @@ class FileDao(private val session: Session) {
                 .where(`in`(ID, *fileIds.toTypedArray()))
         val resultSet = session.execute(query)
         val entities = ArrayList<FileEntity>()
+        if (resultSet.isFullyFetched)
         resultSet.forEach { row ->
             entities.add(FileEntity(
                     id = row.getString(ID),
