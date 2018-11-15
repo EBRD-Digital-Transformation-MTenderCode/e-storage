@@ -77,7 +77,7 @@ class StorageService(private val fileDao: FileDao) {
         if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
         val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
         if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, (docDtoIds - docDbIds).toString())
-        return ResponseDto(data = dto)
+        return ResponseDto(data = "ok")
     }
 
     fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
