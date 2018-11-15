@@ -21,6 +21,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 @Service
@@ -83,30 +84,28 @@ class StorageService(private val fileDao: FileDao) {
     fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
         val datePublished = cm.context.startDate.toLocal()
         val dto = toObject(DocumentsRq::class.java, cm.data)
-        val documentsDto = dto.documents
-        val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
-        //validation
-        val fileEntities = fileDao.getAllByIds(docDtoIds)
-        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
-        val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
-        if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, (docDtoIds - docDbIds).toString())
-        //update
-        val updatedFiles: MutableList<FileEntity> = mutableListOf()
-        fileEntities.forEach { fileEntity ->
-            val document = documentsDto.first { it.id == fileEntity.id }
-            if (fileEntity.isOpen) {
+        for (document in dto.documents) {
+            publish(document, datePublished)
+        }
+        return ResponseDto(data = dto)
+    }
+
+    private fun publish(document: Document, datePublished: LocalDateTime) {
+        val fileEntity = fileDao.getOneById(document.id)
+        if (fileEntity != null) {
+            if (!fileEntity.isOpen) {
                 fileEntity.datePublished = datePublished.toDate()
                 fileEntity.isOpen = true
-                updatedFiles.add(fileEntity)
+                fileDao.save(fileEntity)
                 document.datePublished = datePublished
                 document.url = uploadFilePath + document.id
             } else {
                 document.datePublished = fileEntity.datePublished?.toLocal()
                 document.url = uploadFilePath + document.id
             }
+        } else {
+            throw BpeErrorException(ErrorType.FILE_NOT_FOUND, document.id)
         }
-        if (updatedFiles.isNotEmpty()) fileDao.saveAll(updatedFiles)
-        return ResponseDto(data = dto)
     }
 
     fun getFileById(fileId: String): FileDataRs {
