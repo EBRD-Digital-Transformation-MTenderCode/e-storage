@@ -123,6 +123,22 @@ class StorageService(private val fileDao: FileDao) {
             throw ExternalException(ErrorType.FILE_NOT_FOUND, fileId)
     }
 
+    fun getFileEntityById(fileId: String): FileEntity {
+        val fileEntity = fileDao.getOneById(fileId)
+        if (fileEntity != null)
+            return if (fileEntity.isOpen) {
+                if (fileEntity.fileOnServer == null) {
+                    throw ExternalException(ErrorType.NO_FILE_ON_SERVER, fileId)
+                }
+                fileEntity
+            } else {
+                throw ExternalException(ErrorType.FILE_IS_CLOSED, fileId)
+            }
+        else
+            throw ExternalException(ErrorType.FILE_NOT_FOUND, fileId)
+    }
+
+
     private fun checkFileWeight(fileWeight: Long) {
         if (fileWeight == 0L || maxFileWeight < fileWeight)
             throw ExternalException(ErrorType.INVALID_SIZE, maxFileWeight.toString())
