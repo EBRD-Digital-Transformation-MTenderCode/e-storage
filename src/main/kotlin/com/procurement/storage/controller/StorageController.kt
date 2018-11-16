@@ -8,17 +8,15 @@ import com.procurement.storage.model.dto.registration.RegistrationRq
 import com.procurement.storage.model.dto.registration.RegistrationRs
 import com.procurement.storage.model.dto.registration.UploadRs
 import com.procurement.storage.service.StorageService
+import org.apache.tomcat.util.http.fileupload.IOUtils
 import org.springframework.core.io.Resource
 import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import com.sun.xml.internal.ws.streaming.XMLStreamWriterUtil.getOutputStream
-import org.apache.catalina.manager.StatusTransformer.setContentType
-import org.apache.tomcat.util.http.fileupload.IOUtils
+import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 import javax.servlet.http.HttpServletResponse
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestMapping
-
 
 
 @RestController
@@ -38,27 +36,24 @@ class StorageController(private val storageService: StorageService) {
         return ResponseEntity(storageService.uploadFile(fileId, file), HttpStatus.CREATED)
     }
 
-    @GetMapping(value = ["/get/{fileId}"])
-    fun getFile(@PathVariable(value = "fileId") fileId: String): ResponseEntity<Resource> {
-        val file = storageService.getFileById(fileId)
-        val resource = file.resource
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.parseMediaType("application/octet-stream")
-        headers.contentDisposition = ContentDisposition.parse("attachment; filename=" + file.fileName)
-        headers.contentLength = resource.contentLength()
-        return ResponseEntity(resource, headers, HttpStatus.OK)
-    }
+//    @GetMapping(value = ["/get/{fileId}"])
+//    fun getFile(@PathVariable(value = "fileId") fileId: String): ResponseEntity<Resource> {
+//        val file = storageService.getFileById(fileId)
+//        val resource = file.resource
+//        val headers = HttpHeaders()
+//        headers.contentType = MediaType.parseMediaType("application/octet-stream")
+//        headers.contentDisposition = ContentDisposition.parse("attachment; filename=" + file.fileName)
+//        headers.contentLength = resource.contentLength()
+//        return ResponseEntity(resource, headers, HttpStatus.OK)
+//    }
 
-    @GetMapping(value = "download/{fileId}")
-    fun getDownload(@PathVariable(value = "fileId") fileId: String, response: HttpServletResponse) {
-        // Get your file stream from wherever.
-        val fileEntity =  storageService.getFileEntityById(fileId)
-        val fileStream = someClass.returnFile()
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.parseMediaType("application/octet-stream")
-        headers.contentDisposition = ContentDisposition.parse("attachment; filename=" + file.fileName)
-        // Copy the stream to the response's output stream.
-        IOUtils.copy(fileStream, response.outputStream)
+    @GetMapping(value = ["/get/{fileId}"])
+    fun getFile(@PathVariable(value = "fileId") fileId: String, response: HttpServletResponse) {
+        val fileEntity = storageService.getFileEntityById(fileId)
+        response.addHeader("Content-disposition", "attachment; filename=" + fileEntity.fileName)
+        response.contentType = "application/octet-stream"
+        response.status = HttpStatus.OK.value()
+        IOUtils.copyLarge(Files.newInputStream(Paths.get(fileEntity.fileOnServer)), response.outputStream)
         response.flushBuffer()
     }
 

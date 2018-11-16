@@ -148,7 +148,7 @@ class StorageService(private val fileDao: FileDao) {
         val baseName = FilenameUtils.getBaseName(fileName)
         if (baseName.contains(".")) throw ExternalException(ErrorType.INVALID_NAME, fileName)
         val fileExtension: String = FilenameUtils.getExtension(fileName)
-        if (fileExtension !in fileExtensions )
+        if (fileExtension !in fileExtensions)
             throw ExternalException(ErrorType.INVALID_EXTENSION, fileExtensions.toString())
     }
 
