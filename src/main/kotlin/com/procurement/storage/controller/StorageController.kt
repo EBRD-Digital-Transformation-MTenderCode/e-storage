@@ -9,11 +9,11 @@ import com.procurement.storage.model.dto.registration.RegistrationRs
 import com.procurement.storage.model.dto.registration.UploadRs
 import com.procurement.storage.service.StorageService
 import org.apache.tomcat.util.http.fileupload.IOUtils
-import org.springframework.core.io.Resource
-import org.springframework.http.*
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.io.InputStream
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import javax.servlet.http.HttpServletResponse
@@ -50,10 +50,11 @@ class StorageController(private val storageService: StorageService) {
     @GetMapping(value = ["/get/{fileId}"])
     fun getFile(@PathVariable(value = "fileId") fileId: String, response: HttpServletResponse) {
         val fileEntity = storageService.getFileEntityById(fileId)
+        val fileInputStream = Files.newInputStream(Paths.get(fileEntity.fileOnServer))
         response.addHeader("Content-disposition", "attachment; filename=" + fileEntity.fileName)
         response.contentType = "application/octet-stream"
         response.status = HttpStatus.OK.value()
-        IOUtils.copyLarge(Files.newInputStream(Paths.get(fileEntity.fileOnServer)), response.outputStream)
+        IOUtils.copyLarge(fileInputStream, response.outputStream)
         response.flushBuffer()
     }
 
