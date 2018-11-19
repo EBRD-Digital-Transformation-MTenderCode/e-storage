@@ -73,7 +73,6 @@ class StorageService(private val fileDao: FileDao) {
         val dto = toObject(DocumentsRq::class.java, cm.data)
         val documentsDto = dto.documents
         val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
-        if (docDtoIds.size != documentsDto.size) throw  BpeErrorException(ErrorType.INVALID_ID)
         val fileEntities = fileDao.getAllByIds(docDtoIds)
         if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
         val docDbIds = fileEntities.asSequence().map { it.id }.toSet()

@@ -1,24 +1,42 @@
 {
-  "id": "a346d912-d851-11e8-9578-e3566d9e113a",
+  "id": "63dbbd90-ec0f-11e8-a14e-1f5f70b3c484",
   "command": "validate",
   "context": {
-    "operationId": "a346d912-d851-11e8-9578-e3566d9e113a",
-    "operationType": "tenderPeriodEndEv",
-    "startDate": "2018-11-08T20:00:01Z"
+    "operationId": "a1bcd000-b00d-4644-b0e6-4b75020b1310",
+    "requestId": "63dbbd90-ec0f-11e8-a14e-1f5f70b3c484",
+    "cpid": "ocds-t1s2t3-MD-1542622343629",
+    "ocid": "ocds-t1s2t3-MD-1542622343629-AC-1542965261745",
+    "stage": "AC",
+    "prevStage": "AC",
+    "processType": "updateAC",
+    "operationType": "updateAC",
+    "phase": "contractPreparation",
+    "owner": "445f6851-c908-407d-9b45-14b92f3e964b",
+    "country": "MD",
+    "language": "ro",
+    "pmd": "TEST_OT",
+    "token": "bf51ddcd-c8ac-4ca5-aed4-0af11efc3bfe",
+    "startDate": "2018-11-19T15:25:47Z",
+    "timeStamp": 1542641147881,
+    "isAuction": false
   },
   "data": {
     "documents": [
       {
-        "id": "6f2bf2af-5e70-419d-8547-2fd36285e0d5-1542116052437"
+        "documentType": "contractDraft",
+        "id": "379e4907-5ab9-4db7-a669-9ffb6c12d781-1542640870786"
       },
       {
-        "id": "fe51de0b-6d5e-4b89-818f-c2ecdda822fc-1542196822314"
+        "id": "164f1129-4be3-4bce-9647-d7a1b1e6c11b-1542622196101",
+        "documentType": "contractArrangements"
       },
       {
-        "id": "62390fd1-48b1-41f5-af6b-1ae1921e2df9-1542205042566"
+        "id": "164f1129-4be3-4bce-9647-d7a1b1e6c11b-1542622196101",
+        "documentType": "awardNotice"
       },
       {
-        "id": "c5e7acc8-977d-4b65-955e-8af9492b46bf-1542197782908"
+        "id": "379e4907-5ab9-4db7-a669-9ffb6c12d781-1542640870786",
+        "documentType": "regulatoryDocument"
       }
     ]
   },
