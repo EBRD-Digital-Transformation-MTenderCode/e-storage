@@ -107,21 +107,6 @@ class StorageService(private val fileDao: FileDao) {
         }
     }
 
-    fun getFileDataById(fileId: String): FileDataRs {
-        val fileEntity = fileDao.getOneById(fileId)
-        if (fileEntity != null)
-            return if (fileEntity.isOpen) {
-                if (fileEntity.fileOnServer == null) {
-                    throw ExternalException(ErrorType.NO_FILE_ON_SERVER, fileId)
-                }
-                FileDataRs(fileEntity.fileName, readFileFromDisk(fileEntity.fileOnServer))
-            } else {
-                throw ExternalException(ErrorType.FILE_IS_CLOSED, fileId)
-            }
-        else
-            throw ExternalException(ErrorType.FILE_NOT_FOUND, fileId)
-    }
-
     fun getFileEntityById(fileId: String): FileEntity {
         val fileEntity = fileDao.getOneById(fileId)
         if (fileEntity != null)
@@ -136,7 +121,6 @@ class StorageService(private val fileDao: FileDao) {
         else
             throw ExternalException(ErrorType.FILE_NOT_FOUND, fileId)
     }
-
 
     private fun checkFileWeight(fileWeight: Long) {
         if (fileWeight == 0L || maxFileWeight < fileWeight)
