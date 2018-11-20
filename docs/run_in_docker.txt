@@ -2,6 +2,8 @@
 # Create Network if not exist #
 #*****************************#
 
+command="java -Xmx256m -XX:MaxDirectMemorySize=64m -Dlogging.config=/maven/config/logback.xml"
+
 docker network create \
   --driver bridge \
   --subnet 192.168.100.0/24 \

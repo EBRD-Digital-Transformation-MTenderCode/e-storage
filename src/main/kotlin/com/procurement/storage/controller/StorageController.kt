@@ -38,19 +38,19 @@ class StorageController(private val storageService: StorageService) {
         return ResponseEntity(storageService.uploadFile(fileId, file), HttpStatus.CREATED)
     }
 
-    @GetMapping(value = ["/get/{fileId}"])
-    fun getFile(@PathVariable(value = "fileId") fileId: String): ResponseEntity<Resource> {
-        val file = storageService.getFileById(fileId)
-        val resource = file.resource
-        val fileName = file.fileName
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.parseMediaType("application/octet-stream")
-        headers.set("Content-disposition", "attachment; filename=$fileName")
-        headers.contentLength = resource.contentLength()
-        return ResponseEntity(resource, headers, HttpStatus.OK)
-    }
+//    @GetMapping(value = ["/get/{fileId}"])
+//    fun getFile(@PathVariable(value = "fileId") fileId: String): ResponseEntity<Resource> {
+//        val file = storageService.getFileById(fileId)
+//        val resource = file.resource
+//        val fileName = file.fileName
+//        val headers = HttpHeaders()
+//        headers.contentType = MediaType.parseMediaType("application/octet-stream")
+//        headers.set("Content-disposition", "attachment; filename=$fileName")
+//        headers.contentLength = resource.contentLength()
+//        return ResponseEntity(resource, headers, HttpStatus.OK)
+//    }
 
-    @GetMapping(value = ["/getStream/{fileId}"])
+    @GetMapping(value = ["/get/{fileId}"])
     fun getFileStream(@PathVariable(value = "fileId") fileId: String, response: HttpServletResponse) {
         val fileEntity = storageService.getFileEntityById(fileId)
         val fileInputStream = Files.newInputStream(Paths.get(fileEntity.fileOnServer))
