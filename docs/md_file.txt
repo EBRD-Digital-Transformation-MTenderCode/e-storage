@@ -15,7 +15,7 @@
 
 {
   "id": "a1bcd000-b00d-4644-b0e6-4b75020b1310",
-  "command": "publish",
+  "command": "publish", "validate"
   "context": {
     "operationId": "a1bcd000-b00d-4644-b0e6-4b75020b1310",
     "operationType": "updateAC",
