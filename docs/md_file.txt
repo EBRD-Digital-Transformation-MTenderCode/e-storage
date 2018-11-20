@@ -1,0 +1,15 @@
+{
+  "hash": "5477B39590BD3446C9C916089B64D599",
+  "weight": 20882349,
+  "fileName": "morgan kai limited  &amp; grant thornton- rfp response for procurement of audit management it system together with audit methodology asssitance.pdf"
+}
+
+{
+  "data": {
+    "id": "d8e8f2cf-9ac2-4449-b7ee-2f82db0086a5-1542704969225",
+    "url": "http://bpe.eprocurement.systems/api/v1/storage/get/d8e8f2cf-9ac2-4449-b7ee-2f82db0086a5-1542704969225",
+    "dateModified": "2018-11-20T09:09:29Z",
+    "datePublished": null
+  }
+}
+
