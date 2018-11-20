@@ -176,16 +176,6 @@ class StorageService(private val fileDao: FileDao) {
 
     }
 
-    private fun readFileFromDisk(fileOnServer: String?): ByteArrayResource {
-        try {
-            val path = Paths.get(fileOnServer)
-            return ByteArrayResource(Files.readAllBytes(path))
-        } catch (e: IOException) {
-            throw ExternalException(ErrorType.READ_EXCEPTION, e.message!!)
-        }
-
-    }
-
     private fun getEntity(dto: RegistrationRq): FileEntity {
         val fileId = if (dto.id != null) {
             val id = dto.id.substring(0, 36)
