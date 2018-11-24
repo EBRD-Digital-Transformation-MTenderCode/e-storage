@@ -19,6 +19,7 @@ import org.springframework.util.DigestUtils
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDateTime
@@ -129,7 +130,8 @@ class StorageService(private val fileDao: FileDao) {
 
     private fun checkFileNameAndExtension(fileName: String) {
         val baseName = FilenameUtils.getBaseName(fileName)
-        if (baseName.contains(".")) throw ExternalException(ErrorType.INVALID_NAME, fileName)
+        val regex = Regex(pattern = "[.]")
+        if (regex.containsMatchIn(baseName)) throw ExternalException(ErrorType.INVALID_NAME, fileName)
         val fileExtension: String = FilenameUtils.getExtension(fileName)
         if (fileExtension !in fileExtensions)
             throw ExternalException(ErrorType.INVALID_EXTENSION, fileExtensions.toString())
@@ -195,5 +197,16 @@ class StorageService(private val fileDao: FileDao) {
                 datePublished = null,
                 fileOnServer = null,
                 owner = null)
+    }
+
+    fun processFileName(fileName: String): String {
+//        val re = Regex(pattern = "[\\[\\]\\\\~!@#$^&*()`;<>?,{}‘“]")
+//        return re.replace(fileName, "_")
+        return fileName
+    }
+
+
+    fun getFileStream(fileOnServer: String): InputStream {
+       return Files.newInputStream(Paths.get(fileOnServer))
     }
 }

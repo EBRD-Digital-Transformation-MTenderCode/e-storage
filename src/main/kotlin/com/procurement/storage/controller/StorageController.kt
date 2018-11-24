@@ -38,8 +38,9 @@ class StorageController(private val storageService: StorageService) {
     @GetMapping(value = ["/get/{fileId}"])
     fun getFileStream(@PathVariable(value = "fileId") fileId: String, response: HttpServletResponse) {
         val fileEntity = storageService.getFileEntityById(fileId)
-        val fileInputStream = Files.newInputStream(Paths.get(fileEntity.fileOnServer))
-        response.addHeader("Content-disposition", "attachment; filename=" + fileEntity.fileName)
+        val fileInputStream = storageService.getFileStream(fileEntity.fileOnServer!!)
+        val fileName = storageService.processFileName(fileEntity.fileName)
+        response.addHeader("Content-disposition", "attachment; filename=$fileName")
         response.contentType = "application/octet-stream"
         response.status = HttpStatus.OK.value()
         IOUtils.copyLarge(fileInputStream, response.outputStream)
@@ -55,5 +56,4 @@ class StorageController(private val storageService: StorageService) {
             else -> getExceptionResponseDto(ex)
         }
     }
-
 }

@@ -67,25 +67,6 @@ class FileDao(private val session: Session) {
         return entity
     }
 
-    fun saveAll(entities: List<FileEntity>) {
-        val operations = ArrayList<Insert>()
-        entities.forEach { entity ->
-            operations.add(QueryBuilder.insertInto(FILES_TABLE)
-                    .value(ID, entity.id)
-                    .value(IS_OPEN, entity.isOpen)
-                    .value(MODIFIED, entity.dateModified)
-                    .value(PUBLISHED, entity.datePublished)
-                    .value(HASH, entity.hash)
-                    .value(WEIGHT, entity.weight)
-                    .value(NAME, entity.fileName)
-                    .value(ON_SERVER, entity.fileOnServer)
-                    .value(OWNER, entity.owner)
-            )
-        }
-        val batch = QueryBuilder.batch(*operations.toTypedArray())
-        session.execute(batch)
-    }
-
     companion object {
         private const val FILES_TABLE = "storage_files"
         private const val ID = "file_id"
