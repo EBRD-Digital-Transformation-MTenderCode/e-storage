@@ -13,7 +13,6 @@ import com.procurement.storage.utils.*
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Service
 import org.springframework.util.DigestUtils
 import org.springframework.web.multipart.MultipartFile
@@ -130,7 +129,7 @@ class StorageService(private val fileDao: FileDao) {
 
     private fun checkFileNameAndExtension(fileName: String) {
         val baseName = FilenameUtils.getBaseName(fileName)
-        val regex = Regex(pattern = "[.]")
+        val regex = getRegexForFileName()
         if (regex.containsMatchIn(baseName)) throw ExternalException(ErrorType.INVALID_NAME, fileName)
         val fileExtension: String = FilenameUtils.getExtension(fileName)
         if (fileExtension !in fileExtensions)
@@ -149,22 +148,22 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     private fun checkFileName(fileEntity: FileEntity, file: MultipartFile) {
-        if (file.originalFilename != fileEntity.fileName)
-            throw ExternalException(ErrorType.INVALID_NAME)
+        val fileName = file.originalFilename!!
+        if (fileName != fileEntity.fileName) throw ExternalException(ErrorType.INVALID_NAME, fileName)
+        val baseName = FilenameUtils.getBaseName(fileName)
+        val regex = getRegexForFileName()
+        if (regex.containsMatchIn(baseName)) throw ExternalException(ErrorType.INVALID_NAME, fileName)
     }
 
     private fun checkFileSize(fileEntity: FileEntity, file: MultipartFile) {
         val fileSizeMb = file.size
-        if (fileSizeMb > fileEntity.weight)
-            throw ExternalException(ErrorType.INVALID_SIZE)
+        if (fileSizeMb > fileEntity.weight) throw ExternalException(ErrorType.INVALID_SIZE)
     }
 
     private fun writeFileToDisk(fileEntity: FileEntity, file: MultipartFile): String {
         try {
             val fileName = file.originalFilename!!
             if (file.isEmpty) throw ExternalException(ErrorType.EMPTY_FILE, fileName)
-            if (fileName.contains(".."))
-                throw ExternalException(ErrorType.INVALID_PATH, fileName)
             val fileID = fileEntity.id
             val dir = uploadFileFolder + "/" + fileID.substring(0, 2) + "/" + fileID.substring(2, 4) + "/"
             Files.createDirectories(Paths.get(dir))
@@ -200,13 +199,16 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     fun processFileName(fileName: String): String {
-//        val re = Regex(pattern = "[\\[\\]\\\\~!@#$^&*()`;<>?,{}‘“]")
-//        return re.replace(fileName, "_")
+//        return getRegexForFileName().replace(fileName, "_")
         return fileName
     }
 
+    fun getRegexForFileName(): Regex {
+        //"[\\[\\]\\\\~!@#$^&*()`;<>?,{}‘“]"
+        return Regex(pattern = "[.]")
+    }
 
     fun getFileStream(fileOnServer: String): InputStream {
-       return Files.newInputStream(Paths.get(fileOnServer))
+        return Files.newInputStream(Paths.get(fileOnServer))
     }
 }
