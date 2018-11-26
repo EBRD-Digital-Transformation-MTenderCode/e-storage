@@ -205,7 +205,7 @@ class StorageService(private val fileDao: FileDao) {
 
     fun getRegexForFileName(): Regex {
         //"[\\[\\]\\\\~!@#$^&*()`;<>?,{}‘“]"
-        return Regex(pattern = "[.]")
+        return Regex(pattern = "[;]")
     }
 
     fun getFileStream(fileOnServer: String): InputStream {
