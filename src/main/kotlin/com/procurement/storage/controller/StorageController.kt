@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.nio.file.Files
-import java.nio.file.Paths
 import javax.servlet.http.HttpServletResponse
 
 
@@ -40,7 +38,7 @@ class StorageController(private val storageService: StorageService) {
         val fileEntity = storageService.getFileEntityById(fileId)
         val fileInputStream = storageService.getFileStream(fileEntity.fileOnServer!!)
         val fileName = storageService.processFileName(fileEntity.fileName)
-        response.addHeader("Content-disposition", "attachment; filename=$fileName")
+        response.addHeader("content-disposition", "attachment; filename=\"" + fileName + "\"")
         response.contentType = "application/octet-stream"
         response.status = HttpStatus.OK.value()
         IOUtils.copyLarge(fileInputStream, response.outputStream)
