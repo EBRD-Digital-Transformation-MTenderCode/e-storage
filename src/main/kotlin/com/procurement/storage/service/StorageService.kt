@@ -194,17 +194,12 @@ class StorageService(private val fileDao: FileDao) {
                 owner = null)
     }
 
-    fun processFileName(fileName: String): String {
-//        return getRegexForFileName().replace(fileName, "_")
-        return fileName
-    }
-
-    fun checkFileNameByRegex(fileName: String) {
+//    fun checkFileNameByRegex(fileName: String) {
 //        val regex =  Regex(pattern = "[\\[\\]\\\\~!@#$^&*()`;<>?,{}‘“]")
 //        val regex =  Regex(pattern = "[;]")
 //        val baseName = FilenameUtils.getBaseName(fileName)
 //        if (regex.containsMatchIn(baseName)) throw ExternalException(ErrorType.INVALID_NAME, fileName)
-    }
+//    }
 
     fun getFileStream(fileOnServer: String): InputStream {
         return Files.newInputStream(Paths.get(fileOnServer))
