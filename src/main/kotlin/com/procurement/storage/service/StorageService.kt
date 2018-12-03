@@ -128,9 +128,7 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     private fun checkFileNameAndExtension(fileName: String) {
-        val baseName = FilenameUtils.getBaseName(fileName)
-        val regex = getRegexForFileName()
-        if (regex.containsMatchIn(baseName)) throw ExternalException(ErrorType.INVALID_NAME, fileName)
+//      checkFileNameByRegex(fileName)
         val fileExtension: String = FilenameUtils.getExtension(fileName)
         if (fileExtension !in fileExtensions)
             throw ExternalException(ErrorType.INVALID_EXTENSION, fileExtensions.toString())
@@ -150,9 +148,7 @@ class StorageService(private val fileDao: FileDao) {
     private fun checkFileName(fileEntity: FileEntity, file: MultipartFile) {
         val fileName = file.originalFilename!!
         if (fileName != fileEntity.fileName) throw ExternalException(ErrorType.INVALID_NAME, fileName)
-        val baseName = FilenameUtils.getBaseName(fileName)
-        val regex = getRegexForFileName()
-        if (regex.containsMatchIn(baseName)) throw ExternalException(ErrorType.INVALID_NAME, fileName)
+//      checkFileNameByRegex(fileName)
     }
 
     private fun checkFileSize(fileEntity: FileEntity, file: MultipartFile) {
@@ -203,9 +199,11 @@ class StorageService(private val fileDao: FileDao) {
         return fileName
     }
 
-    fun getRegexForFileName(): Regex {
-        //"[\\[\\]\\\\~!@#$^&*()`;<>?,{}‘“]"
-        return Regex(pattern = "[;]")
+    fun checkFileNameByRegex(fileName: String) {
+//        val regex =  Regex(pattern = "[\\[\\]\\\\~!@#$^&*()`;<>?,{}‘“]")
+//        val regex =  Regex(pattern = "[;]")
+//        val baseName = FilenameUtils.getBaseName(fileName)
+//        if (regex.containsMatchIn(baseName)) throw ExternalException(ErrorType.INVALID_NAME, fileName)
     }
 
     fun getFileStream(fileOnServer: String): InputStream {
