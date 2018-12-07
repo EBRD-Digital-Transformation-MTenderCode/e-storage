@@ -79,7 +79,7 @@ data class ResponseErrorDto(
 fun getExceptionResponseDto(exception: Exception): ResponseDto {
     return ResponseDto(
             errors = listOf(ResponseErrorDto(
-                    code = "400.14.00",
+                    code = "500.14.00",
                     description = exception.message
             )))
 }

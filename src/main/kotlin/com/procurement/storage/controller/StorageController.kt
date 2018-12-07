@@ -48,12 +48,17 @@ class StorageController(private val storageService: StorageService) {
     }
 
     @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception::class)
     fun exception(ex: Exception): ResponseDto {
-        return when (ex) {
-            is ExternalException -> getExternalExceptionResponseDto(ex)
-            else -> getExceptionResponseDto(ex)
-        }
+        return getExceptionResponseDto(ex)
     }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ExternalException::class)
+    fun externalException(ex: ExternalException): ResponseDto {
+        return getExternalExceptionResponseDto(ex)
+    }
+
 }

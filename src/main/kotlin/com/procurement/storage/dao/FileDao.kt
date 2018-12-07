@@ -1,12 +1,10 @@
 package com.procurement.storage.dao
 
 import com.datastax.driver.core.Session
-import com.datastax.driver.core.querybuilder.Insert
-import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder.*
 import com.procurement.storage.model.entity.FileEntity
 import org.springframework.stereotype.Service
-import java.util.ArrayList
+import java.util.*
 
 @Service
 class FileDao(private val session: Session) {
@@ -37,18 +35,18 @@ class FileDao(private val session: Session) {
         val resultSet = session.execute(query)
         val entities = ArrayList<FileEntity>()
         if (resultSet.isFullyFetched)
-        resultSet.forEach { row ->
-            entities.add(FileEntity(
-                    id = row.getString(ID),
-                    isOpen = row.getBool(IS_OPEN),
-                    dateModified = row.getTimestamp(MODIFIED),
-                    datePublished = row.getTimestamp(PUBLISHED),
-                    hash = row.getString(HASH),
-                    weight = row.getLong(WEIGHT),
-                    fileName = row.getString(NAME),
-                    fileOnServer = row.getString(ON_SERVER),
-                    owner = row.getString(OWNER)))
-        }
+            resultSet.forEach { row ->
+                entities.add(FileEntity(
+                        id = row.getString(ID),
+                        isOpen = row.getBool(IS_OPEN),
+                        dateModified = row.getTimestamp(MODIFIED),
+                        datePublished = row.getTimestamp(PUBLISHED),
+                        hash = row.getString(HASH),
+                        weight = row.getLong(WEIGHT),
+                        fileName = row.getString(NAME),
+                        fileOnServer = row.getString(ON_SERVER),
+                        owner = row.getString(OWNER)))
+            }
         return entities
     }
 

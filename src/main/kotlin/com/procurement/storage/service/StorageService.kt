@@ -1,9 +1,6 @@
 package com.procurement.storage.service
 
 import com.datastax.driver.core.utils.UUIDs
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCollapser
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty
 import com.procurement.storage.dao.FileDao
 import com.procurement.storage.exception.BpeErrorException
 import com.procurement.storage.exception.ErrorType
