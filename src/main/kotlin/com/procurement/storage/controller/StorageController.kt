@@ -39,8 +39,7 @@ class StorageController(private val storageService: StorageService) {
         val fileEntity = storageService.getFileEntityById(fileId)
 
         val fileInputStream = storageService.getFileStream(fileEntity.fileOnServer!!)
-        val fileName = storageService.processFileName(fileEntity.fileName)
-        response.addHeader("Content-disposition", "attachment; filename=$fileName")
+        response.addHeader("content-disposition", "attachment; filename=\"" + fileEntity.fileName + "\"")
         response.contentType = "application/octet-stream"
         response.status = HttpStatus.OK.value()
         IOUtils.copyLarge(fileInputStream, response.outputStream)

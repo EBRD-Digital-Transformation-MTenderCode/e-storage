@@ -1,20 +1,30 @@
 {
-  "hash": "5477B39590BD3446C9C916089B64D599",
-  "weight": 20882349,
-  "fileName": "morgan kai limited  &amp; grant thornton- rfp response for procurement of audit management it system together with audit methodology asssitance.pdf"
+  "hash": "CCF326566F6EB2C6B89E8066DA4F85F7",
+  "weight": 341584,
+  "fileName": "[]~!@#$^&*()`;<>?,{}‘“..pdf"
+               []_!@#$^&_()`;___,{}__..pdf
 }
 
 {
   "data": {
-    "id": "ac444531-5496-48f4-8f51-ba646bb939f8-1542708329507",
-    "url": "http://bpe.eprocurement.systems/api/v1/storage/get/ac444531-5496-48f4-8f51-ba646bb939f8-1542708329507",
-    "dateModified": "2018-11-20T10:05:29Z",
+    "id": "67dc2a7e-cc8a-4330-ac08-0190a29850b3-1543828043275",
+    "url": "http://bpe.eprocurement.systems/api/v1/storage/get/67dc2a7e-cc8a-4330-ac08-0190a29850b3-1543828043275",
+    "dateModified": "2018-12-03T09:07:23Z",
     "datePublished": null
   }
 }
 
 {
-  "id": "a1bcd000-b00d-4644-b0e6-4b75020b1310",
+  "data": {
+    "id": "67dc2a7e-cc8a-4330-ac08-0190a29850b3-1543828043275",
+    "url": "http://bpe.eprocurement.systems/api/v1/storage/get/67dc2a7e-cc8a-4330-ac08-0190a29850b3-1543828043275",
+    "dateModified": "2018-12-03T09:07:23Z",
+    "datePublished": null
+  }
+}
+
+{
+  "id": "a1bcd000-b00d-4644-b0e6-4b75020b1321",
   "command": "publish", "validate"
   "context": {
     "operationId": "a1bcd000-b00d-4644-b0e6-4b75020b1310",
@@ -25,7 +35,7 @@
     "documents": [
       {
         "documentType": "contractDraft",
-        "id": "ac444531-5496-48f4-8f51-ba646bb939f8-1542708329507"
+        "id": "023d6da3-49bc-4c21-90e4-0b18dc7a7d60-1543854929998"
       }
     ]
   },
