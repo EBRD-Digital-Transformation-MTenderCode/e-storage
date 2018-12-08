@@ -24,6 +24,7 @@ import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.regex.Pattern
 
+
 @Service
 class StorageService(private val fileDao: FileDao) {
 
@@ -107,21 +108,6 @@ class StorageService(private val fileDao: FileDao) {
         }
     }
 
-    fun getFileEntityById(fileId: String): FileEntity {
-        val fileEntity = fileDao.getOneById(fileId)
-        if (fileEntity != null)
-            return if (fileEntity.isOpen) {
-                if (fileEntity.fileOnServer == null) {
-                    throw ExternalException(ErrorType.NO_FILE_ON_SERVER, fileId)
-                }
-                fileEntity
-            } else {
-                throw ExternalException(ErrorType.FILE_IS_CLOSED, fileId)
-            }
-        else
-            throw ExternalException(ErrorType.FILE_NOT_FOUND, fileId)
-    }
-
     private fun checkFileWeight(fileWeight: Long) {
         if (fileWeight == 0L || maxFileWeight < fileWeight)
             throw ExternalException(ErrorType.INVALID_SIZE, maxFileWeight.toString())
@@ -203,5 +189,20 @@ class StorageService(private val fileDao: FileDao) {
 
     fun getFileStream(fileOnServer: String): InputStream {
         return Files.newInputStream(Paths.get(fileOnServer))
+    }
+
+    fun getFileEntityById(fileId: String): FileEntity {
+        val fileEntity = fileDao.getOneById(fileId)
+        if (fileEntity != null)
+            return if (fileEntity.isOpen) {
+                if (fileEntity.fileOnServer == null) {
+                    throw ExternalException(ErrorType.NO_FILE_ON_SERVER, fileId)
+                }
+                fileEntity
+            } else {
+                throw ExternalException(ErrorType.FILE_IS_CLOSED, fileId)
+            }
+        else
+            throw ExternalException(ErrorType.FILE_NOT_FOUND, fileId)
     }
 }

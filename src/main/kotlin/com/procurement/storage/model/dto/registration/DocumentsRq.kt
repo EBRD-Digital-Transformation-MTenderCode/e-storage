@@ -34,5 +34,7 @@ data class Document @JsonCreator constructor(
 
         val language: String?,
 
-        val relatedLots: List<String>?
+        val relatedLots: List<String>?,
+
+        val relatedConfirmations: List<String>?
 )
