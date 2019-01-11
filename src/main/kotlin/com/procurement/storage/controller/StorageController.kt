@@ -1,6 +1,7 @@
 package com.procurement.storage.controller
 
 import com.procurement.storage.exception.ExternalException
+import com.procurement.storage.model.MIMEConverter
 import com.procurement.storage.model.dto.bpe.ResponseDto
 import com.procurement.storage.model.dto.bpe.getExceptionResponseDto
 import com.procurement.storage.model.dto.bpe.getExternalExceptionResponseDto
@@ -57,7 +58,8 @@ class StorageController(private val storageService: StorageService) {
         }
 
         response.addHeader("Content-Disposition", "attachment; $attachmentFilename")
-        response.contentType = "application/octet-stream"
+        val extension = MIMEConverter.extension(fileEntity.fileName)
+        response.contentType = MIMEConverter[extension]
         response.status = HttpStatus.OK.value()
         IOUtils.copyLarge(fileInputStream, response.outputStream)
         response.flushBuffer()
