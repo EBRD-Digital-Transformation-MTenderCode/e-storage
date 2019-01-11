@@ -16,7 +16,7 @@ object MIMEConverter {
              */
             "rar" -> "application/x-rar-compressed"
             "zip" -> "application/zip"
-            "7s" -> "application/octet-stream"
+            "7z" -> "application/x-7z-compressed"
 
             /*
              * Documents
