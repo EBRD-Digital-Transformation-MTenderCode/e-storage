@@ -52,7 +52,7 @@ class StorageController(private val storageService: StorageService) {
         val attachmentFilename = if (fileEntity.fileName == encodedFilename)
             "filename=\"$encodedFilename\""
         else
-            "filename=\"file\"; filename*=utf-8''${encodedFilename.replace("+", "%20")}"
+            "filename=\"${fileEntity.fileName}\"; filename*=utf-8''${encodedFilename.replace("+", "%20")}"
 
         response.addHeader("Content-Disposition", "attachment; $attachmentFilename")
         response.contentType = "application/octet-stream"
