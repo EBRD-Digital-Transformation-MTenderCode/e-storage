@@ -3,6 +3,8 @@ package com.procurement.storage.config
 import com.datastax.driver.core.Cluster
 import com.datastax.driver.core.PlainTextAuthProvider
 import com.datastax.driver.core.Session
+import com.procurement.storage.infrastructure.metric.CassandraHealthIndicator
+import org.springframework.boot.actuate.health.HealthIndicator
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -15,15 +17,20 @@ class DaoConfiguration constructor(private val cassandraProperties: CassandraPro
 
     internal val cluster: Cluster
         get() = Cluster.builder()
-                .addContactPoints(*cassandraProperties.getContactPoints())
-                .withAuthProvider(PlainTextAuthProvider(cassandraProperties.username, cassandraProperties.password))
-                .build()
+            .addContactPoints(*cassandraProperties.getContactPoints())
+            .withAuthProvider(PlainTextAuthProvider(cassandraProperties.username, cassandraProperties.password))
+            .build()
 
     @Bean
     fun session(): Session {
         val cluster = cluster
         cluster.init()
         return cluster.connect(cassandraProperties.keyspaceName)
+    }
+
+    @Bean
+    fun cassandraHealthIndicator(): HealthIndicator {
+        return CassandraHealthIndicator(session = session())
     }
 }
 
