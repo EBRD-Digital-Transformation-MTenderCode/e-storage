@@ -47,22 +47,22 @@ class StorageController(private val storageService: StorageService) {
     fun getFileStream(@PathVariable(value = "fileId") fileId: String, response: HttpServletResponse) {
 
         val fileEntity = storageService.getFileEntityById(fileId)
-        val fileInputStream = storageService.getFileStream(fileEntity.fileOnServer!!)
+        storageService.getFileStream(fileEntity.fileOnServer!!).use { fileInputStream ->
+            val encodedFilename: String = URLEncoder.encode(fileEntity.fileName, "UTF-8")
+            val attachmentFilename = if (fileEntity.fileName == encodedFilename)
+                "filename=\"$encodedFilename\""
+            else {
+                val encodedFilenameWithSpace = encodedFilename.replace("+", "%20")
+                "filename=\"$encodedFilenameWithSpace\"; filename*=utf-8''$encodedFilenameWithSpace"
+            }
 
-        val encodedFilename: String = URLEncoder.encode(fileEntity.fileName, "UTF-8")
-        val attachmentFilename = if (fileEntity.fileName == encodedFilename)
-            "filename=\"$encodedFilename\""
-        else {
-            val encodedFilenameWithSpace = encodedFilename.replace("+", "%20")
-            "filename=\"$encodedFilenameWithSpace\"; filename*=utf-8''$encodedFilenameWithSpace"
+            response.addHeader("Content-Disposition", "attachment; $attachmentFilename")
+            val extension = MIMEConverter.extension(fileEntity.fileName)
+            response.contentType = MIMEConverter[extension]
+            response.status = HttpStatus.OK.value()
+            IOUtils.copyLarge(fileInputStream, response.outputStream)
+            response.flushBuffer()
         }
-
-        response.addHeader("Content-Disposition", "attachment; $attachmentFilename")
-        val extension = MIMEConverter.extension(fileEntity.fileName)
-        response.contentType = MIMEConverter[extension]
-        response.status = HttpStatus.OK.value()
-        IOUtils.copyLarge(fileInputStream, response.outputStream)
-        response.flushBuffer()
     }
 
     @ResponseBody
