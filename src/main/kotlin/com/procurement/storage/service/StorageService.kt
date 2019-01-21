@@ -159,6 +159,28 @@ class StorageService(private val fileDao: FileDao) {
 
     }
 
+
+//    private fun writeFileToDisk(fileEntity: FileEntity, file: MultipartFile): String {
+//        try {
+//            val fileName = file.originalFilename!!
+//            if (file.isEmpty) throw ExternalException(ErrorType.EMPTY_FILE, fileName)
+////            val fileID = fileEntity.id
+////            val dir = "$uploadFileFolder/${fileID.substring(0, 2)}/${fileID.substring(2, 4)}/"
+////            Files.createDirectories(Paths.get(dir))
+////            val url = dir + fileID
+////            val targetFile = File(url)
+////            FileUtils.copyInputStreamToFile(file.inputStream, targetFile)
+//            file.inputStream.use {
+//                val target = fileEntity.id.let { id ->
+//                    "$uploadFileFolder/${id.substring(0, 2)}/${id.substring(2, 4)}/$id"
+//                }
+//                Files.copy(it, Paths.get(target))
+//                return target
+//            }
+//        } catch (e: IOException) {
+//            throw ExternalException(ErrorType.WRITE_EXCEPTION, e.message!!)
+//        }
+//    }
     private fun getEntity(dto: RegistrationRq): FileEntity {
         val fileId = if (dto.id != null) {
             val id = dto.id.substring(0, 36)
