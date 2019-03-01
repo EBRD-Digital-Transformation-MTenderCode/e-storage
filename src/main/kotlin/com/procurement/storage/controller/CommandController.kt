@@ -30,6 +30,7 @@ class CommandController(private val storageService: StorageService) {
 
     @PostMapping
     fun command(@RequestBody commandMessage: CommandMessage): ResponseEntity<ResponseDto> {
+        log.info("Command request ($commandMessage).")
         return ResponseEntity(execute(commandMessage), HttpStatus.OK)
     }
 

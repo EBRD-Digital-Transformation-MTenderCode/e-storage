@@ -36,7 +36,7 @@ class StorageController(private val storageService: StorageService) {
 
     @PostMapping(value = ["/registration"])
     fun registration(@RequestBody dto: RegistrationRq): ResponseEntity<RegistrationRs> {
-
+        log.info("Document registration request ($dto).")
         return ResponseEntity(storageService.registerFile(dto), HttpStatus.CREATED)
     }
 
@@ -45,13 +45,13 @@ class StorageController(private val storageService: StorageService) {
         @PathVariable(value = "fileId") fileId: String,
         @RequestParam(value = "file") file: MultipartFile
     ): ResponseEntity<UploadRs> {
-
+        log.info("Document upload request (fileId: '$fileId').")
         return ResponseEntity(storageService.uploadFile(fileId, file), HttpStatus.CREATED)
     }
 
     @GetMapping(value = ["/get/{fileId}"])
     fun getFileStream(@PathVariable(value = "fileId") fileId: String, response: HttpServletResponse) {
-
+        log.info("Document download request (fileId: '$fileId').")
         val fileEntity = storageService.getFileEntityById(fileId)
         storageService.getFileStream(fileEntity.fileOnServer!!).use { fileInputStream ->
             val encodedFilename: String = URLEncoder.encode(fileEntity.fileName, "UTF-8")
