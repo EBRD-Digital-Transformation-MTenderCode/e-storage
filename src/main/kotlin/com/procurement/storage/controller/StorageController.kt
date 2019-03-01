@@ -10,6 +10,7 @@ import com.procurement.storage.model.dto.registration.RegistrationRs
 import com.procurement.storage.model.dto.registration.UploadRs
 import com.procurement.storage.service.StorageService
 import org.apache.tomcat.util.http.fileupload.IOUtils
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -29,6 +30,9 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 @RequestMapping(value = ["/storage"])
 class StorageController(private val storageService: StorageService) {
+    companion object {
+        private val log = LoggerFactory.getLogger(CommandController::class.java)
+    }
 
     @PostMapping(value = ["/registration"])
     fun registration(@RequestBody dto: RegistrationRq): ResponseEntity<RegistrationRs> {
@@ -37,8 +41,10 @@ class StorageController(private val storageService: StorageService) {
     }
 
     @PostMapping(value = ["/upload/{fileId}"], consumes = ["multipart/form-data"])
-    fun uploadFile(@PathVariable(value = "fileId") fileId: String,
-                   @RequestParam(value = "file") file: MultipartFile): ResponseEntity<UploadRs> {
+    fun uploadFile(
+        @PathVariable(value = "fileId") fileId: String,
+        @RequestParam(value = "file") file: MultipartFile
+    ): ResponseEntity<UploadRs> {
 
         return ResponseEntity(storageService.uploadFile(fileId, file), HttpStatus.CREATED)
     }
@@ -69,6 +75,7 @@ class StorageController(private val storageService: StorageService) {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception::class)
     fun exception(ex: Exception): ResponseDto {
+        log.error("Unknown error.", ex)
         return getExceptionResponseDto(ex)
     }
 
@@ -76,6 +83,7 @@ class StorageController(private val storageService: StorageService) {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ExternalException::class)
     fun externalException(ex: ExternalException): ResponseDto {
+        log.error("External exception.", ex)
         return getExternalExceptionResponseDto(ex)
     }
 }
