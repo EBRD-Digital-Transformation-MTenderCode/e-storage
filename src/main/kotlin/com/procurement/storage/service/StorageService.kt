@@ -73,18 +73,23 @@ class StorageService(private val fileDao: FileDao) {
     fun validateDocumentsBatch(cm: CommandMessage): ResponseDto {
         val dto = toObject(DocumentsRq::class.java, cm.data)
         val documentsDto = dto.documents
-        val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
-        val fileEntities = fileDao.getAllByIds(docDtoIds)
-        if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
-        val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
-        if (!docDbIds.containsAll(docDtoIds)) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, (docDtoIds - docDbIds).toString())
-        return ResponseDto(data = "ok")
+
+        return if (documentsDto != null && documentsDto.isNotEmpty()) {
+            val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
+            val fileEntities = fileDao.getAllByIds(docDtoIds)
+            if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
+            val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
+            if (!docDbIds.containsAll(docDtoIds))
+                throw  BpeErrorException(error = ErrorType.FILES_NOT_FOUND, message = (docDtoIds - docDbIds).toString())
+            ResponseDto(data = "ok")
+        } else
+            ResponseDto(data = "ok")
     }
 
     fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
         val datePublished = cm.context.startDate.toLocal()
         val dto = toObject(DocumentsRq::class.java, cm.data)
-        for (document in dto.documents) {
+        dto.documents?.forEach {document ->
             publish(document, datePublished)
         }
         return ResponseDto(data = dto)

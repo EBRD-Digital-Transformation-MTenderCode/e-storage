@@ -9,7 +9,7 @@ import javax.validation.Valid
 data class DocumentsRq @JsonCreator constructor(
 
         @Valid
-        val documents: List<Document>
+        val documents: List<Document>?
 )
 
 data class Document @JsonCreator constructor(
