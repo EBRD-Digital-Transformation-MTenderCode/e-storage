@@ -7,9 +7,19 @@ import com.procurement.storage.exception.ErrorType
 import com.procurement.storage.exception.ExternalException
 import com.procurement.storage.model.dto.bpe.CommandMessage
 import com.procurement.storage.model.dto.bpe.ResponseDto
-import com.procurement.storage.model.dto.registration.*
+import com.procurement.storage.model.dto.registration.Document
+import com.procurement.storage.model.dto.registration.DocumentsRq
+import com.procurement.storage.model.dto.registration.RegistrationDataRs
+import com.procurement.storage.model.dto.registration.RegistrationRq
+import com.procurement.storage.model.dto.registration.RegistrationRs
+import com.procurement.storage.model.dto.registration.UploadDataRs
+import com.procurement.storage.model.dto.registration.UploadRs
 import com.procurement.storage.model.entity.FileEntity
-import com.procurement.storage.utils.*
+import com.procurement.storage.utils.milliNowUTC
+import com.procurement.storage.utils.nowUTC
+import com.procurement.storage.utils.toDate
+import com.procurement.storage.utils.toLocal
+import com.procurement.storage.utils.toObject
 import liquibase.util.file.FilenameUtils
 import org.apache.commons.io.FileUtils
 import org.springframework.beans.factory.annotation.Value
@@ -23,7 +33,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.regex.Pattern
-
 
 @Service
 class StorageService(private val fileDao: FileDao) {
@@ -71,19 +80,37 @@ class StorageService(private val fileDao: FileDao) {
     }
 
     fun validateDocumentsBatch(cm: CommandMessage): ResponseDto {
-        val dto = toObject(DocumentsRq::class.java, cm.data)
-        val documentsDto = dto.documents
+        val request = toObject(DocumentsRq::class.java, cm.data)
+        val receivedDocuments = request.documents
+            ?.takeIf { documents ->
+                documents.isNotEmpty()
+            }
+            ?: return ResponseDto(data = "ok")
 
-        return if (documentsDto != null && documentsDto.isNotEmpty()) {
-            val docDtoIds = documentsDto.asSequence().map { it.id }.toSet()
-            val fileEntities = fileDao.getAllByIds(docDtoIds)
-            if (fileEntities.isEmpty()) throw  BpeErrorException(ErrorType.FILES_NOT_FOUND, docDtoIds.toString())
-            val docDbIds = fileEntities.asSequence().map { it.id }.toSet()
-            if (!docDbIds.containsAll(docDtoIds))
-                throw  BpeErrorException(error = ErrorType.FILES_NOT_FOUND, message = (docDtoIds - docDbIds).toString())
-            ResponseDto(data = "ok")
-        } else
-            ResponseDto(data = "ok")
+        val receivedDocumentsIds = receivedDocuments.asSequence()
+            .map { document ->
+                document.id.also { id ->
+                    if (id.isBlank())
+                        throw  BpeErrorException(
+                            error = ErrorType.INVALID_ID,
+                            message = "The id of the document is empty or blank."
+                        )
+                }
+            }
+            .toSet()
+
+        val fileEntities = fileDao.getAllByIds(receivedDocumentsIds)
+        if (fileEntities.isEmpty()) throw  BpeErrorException(
+            ErrorType.FILES_NOT_FOUND,
+            receivedDocumentsIds.toString()
+        )
+        val savedDocumentsIds: Set<String> = fileEntities.asSequence().map { it.id }.toSet()
+        if (!savedDocumentsIds.containsAll(receivedDocumentsIds))
+            throw  BpeErrorException(
+                error = ErrorType.FILES_NOT_FOUND,
+                message = (receivedDocumentsIds - savedDocumentsIds).toString()
+            )
+        return ResponseDto(data = "ok")
     }
 
     fun setPublishDateBatch(cm: CommandMessage): ResponseDto {
