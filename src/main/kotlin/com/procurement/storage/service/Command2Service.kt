@@ -2,6 +2,7 @@ package com.procurement.storage.service
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.procurement.storage.infrastructure.handlers.CheckRegistrationHandler
+import com.procurement.storage.infrastructure.handlers.OpenAccessHandler
 import com.procurement.storage.infrastructure.web.dto.ApiSuccessResponse
 import com.procurement.storage.model.dto.bpe.Command2Type
 import com.procurement.storage.model.dto.bpe.getAction
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class Command2Service(
-    val checkRegistrationHandler: CheckRegistrationHandler
+    val checkRegistrationHandler: CheckRegistrationHandler,
+    val openAccessHandler: OpenAccessHandler
 ) {
 
     companion object {
@@ -22,6 +24,9 @@ class Command2Service(
         val response = when (request.getAction()) {
             Command2Type.CHECK_REGISTRATION -> {
                 checkRegistrationHandler.handle(request = request)
+            }
+            Command2Type.OPEN_ACCESS -> {
+                openAccessHandler.handle(request = request)
             }
         }
         if(log.isDebugEnabled)
