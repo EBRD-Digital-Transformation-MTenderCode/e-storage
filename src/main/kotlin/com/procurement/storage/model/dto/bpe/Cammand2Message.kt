@@ -15,7 +15,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 enum class Command2Type(@JsonValue private val value: String) {
-    CHECK_REGISTRATION("checkRegistration");
+    CHECK_REGISTRATION("checkRegistration"),
+    OPEN_ACCESS("openAccess");
 
     companion object {
         private val elements: Map<String, Command2Type> = values().associateBy { it.value.toUpperCase() }
