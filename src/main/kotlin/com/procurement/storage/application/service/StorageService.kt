@@ -41,18 +41,9 @@ class StorageServiceImpl(
 
     override fun checkRegistration(requestDocumentIds: List<DocumentId>) {
 
-        val documentIds = requestDocumentIds.asSequence()
-            .map { documentId ->
-                documentId.toString().also { id ->
-                    if (id.isBlank())
-                        throw BpeErrorException(
-                            error = ErrorType.INVALID_ID,
-                            message = "The id = $id in the document is blank"
-                        )
-                }
-            }
-            .toSet()
-        val dbFiles = fileDao.getAllByIds(documentIds)
+        val documentIds = mapRequestDocumentIdsToString(documentIds = requestDocumentIds)
+        val dbFiles = getDocumentsByIds(documentIds)
+
         if (dbFiles.isEmpty()) {
             throw BpeErrorException(
                 error = ErrorType.FILES_NOT_FOUND,
