@@ -99,7 +99,7 @@ private fun getApiIncidentResponse(
             ),
             service = ApiIncidentResponse.Incident.Service(
                 id = GlobalProperties.serviceId,
-                version = version,
+                version = GlobalProperties.App.apiVersion,
                 name = GlobalProperties.serviceName
             )
         )
