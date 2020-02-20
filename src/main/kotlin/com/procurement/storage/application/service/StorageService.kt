@@ -1,17 +1,17 @@
 package com.procurement.storage.application.service
 
-import com.procurement.storage.application.service.dto.OpenAccessResult
 import com.procurement.storage.config.UploadFileProperties
 import com.procurement.storage.dao.FileDao
 import com.procurement.storage.domain.model.document.DocumentId
 import com.procurement.storage.exception.BpeErrorException
 import com.procurement.storage.exception.ErrorType
+import com.procurement.storage.infrastructure.dto.OpenAccessResponse
 import com.procurement.storage.utils.toLocal
 import org.springframework.stereotype.Service
 
 interface StorageService {
     fun checkRegistration(requestDocumentIds: List<DocumentId>)
-    fun openAccess(requestDocumentIds: List<DocumentId>): List<OpenAccessResult>
+    fun openAccess(requestDocumentIds: List<DocumentId>): List<OpenAccessResponse>
 }
 
 @Service
@@ -20,7 +20,7 @@ class StorageServiceImpl(
     private val uploadFileProperties: UploadFileProperties
 ) : StorageService {
 
-    override fun openAccess(requestDocumentIds: List<DocumentId>): List<OpenAccessResult> {
+    override fun openAccess(requestDocumentIds: List<DocumentId>): List<OpenAccessResponse> {
         val documentIds = mapRequestDocumentIdsToString(documentIds = requestDocumentIds)
         val dbFiles = getDocumentsByIds(documentIds)
 
@@ -31,7 +31,7 @@ class StorageServiceImpl(
             )
         }
         return dbFiles.map { file ->
-            OpenAccessResult(
+            OpenAccessResponse(
                 id = DocumentId.fromString(file.id),
                 datePublished = file.datePublished!!.toLocal(),
                 uri = uploadFileProperties.path + file.id
