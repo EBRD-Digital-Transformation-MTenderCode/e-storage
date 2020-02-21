@@ -30,6 +30,15 @@ class StorageServiceImpl(
                 message = "Files not found by ids $documentIds"
             )
         }
+        val uniqueDbFilesId = dbFiles.asSequence()
+            .map { it.id }
+            .toSet()
+        if (uniqueDbFilesId != documentIds) {
+            throw BpeErrorException(
+                error = ErrorType.FILES_NOT_FOUND,
+                message = (documentIds - uniqueDbFilesId).toString() + " files not found"
+            )
+        }
         return dbFiles.map { file ->
             OpenAccessResponse(
                 id = DocumentId.fromString(file.id),
