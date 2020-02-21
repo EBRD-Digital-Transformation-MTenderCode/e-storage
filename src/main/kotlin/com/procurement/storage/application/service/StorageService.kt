@@ -53,7 +53,7 @@ class StorageServiceImpl(
         val uniqueDbFilesId = dbFiles.asSequence()
             .map { it.id }
             .toSet()
-        if (!documentIds.containsAll(uniqueDbFilesId)) {
+        if (uniqueDbFilesId != documentIds) {
             throw BpeErrorException(
                 error = ErrorType.FILES_NOT_FOUND,
                 message = (documentIds - uniqueDbFilesId).toString() + " files not found"
