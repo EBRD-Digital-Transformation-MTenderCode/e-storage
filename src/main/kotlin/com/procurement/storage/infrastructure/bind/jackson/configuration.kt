@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.procurement.storage.databinding.JsonDateDeserializer
 import com.procurement.storage.databinding.JsonDateSerializer
+import com.procurement.storage.infrastructure.bind.apiversion.ApiVersionDeserializer
+import com.procurement.storage.infrastructure.bind.apiversion.ApiVersionSerializer
+import com.procurement.storage.infrastructure.web.dto.ApiVersion
 import java.time.LocalDateTime
 
 fun ObjectMapper.configuration() {
@@ -16,6 +19,9 @@ fun ObjectMapper.configuration() {
          */
         addSerializer(LocalDateTime::class.java, JsonDateSerializer())
         addDeserializer(LocalDateTime::class.java, JsonDateDeserializer())
+
+        addSerializer(ApiVersion::class.java, ApiVersionSerializer())
+        addDeserializer(ApiVersion::class.java, ApiVersionDeserializer())
 
     }
 

@@ -2,11 +2,7 @@ package com.procurement.storage.infrastructure.web.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.procurement.storage.domain.model.enums.ResponseStatus
-import com.procurement.storage.infrastructure.bind.apiversion.ApiVersionDeserializer
-import com.procurement.storage.infrastructure.bind.apiversion.ApiVersionSerializer
 import java.time.LocalDateTime
 import java.util.*
 
@@ -21,8 +17,6 @@ sealed class ApiResponse(
 }
 
 class ApiSuccessResponse(
-    @JsonDeserialize(using = ApiVersionDeserializer::class)
-    @JsonSerialize(using = ApiVersionSerializer::class)
     version: ApiVersion,
     id: UUID,
     @JsonInclude(JsonInclude.Include.NON_EMPTY) result: Any?
@@ -36,8 +30,6 @@ class ApiSuccessResponse(
 }
 
 class ApiFailResponse(
-    @JsonDeserialize(using = ApiVersionDeserializer::class)
-    @JsonSerialize(using = ApiVersionSerializer::class)
     version: ApiVersion,
     id: UUID,
     result: List<Error>
@@ -53,8 +45,6 @@ class ApiFailResponse(
 }
 
 class ApiIncidentResponse(
-    @JsonDeserialize(using = ApiVersionDeserializer::class)
-    @JsonSerialize(using = ApiVersionSerializer::class)
     version: ApiVersion,
     id: UUID,
     result: Incident
