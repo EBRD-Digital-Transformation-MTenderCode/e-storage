@@ -8,7 +8,7 @@ import com.procurement.storage.databinding.JsonDateSerializer
 import com.procurement.storage.domain.model.document.DocumentId
 import java.time.LocalDateTime
 
-data class OpenAccessResponse(
+data class OpenAccessResult(
     @param:JsonProperty("id") @field:JsonProperty("id") val id: DocumentId,
 
     @JsonSerialize(using = JsonDateSerializer::class)
