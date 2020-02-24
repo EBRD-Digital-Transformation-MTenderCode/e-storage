@@ -41,7 +41,7 @@ class StorageServiceImpl(
         }
         return dbFiles.map { file ->
             OpenAccessResponse(
-                id = DocumentId.fromString(file.id),
+                id = file.id,
                 datePublished = file.datePublished!!.toLocal(),
                 uri = uploadFileProperties.path + file.id
             )
