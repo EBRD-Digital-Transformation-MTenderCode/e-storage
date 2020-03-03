@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.procurement.storage.databinding.JsonDateDeserializer
 import com.procurement.storage.databinding.JsonDateSerializer
+import com.procurement.storage.domain.fail.error.DataErrors
+import com.procurement.storage.domain.util.Result
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDateTime
@@ -67,15 +68,6 @@ fun milliNowUTC(): Long {
     return nowUTC().toInstant(ZoneOffset.UTC).toEpochMilli()
 }
 
-fun <T> toObject(clazz: Class<T>, json: String): T {
-    Objects.requireNonNull(json)
-    try {
-        return JsonMapper.mapper.readValue(json, clazz)
-    } catch (e: IOException) {
-        throw IllegalArgumentException(e)
-    }
-}
-
 fun <T> toObject(clazz: Class<T>, json: JsonNode): T {
     try {
         return JsonMapper.mapper.treeToValue(json, clazz)
@@ -84,17 +76,16 @@ fun <T> toObject(clazz: Class<T>, json: JsonNode): T {
     }
 }
 
-fun String.toNode(): JsonNode = try {
-    JsonMapper.mapper.readTree(this)
+fun <T : Any> JsonNode.tryToObject(target: Class<T>): Result<T, String> = try {
+    Result.success(JsonMapper.mapper.treeToValue(this, target))
+} catch (expected: Exception) {
+    Result.failure("Error binding JSON to an object of type '${target.canonicalName}'.")
+}
+
+fun String.toNode(): Result<JsonNode, DataErrors> = try {
+    Result.success(JsonMapper.mapper.readTree(this))
 } catch (exception: JsonProcessingException) {
-    throw IllegalArgumentException("Error parsing String to JsonNode.", exception)
+    Result.failure(
+        DataErrors.DataFormatMismatch(this)
+    )
 }
-
-fun JsonNode.getBy(parameter: String): JsonNode {
-    val par = this.get(parameter)
-    return if (par == null || par is NullNode)
-        throw IllegalArgumentException("$parameter is absent")
-    else
-        par
-}
-
