@@ -1,9 +1,9 @@
 package com.procurement.storage.service
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.procurement.storage.infrastructure.handlers.CheckRegistrationHandler
-import com.procurement.storage.infrastructure.handlers.OpenAccessHandler
-import com.procurement.storage.infrastructure.web.dto.ApiSuccessResponse
+import com.procurement.storage.infrastructure.handler.check.registration.CheckRegistrationHandler
+import com.procurement.storage.infrastructure.handler.open.OpenAccessHandler
+import com.procurement.storage.infrastructure.web.dto.ApiResponse
 import com.procurement.storage.model.dto.bpe.Command2Type
 import com.procurement.storage.model.dto.bpe.getAction
 import org.slf4j.LoggerFactory
@@ -19,23 +19,19 @@ class Command2Service(
         private val log = LoggerFactory.getLogger(Command2Service::class.java)
     }
 
-    fun execute(request: JsonNode): ApiSuccessResponse {
+    fun execute(request: JsonNode): ApiResponse {
 
-        val response = when (request.getAction()) {
+        val response = when (request.getAction().get) {
             Command2Type.CHECK_REGISTRATION -> {
-                checkRegistrationHandler.handle(request = request)
+                checkRegistrationHandler.handle(node = request)
             }
             Command2Type.OPEN_ACCESS -> {
-                openAccessHandler.handle(request = request)
+                openAccessHandler.handle(node = request)
             }
         }
-        if(log.isDebugEnabled)
+        if (log.isDebugEnabled)
             log.debug("DataOfResponse: '$response'.")
 
-
-        return response.also {
-            if(log.isDebugEnabled)
-                log.debug("RESPONSE CommandService2: '$response'.")
-        }
+        return response
     }
 }
