@@ -1,4 +1,4 @@
-package com.procurement.storage.infrastructure.dto
+package com.procurement.storage.infrastructure.handler.open
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.procurement.storage.domain.model.document.DocumentId
