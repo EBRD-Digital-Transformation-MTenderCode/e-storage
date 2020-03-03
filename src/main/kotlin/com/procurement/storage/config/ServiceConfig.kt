@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration
 @ComponentScan(
     basePackages = [
         "com.procurement.storage.service",
-        "com.procurement.storage.infrastructure.handlers",
+        "com.procurement.storage.infrastructure.handler",
         "com.procurement.storage.application.service"
     ]
 )
