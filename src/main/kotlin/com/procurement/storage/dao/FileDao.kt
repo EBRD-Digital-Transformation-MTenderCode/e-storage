@@ -1,69 +1,13 @@
 package com.procurement.storage.dao
 
 import com.datastax.driver.core.Session
-import com.datastax.driver.core.querybuilder.QueryBuilder.*
+import com.datastax.driver.core.querybuilder.QueryBuilder.set
 import com.procurement.storage.model.entity.FileEntity
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class FileDao(private val session: Session) {
-
-    fun getOneById(fileId: String): FileEntity? {
-        val query = select()
-                .from(FILES_TABLE)
-                .where(eq(ID, fileId))
-                .limit(1)
-        val row = session.execute(query).one()
-        return if (row != null) FileEntity(
-                id = row.getString(ID),
-                isOpen = row.getBool(IS_OPEN),
-                dateModified = row.getTimestamp(MODIFIED),
-                datePublished = row.getTimestamp(PUBLISHED),
-                hash = row.getString(HASH),
-                weight = row.getLong(WEIGHT),
-                fileName = row.getString(NAME),
-                fileOnServer = row.getString(ON_SERVER),
-                owner = row.getString(OWNER)) else null
-    }
-
-    fun getAllByIds(fileIds: Set<String>): List<FileEntity> {
-        val query = select()
-                .all()
-                .from(FILES_TABLE)
-                .where(`in`(ID, *fileIds.toTypedArray()))
-        val resultSet = session.execute(query)
-        val entities = ArrayList<FileEntity>()
-        if (resultSet.isFullyFetched)
-            resultSet.forEach { row ->
-                entities.add(FileEntity(
-                        id = row.getString(ID),
-                        isOpen = row.getBool(IS_OPEN),
-                        dateModified = row.getTimestamp(MODIFIED),
-                        datePublished = row.getTimestamp(PUBLISHED),
-                        hash = row.getString(HASH),
-                        weight = row.getLong(WEIGHT),
-                        fileName = row.getString(NAME),
-                        fileOnServer = row.getString(ON_SERVER),
-                        owner = row.getString(OWNER)))
-            }
-        return entities
-    }
-
-    fun save(entity: FileEntity): FileEntity {
-        val insert = insertInto(FILES_TABLE)
-                .value(ID, entity.id)
-                .value(IS_OPEN, entity.isOpen)
-                .value(MODIFIED, entity.dateModified)
-                .value(PUBLISHED, entity.datePublished)
-                .value(HASH, entity.hash)
-                .value(WEIGHT, entity.weight)
-                .value(NAME, entity.fileName)
-                .value(ON_SERVER, entity.fileOnServer)
-                .value(OWNER, entity.owner)
-        session.execute(insert)
-        return entity
-    }
 
     companion object {
         private const val FILES_TABLE = "storage_files"
@@ -76,5 +20,99 @@ class FileDao(private val session: Session) {
         private const val NAME = "file_name"
         private const val ON_SERVER = "file_on_server"
         private const val OWNER = "file_owner"
+        private const val ONE = 1
+
+        private const val GET_ONE_BY_ID = """
+               SELECT *
+                 FROM $FILES_TABLE
+                WHERE $ID=?
+                LIMIT $ONE
+            """
+
+        private const val GET_ALL_BY_IDS = """
+               SELECT *
+                 FROM ocds.$FILES_TABLE
+                WHERE $ID IN :values;
+            """
+
+        private const val SAVE = """
+          INSERT INTO $FILES_TABLE(
+          $ID,
+          $IS_OPEN,
+          $MODIFIED,
+          $PUBLISHED,
+          $HASH,
+          $WEIGHT,
+          $NAME,
+          $ON_SERVER,
+          $OWNER
+          )
+          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+    }
+
+    private val prepareGetOneById = session.prepare(GET_ONE_BY_ID)
+    private val prepareGetAllByIds = session.prepare(GET_ALL_BY_IDS)
+    private val prepareSave = session.prepare(SAVE)
+
+    fun getOneById(fileId: String): FileEntity? {
+        val query = prepareGetOneById.bind()
+            .apply {
+                setString(ID, fileId)
+            }
+        val row = session.execute(query).one()
+        return if (row != null) FileEntity(
+            id = row.getString(ID),
+            isOpen = row.getBool(IS_OPEN),
+            dateModified = row.getTimestamp(MODIFIED),
+            datePublished = row.getTimestamp(PUBLISHED),
+            hash = row.getString(HASH),
+            weight = row.getLong(WEIGHT),
+            fileName = row.getString(NAME),
+            fileOnServer = row.getString(ON_SERVER),
+            owner = row.getString(OWNER)
+        ) else null
+    }
+
+    fun getAllByIds(fileIds: Set<String>): List<FileEntity> {
+        val query = prepareGetAllByIds.bind()
+            .setList("values", fileIds.toList())
+
+        val resultSet = session.execute(query)
+        val entities = ArrayList<FileEntity>()
+        if (resultSet.isFullyFetched)
+            resultSet.forEach { row ->
+                entities.add(
+                    FileEntity(
+                        id = row.getString(ID),
+                        isOpen = row.getBool(IS_OPEN),
+                        dateModified = row.getTimestamp(MODIFIED),
+                        datePublished = row.getTimestamp(PUBLISHED),
+                        hash = row.getString(HASH),
+                        weight = row.getLong(WEIGHT),
+                        fileName = row.getString(NAME),
+                        fileOnServer = row.getString(ON_SERVER),
+                        owner = row.getString(OWNER)
+                    )
+                )
+            }
+        return entities
+    }
+
+    fun save(entity: FileEntity): FileEntity {
+        val insert = prepareSave.bind()
+            .apply {
+                setString(ID, entity.id)
+                set(IS_OPEN, entity.isOpen)
+                set(MODIFIED, entity.dateModified)
+                set(PUBLISHED, entity.datePublished)
+                setString(HASH, entity.hash)
+                set(WEIGHT, entity.weight)
+                setString(NAME, entity.fileName)
+                setString(ON_SERVER, entity.fileOnServer)
+                setString(OWNER, entity.owner)
+            }
+        session.execute(insert)
+        return entity
     }
 }
