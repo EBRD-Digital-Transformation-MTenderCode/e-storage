@@ -1,21 +1,10 @@
 package com.procurement.storage.infrastructure.dto.converter
 
 import com.procurement.storage.application.service.dto.OpenAccessParams
-import com.procurement.storage.exception.BpeErrorException
-import com.procurement.storage.exception.ErrorType
-import com.procurement.storage.infrastructure.dto.OpenAccessRequest
-import com.procurement.storage.lib.mapIfNotEmpty
-import com.procurement.storage.lib.orThrow
+import com.procurement.storage.domain.fail.error.DataErrors
+import com.procurement.storage.domain.util.Result
+import com.procurement.storage.infrastructure.handler.open.OpenAccessRequest
 
-fun OpenAccessRequest.convert() = OpenAccessParams(
-    documentIds = this.documentIds
-        .mapIfNotEmpty { id ->
-            id
-        }
-        .orThrow {
-            BpeErrorException(
-                error = ErrorType.IS_EMPTY,
-                message = "OpenAccessRequest.documentIds list is empty"
-            )
-        }
-)
+fun OpenAccessRequest.convert(): Result<OpenAccessParams, List<DataErrors>> =
+    OpenAccessParams.tryCreate(documentIds = this.documentIds)
+
