@@ -12,9 +12,7 @@ sealed class Fail {
             get() = "ERROR CODE: '$code', DESCRIPTION: '$description'."
     }
 
-    sealed class Incident(val code: String, val description: String) : Fail() {
-
-    }
+    abstract class Incident(val code: String, val description: String,val expected: Exception) : Fail()
 }
 
 fun <T, E : Fail.Error> E.toResult(): Result<T, E> = Result.failure(this)
