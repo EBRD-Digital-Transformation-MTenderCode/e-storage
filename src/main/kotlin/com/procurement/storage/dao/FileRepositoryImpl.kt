@@ -11,12 +11,12 @@ import com.procurement.storage.domain.util.Result
 import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.model.entity.FileEntity
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class FileRepositoryImpl(private val session: Session) : FileRepository {
 
     companion object {
+        private const val KEY_SPACE = "ocds"
         private const val FILES_TABLE = "storage_files"
         private const val ID = "file_id"
         private const val IS_OPEN = "file_is_open"
@@ -27,23 +27,21 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
         private const val NAME = "file_name"
         private const val ON_SERVER = "file_on_server"
         private const val OWNER = "file_owner"
-        private const val ONE = 1
 
         private const val GET_ONE_BY_ID = """
                SELECT *
-                 FROM $FILES_TABLE
+                 FROM $KEY_SPACE.$FILES_TABLE
                 WHERE $ID=?
-                LIMIT $ONE
             """
 
         private const val GET_ALL_BY_IDS = """
                SELECT *
-                 FROM ocds.$FILES_TABLE
+                 FROM $KEY_SPACE.$FILES_TABLE
                 WHERE $ID IN :values;
             """
 
         private const val SAVE = """
-          INSERT INTO $FILES_TABLE(
+          INSERT INTO $KEY_SPACE.$FILES_TABLE(
           $ID,
           $IS_OPEN,
           $MODIFIED,
@@ -84,12 +82,10 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
             .doOnError { error -> return Result.failure(error) }
             .get
 
-        val entities = ArrayList<FileEntity>()
-        if (resultSet.isFullyFetched)
-            resultSet.forEach { row ->
-                entities.add(row.convertToFileEntity())
-            }
-        return Result.success(entities)
+        return resultSet.map { row ->
+            row.convertToFileEntity()
+        }
+            .asSuccess()
     }
 
     override fun save(entity: FileEntity): Result<FileEntity, DatabaseIncident> {
