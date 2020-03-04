@@ -118,7 +118,7 @@ fun JsonNode.getVersion(): Result<ApiVersion, DataErrors> {
             when (val result = ApiVersion.tryOf(value)) {
                 is Result.Success -> result
                 is Result.Failure -> result.mapError {
-                    DataErrors.DataTypeMismatch(result.error)
+                    DataErrors.DataFormatMismatch(result.error)
                 }
             }
         }
@@ -131,7 +131,7 @@ fun JsonNode.getAction(): Result<Command2Type, DataErrors> {
             when (val result = Command2Type.tryOf(value)) {
                 is Result.Success -> result
                 is Result.Failure -> result.mapError {
-                    DataErrors.DataTypeMismatch(result.error)
+                    DataErrors.UnknownValue(result.error)
                 }
             }
         }
@@ -141,9 +141,7 @@ private fun asUUID(value: String): Result<UUID, DataErrors> =
     try {
         Result.success<UUID>(UUID.fromString(value))
     } catch (exception: IllegalArgumentException) {
-        Result.failure(
-            DataErrors.DataTypeMismatch(value)
-        )
+        Result.failure(DataErrors.DataTypeMismatch(value))
     }
 
 fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {
@@ -152,9 +150,7 @@ fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {
         if (attr !is NullNode)
             Result.success(attr)
         else
-            Result.failure(
-                DataErrors.DataTypeMismatch("$attr")
-            )
+            Result.failure(DataErrors.DataTypeMismatch("$attr"))
     } else
         Result.failure(
             DataErrors.MissingRequiredAttribute(name)
@@ -166,7 +162,7 @@ fun <T : Any> JsonNode.tryGetParams(target: Class<T>): Result<T, DataErrors> =
         when (val result = node.tryToObject(target)) {
             is Result.Success -> result
             is Result.Failure -> result.mapError {
-                DataErrors.DataTypeMismatch(result.error)
+                DataErrors.DataFormatMismatch(result.error)
             }
         }
     }
