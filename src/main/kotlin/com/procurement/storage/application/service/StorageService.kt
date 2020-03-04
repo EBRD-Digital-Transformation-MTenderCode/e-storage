@@ -1,7 +1,7 @@
 package com.procurement.storage.application.service
 
+import com.procurement.storage.application.repository.FileRepository
 import com.procurement.storage.config.UploadFileProperties
-import com.procurement.storage.dao.FileDao
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.ValidationErrors
 import com.procurement.storage.domain.model.document.DocumentId
@@ -23,17 +23,19 @@ interface StorageService {
 
 @Service
 class StorageServiceImpl(
-    private val fileDao: FileDao,
+    private val fileRepository: FileRepository,
     private val uploadFileProperties: UploadFileProperties
 ) : StorageService {
 
     override fun openAccess(requestDocumentIds: List<DocumentId>): Result<List<OpenAccessResult>, Fail> {
-        val documentIdsResult = validationDocumentIds(ids = requestDocumentIds)
-        if (documentIdsResult.isFail)
-            return Result.failure(documentIdsResult.error)
 
-        val documentIds = documentIdsResult.get
+        val documentIds = validationDocumentIds(ids = requestDocumentIds)
+            .doOnError {error -> return Result.failure(error) }
+            .get
+
         val dbFiles = getDocumentsByIds(documentIds)
+            .doOnError {error -> return Result.failure(error) }
+            .get
 
         if (dbFiles.isEmpty()) {
             return Result.failure(ValidationErrors.DocumentsNotExisting(documentIds))
@@ -58,12 +60,13 @@ class StorageServiceImpl(
 
     override fun checkRegistration(requestDocumentIds: List<DocumentId>): ValidationResult<Fail> {
 
-        val documentIdsResult = validationDocumentIds(ids = requestDocumentIds)
-        if (documentIdsResult.isFail)
-            return ValidationResult.error(documentIdsResult.error)
+        val documentIds = validationDocumentIds(ids = requestDocumentIds)
+            .doOnError {error -> return ValidationResult.error(error) }
+            .get
 
-        val documentIds = documentIdsResult.get
         val dbFiles = getDocumentsByIds(documentIds)
+            .doOnError {error -> return ValidationResult.error(error) }
+            .get
 
         if (dbFiles.isEmpty()) {
             return ValidationResult.error(ValidationErrors.DocumentsNotExisting(documentIds))
@@ -78,7 +81,7 @@ class StorageServiceImpl(
         return ValidationResult.ok()
     }
 
-    private fun getDocumentsByIds(documentIds: List<String>) = fileDao.getAllByIds(documentIds.toSet())
+    private fun getDocumentsByIds(documentIds: List<String>) = fileRepository.getAllByIds(documentIds.toSet())
 
     private fun validationDocumentIds(ids: List<DocumentId>): Result<List<String>, ValidationErrors> =
         ids.mapResult { id -> id validate onBlank }
