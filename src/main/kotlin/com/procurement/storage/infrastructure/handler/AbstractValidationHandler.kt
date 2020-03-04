@@ -26,7 +26,7 @@ abstract class AbstractValidationHandler<ACTION : Action> : AbstractHandler<ACTI
 
         return when (validationResult) {
             is ValidationResult.Ok -> ApiSuccessResponse(version = version, id = id)
-            is ValidationResult.Error -> responseError(id = id, version = version, fails = validationResult.error)
+            is ValidationResult.Fail -> responseError(id = id, version = version, fails = validationResult.error)
         }
     }
 

@@ -3,7 +3,6 @@ package com.procurement.storage.controller
 import com.datastax.driver.core.querybuilder.QueryBuilder.toJson
 import com.procurement.storage.config.GlobalProperties
 import com.procurement.storage.domain.fail.Fail
-import com.procurement.storage.domain.util.Result
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
 import com.procurement.storage.infrastructure.web.dto.ApiVersion
 import com.procurement.storage.model.dto.bpe.NaN
@@ -38,25 +37,20 @@ class Command2Controller(
         if (log.isDebugEnabled)
             log.debug("RECEIVED COMMAND: '${requestBody}'.")
 
-        val node = when (val result = requestBody.toNode()) {
-            is Result.Success -> result.get
-            is Result.Failure -> return createErrorResponseEntity(expected = result.error)
-        }
+        val node = requestBody.toNode()
+            .doOnError { error -> return createErrorResponseEntity(expected = error) }
+            .get
 
-        val id = when (val result = node.getId()) {
-            is Result.Success -> result.get
-            is Result.Failure -> return createErrorResponseEntity(expected = result.error)
-        }
+        val id = node.getId()
+            .doOnError { error -> return createErrorResponseEntity(expected = error) }
+            .get
 
-        val version = when (val result = node.getVersion()) {
-            is Result.Success -> result.get
-            is Result.Failure -> return createErrorResponseEntity(id = id, expected = result.error)
-        }
+        val version = node.getVersion()
+            .doOnError { error -> return createErrorResponseEntity(id = id, expected = error) }
+            .get
 
-        when (val result = node.getAction()) {
-            is Result.Success -> Unit
-            is Result.Failure -> return createErrorResponseEntity(id = id, expected = result.error, version = version)
-        }
+        node.getAction()
+            .doOnError { error -> return createErrorResponseEntity(id = id, expected = error, version = version) }
 
         val hasParams = node.hasParams()
         if (hasParams.isError)
