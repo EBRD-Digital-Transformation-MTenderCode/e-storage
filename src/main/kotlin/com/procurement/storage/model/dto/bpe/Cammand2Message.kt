@@ -141,7 +141,7 @@ private fun asUUID(value: String): Result<UUID, DataErrors> =
     try {
         Result.success<UUID>(UUID.fromString(value))
     } catch (exception: IllegalArgumentException) {
-        Result.failure(DataErrors.DataTypeMismatch(value))
+        Result.failure(DataErrors.DataFormatMismatch(value))
     }
 
 fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {

@@ -86,6 +86,6 @@ fun String.toNode(): Result<JsonNode, DataErrors> = try {
     Result.success(JsonMapper.mapper.readTree(this))
 } catch (exception: JsonProcessingException) {
     Result.failure(
-        DataErrors.DataFormatMismatch(this)
+        DataErrors.DataTypeMismatch(this)
     )
 }
