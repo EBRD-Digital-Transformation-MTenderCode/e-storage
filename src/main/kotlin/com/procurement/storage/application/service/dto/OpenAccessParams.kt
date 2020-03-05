@@ -4,7 +4,7 @@ import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.model.document.DocumentId
 import com.procurement.storage.domain.util.Result
 
-data class OpenAccessParams private constructor(val documentIds: List<DocumentId>) {
+class OpenAccessParams private constructor(val documentIds: List<DocumentId>) {
     companion object {
         fun tryCreate(documentIds: List<DocumentId>): Result<OpenAccessParams, List<DataErrors>> {
             if (documentIds.isEmpty()) {

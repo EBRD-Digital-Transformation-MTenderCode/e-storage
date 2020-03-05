@@ -65,7 +65,7 @@ private fun getApiFailResponse(
         version = version,
         result = listOf(
             ApiErrorResponse.Error(
-                code = "400.${GlobalProperties.serviceId}." + code,
+                code = "400.${GlobalProperties.service.id}." + code,
                 description = message
             )
         )
@@ -86,15 +86,15 @@ private fun getApiIncidentResponse(
             date = LocalDateTime.now(),
             errors = listOf(
                 ApiIncidentResponse.Incident.Error(
-                    code = "400.${GlobalProperties.serviceId}." + code,
+                    code = "400.${GlobalProperties.service.id}." + code,
                     description = message,
                     metadata = null
                 )
             ),
             service = ApiIncidentResponse.Incident.Service(
-                id = GlobalProperties.serviceId,
-                version = GlobalProperties.App.apiVersion,
-                name = GlobalProperties.serviceName
+                id = GlobalProperties.service.id,
+                version = GlobalProperties.service.version,
+                name = GlobalProperties.service.name
             )
         )
     )

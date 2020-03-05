@@ -23,7 +23,7 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
                     id = id,
                     result = fails.map { fail ->
                         ApiDataErrorResponse.Error(
-                            code = "${fail.code}/${GlobalProperties.serviceId}",
+                            code = "${fail.code}/${GlobalProperties.service.id}",
                             description = fail.description,
                             attributeName = fail.attributeName
                         )
@@ -37,7 +37,7 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
                     id = id,
                     result = fails.map { fail ->
                         ApiErrorResponse.Error(
-                            code = "${fail.code}/${GlobalProperties.serviceId}",
+                            code = "${fail.code}/${GlobalProperties.service.id}",
                             description = fail.description
                         )
                     }
@@ -53,15 +53,15 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
                         date = LocalDateTime.now(),
                         errors = fails.map { fail ->
                             ApiIncidentResponse.Incident.Error(
-                                code = "${fail.code}/${GlobalProperties.serviceId}",
+                                code = "${fail.code}/${GlobalProperties.service.id}",
                                 description = fail.description,
                                 metadata = null
                             )
                         },
                         service = ApiIncidentResponse.Incident.Service(
-                            id = GlobalProperties.serviceId,
-                            version = GlobalProperties.App.apiVersion,
-                            name = GlobalProperties.serviceName
+                            id = GlobalProperties.service.id,
+                            version = GlobalProperties.service.version,
+                            name = GlobalProperties.service.name
                         )
                     )
                 )
