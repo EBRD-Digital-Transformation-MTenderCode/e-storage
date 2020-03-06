@@ -1,14 +1,17 @@
 package com.procurement.storage.model.dto.bpe
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.NullNode
 import com.procurement.storage.config.GlobalProperties
+import com.procurement.storage.domain.EnumElementProvider
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.domain.util.Result
 import com.procurement.storage.domain.util.ValidationResult
+import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.domain.util.bind
 import com.procurement.storage.infrastructure.web.dto.ApiErrorResponse
 import com.procurement.storage.infrastructure.web.dto.ApiIncidentResponse
@@ -18,24 +21,18 @@ import com.procurement.storage.utils.tryToObject
 import java.time.LocalDateTime
 import java.util.*
 
-enum class Command2Type(@JsonValue override val value: String) : Action {
+enum class Command2Type(@JsonValue override val key: String) : Action, EnumElementProvider.Key {
     CHECK_REGISTRATION("checkRegistration"),
     OPEN_ACCESS("openAccess");
 
-    companion object {
-        private val elements: Map<String, Command2Type> = values().associateBy { it.value.toUpperCase() }
+    override fun toString(): String = key
 
-        fun tryOf(value: String): Result<Command2Type, String> = elements[value.toUpperCase()]
-            ?.let {
-                Result.success(it)
-            }
-            ?: Result.failure(
-                "Unknown value for enumType ${Command2Type::class.java.canonicalName}: " +
-                    "$value, Allowed values are ${values().joinToString { it.value }}"
-            )
+    companion object : EnumElementProvider<Command2Type>(info = info()) {
+
+        @JvmStatic
+        @JsonCreator
+        fun creator(name: String) = Command2Type.orThrow(name)
     }
-
-    override fun toString() = value
 }
 
 fun errorResponse(exception: Fail, id: UUID, version: ApiVersion): ApiResponse =
@@ -118,7 +115,11 @@ fun JsonNode.getVersion(): Result<ApiVersion, DataErrors> {
             when (val result = ApiVersion.tryOf(value)) {
                 is Result.Success -> result
                 is Result.Failure -> result.mapError {
-                    DataErrors.DataFormatMismatch(result.error)
+                    DataErrors.Validation.DataFormatMismatch(
+                        name = "version",
+                        actualValue = value,
+                        expectedFormat = "00.00.00"
+                    )
                 }
             }
         }
@@ -128,12 +129,13 @@ fun JsonNode.getAction(): Result<Command2Type, DataErrors> {
     return this.getAttribute("action")
         .bind {
             val value = it.asText()
-            when (val result = Command2Type.tryOf(value)) {
-                is Result.Success -> result
-                is Result.Failure -> result.mapError {
-                    DataErrors.UnknownValue(result.error)
-                }
-            }
+            Command2Type.orNull(value)?.asSuccess<Command2Type, DataErrors>() ?: Result.failure(
+                DataErrors.Validation.UnknownValue(
+                    name = "action",
+                    actualValue = value,
+                    expectedValues = Command2Type.allowedValues
+                )
+            )
         }
 }
 
@@ -141,7 +143,13 @@ private fun asUUID(value: String): Result<UUID, DataErrors> =
     try {
         Result.success<UUID>(UUID.fromString(value))
     } catch (exception: IllegalArgumentException) {
-        Result.failure(DataErrors.DataFormatMismatch(value))
+        Result.failure(
+            DataErrors.Validation.DataFormatMismatch(
+                name = "id",
+                expectedFormat = "uuid",
+                actualValue = value
+            )
+        )
     }
 
 fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {
@@ -150,10 +158,12 @@ fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {
         if (attr !is NullNode)
             Result.success(attr)
         else
-            Result.failure(DataErrors.DataTypeMismatch("$attr"))
+            Result.failure(
+                DataErrors.Validation.DataTypeMismatch(name = "$attr", actualType = "null", expectedType = "not null")
+            )
     } else
         Result.failure(
-            DataErrors.MissingRequiredAttribute(name)
+            DataErrors.Validation.MissingRequiredAttribute(name = name)
         )
 }
 
@@ -162,7 +172,7 @@ fun <T : Any> JsonNode.tryGetParams(target: Class<T>): Result<T, DataErrors> =
         when (val result = node.tryToObject(target)) {
             is Result.Success -> result
             is Result.Failure -> result.mapError {
-                DataErrors.DataFormatMismatch(result.error)
+                DataErrors.Parsing(result.error)
             }
         }
     }
@@ -172,5 +182,5 @@ fun JsonNode.hasParams(): ValidationResult<DataErrors> =
         ValidationResult.ok()
     else
         ValidationResult.error(
-            DataErrors.MissingRequiredAttribute("params")
+            DataErrors.Validation.MissingRequiredAttribute(name = "params")
         )

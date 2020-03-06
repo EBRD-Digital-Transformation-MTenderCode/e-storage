@@ -6,7 +6,7 @@ import com.datastax.driver.core.Row
 import com.datastax.driver.core.Session
 import com.datastax.driver.core.querybuilder.QueryBuilder.set
 import com.procurement.storage.application.repository.FileRepository
-import com.procurement.storage.domain.fail.incident.DatabaseIncident
+import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.util.Result
 import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.model.entity.FileEntity
@@ -60,7 +60,7 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
     private val prepareGetAllByIds = session.prepare(GET_ALL_BY_IDS)
     private val prepareSave = session.prepare(SAVE)
 
-    override fun getOneById(fileId: String): Result<FileEntity?, DatabaseIncident> {
+    override fun getOneById(fileId: String): Result<FileEntity?, Fail.Incident.Database> {
         val query = prepareGetOneById.bind()
             .apply {
                 setString(ID, fileId)
@@ -74,7 +74,7 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
             .asSuccess()
     }
 
-    override fun getAllByIds(fileIds: Set<String>): Result<List<FileEntity>, DatabaseIncident> {
+    override fun getAllByIds(fileIds: Set<String>): Result<List<FileEntity>, Fail.Incident.Database> {
         val query = prepareGetAllByIds.bind()
             .setList("values", fileIds.toList())
 
@@ -88,7 +88,7 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
             .asSuccess()
     }
 
-    override fun save(entity: FileEntity): Result<FileEntity, DatabaseIncident> {
+    override fun save(entity: FileEntity): Result<FileEntity, Fail.Incident.Database> {
         val insert = prepareSave.bind()
             .apply {
                 setString(ID, entity.id)
@@ -106,10 +106,10 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
         return Result.success(entity)
     }
 
-    private fun load(statement: BoundStatement): Result<ResultSet, DatabaseIncident> = try {
+    private fun load(statement: BoundStatement): Result<ResultSet, Fail.Incident.Database> = try {
         Result.success(session.execute(statement))
     } catch (expected: Exception) {
-        Result.failure(DatabaseIncident.Database(expected))
+        Result.failure(Fail.Incident.Database(expected))
     }
 
     private fun Row.convertToFileEntity() =

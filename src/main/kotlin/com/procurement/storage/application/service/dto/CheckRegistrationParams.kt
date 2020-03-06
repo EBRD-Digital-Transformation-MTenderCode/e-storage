@@ -8,13 +8,7 @@ class CheckRegistrationParams private constructor(val documentIds: List<Document
     companion object {
         fun tryCreate(documentIds: List<DocumentId>): Result<CheckRegistrationParams, List<DataErrors>> {
             if (documentIds.isEmpty()) {
-                return Result.failure(
-                    listOf(
-                        DataErrors.EmptyArray(
-                            "documentIds"
-                        )
-                    )
-                )
+                return Result.failure(listOf(DataErrors.Validation.EmptyArray("documentIds")))
             }
             return Result.success(CheckRegistrationParams(documentIds = documentIds.toList()))
         }

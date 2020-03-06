@@ -1,5 +1,5 @@
 package com.procurement.storage.domain.util
 
 interface Action {
-    val value: String
+    val key: String
 }

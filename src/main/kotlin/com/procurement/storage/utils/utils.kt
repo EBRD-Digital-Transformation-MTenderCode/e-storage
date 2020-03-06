@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.procurement.storage.databinding.JsonDateDeserializer
 import com.procurement.storage.databinding.JsonDateSerializer
+import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Result
 import java.io.IOException
@@ -82,10 +83,14 @@ fun <T : Any> JsonNode.tryToObject(target: Class<T>): Result<T, String> = try {
     Result.failure("Error binding JSON to an object of type '${target.canonicalName}'.")
 }
 
-fun String.toNode(): Result<JsonNode, DataErrors> = try {
+fun <T : Any> String.tryToObject(target: Class<T>): Result<T, String> = try {
+    Result.success(JsonMapper.mapper.readValue(this, target))
+} catch (expected: Exception) {
+    Result.failure("Error binding JSON to an object of type '${target.canonicalName}'.")
+}
+
+fun String.toNode(): Result<JsonNode, Fail> = try {
     Result.success(JsonMapper.mapper.readTree(this))
 } catch (exception: JsonProcessingException) {
-    Result.failure(
-        DataErrors.DataTypeMismatch(this)
-    )
+    Result.failure(DataErrors.Parsing("Can not parse Sting to Node"))
 }

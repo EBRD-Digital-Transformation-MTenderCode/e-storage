@@ -8,13 +8,7 @@ class OpenAccessParams private constructor(val documentIds: List<DocumentId>) {
     companion object {
         fun tryCreate(documentIds: List<DocumentId>): Result<OpenAccessParams, List<DataErrors>> {
             if (documentIds.isEmpty()) {
-                return Result.failure(
-                    listOf(
-                        DataErrors.EmptyArray(
-                            "documentIds"
-                        )
-                    )
-                )
+                return Result.failure(listOf(DataErrors.Validation.EmptyArray("documentIds")))
             }
             return Result.success(OpenAccessParams(documentIds = documentIds.toList()))
         }

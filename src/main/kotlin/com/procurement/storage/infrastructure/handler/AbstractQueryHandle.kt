@@ -21,7 +21,7 @@ abstract class AbstractQueryHandler<ACTION : Action, R : Any> : AbstractHandler<
 
         val result = execute(node)
             .also {
-                log.debug("The '{}' has been executed. Result: '{}'", action.value, it)
+                log.debug("The '{}' has been executed. Result: '{}'", action.key, it)
             }
 
         return when (result) {

@@ -21,7 +21,7 @@ abstract class AbstractValidationHandler<ACTION : Action> : AbstractHandler<ACTI
 
         val validationResult = execute(node)
             .also {
-                log.debug("The '{}' has been executed. Result: '{}'", action.value, it)
+                log.debug("The '{}' has been executed. Result: '{}'", action.key, it)
             }
 
         return when (validationResult) {

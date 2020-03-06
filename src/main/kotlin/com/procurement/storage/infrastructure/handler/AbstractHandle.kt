@@ -17,7 +17,7 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
     protected fun responseError(id: UUID, version: ApiVersion, fails: List<Fail>): ApiResponse {
         return when (fails[0]) {
             is DataErrors -> {
-                fails as List<DataErrors>
+                fails as List<DataErrors.Validation>
                 ApiDataErrorResponse(
                     version = version,
                     id = id,
@@ -25,7 +25,7 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
                         ApiDataErrorResponse.Error(
                             code = "${fail.code}/${GlobalProperties.service.id}",
                             description = fail.description,
-                            attributeName = fail.attributeName
+                            attributeName = fail.name
                         )
                     }
                 )
