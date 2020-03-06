@@ -25,11 +25,8 @@ class OpenAccessHandler(
             .doOnError { error -> return Result.failure(error) }
             .get
 
-        val serviceResult = storageService.openAccess(requestDocumentIds = params.documentIds)
-        if (serviceResult.isFail)
-            return Result.failure(listOf(serviceResult.error))
-
-        return Result.success(serviceResult.get)
+        return storageService.openAccess(requestDocumentIds = params.documentIds)
+            .mapError { error -> listOf(error) }
     }
 
     override val action: Command2Type
