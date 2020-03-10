@@ -70,7 +70,7 @@ class Command2Controller(
         version: ApiVersion = GlobalProperties.App.apiVersion
     ): ResponseEntity<ApiResponse> {
         log.debug("Error.", expected)
-        val response = errorResponse(exception = expected, version = version, id = id)
+        val response = errorResponse(fail = expected, version = version, id = id)
         return ResponseEntity(response, HttpStatus.OK)
     }
 }

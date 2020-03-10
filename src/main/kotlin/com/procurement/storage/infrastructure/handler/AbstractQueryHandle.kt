@@ -26,9 +26,9 @@ abstract class AbstractQueryHandler<ACTION : Action, R : Any> : AbstractHandler<
 
         return when (result) {
             is Result.Success -> ApiSuccessResponse(id = id, version = version, result = result.get)
-            is Result.Failure -> responseError(id = id, version = version, fails = result.error)
+            is Result.Failure -> responseError(id = id, version = version, fail = result.error)
         }
     }
 
-    abstract fun execute(node: JsonNode): Result<R, List<Fail>>
+    abstract fun execute(node: JsonNode): Result<R, Fail>
 }

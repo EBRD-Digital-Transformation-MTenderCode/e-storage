@@ -6,9 +6,9 @@ import com.procurement.storage.domain.util.Result
 
 class OpenAccessParams private constructor(val documentIds: List<DocumentId>) {
     companion object {
-        fun tryCreate(documentIds: List<DocumentId>): Result<OpenAccessParams, List<DataErrors>> {
+        fun tryCreate(documentIds: List<DocumentId>): Result<OpenAccessParams, DataErrors> {
             if (documentIds.isEmpty()) {
-                return Result.failure(listOf(DataErrors.Validation.EmptyArray("documentIds")))
+                return Result.failure(DataErrors.Validation.EmptyArray("documentIds"))
             }
             return Result.success(OpenAccessParams(documentIds = documentIds.toList()))
         }

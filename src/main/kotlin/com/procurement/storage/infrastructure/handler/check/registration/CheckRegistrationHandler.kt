@@ -15,10 +15,10 @@ class CheckRegistrationHandler(
     private val storageService: StorageService
 ) : AbstractValidationHandler<Command2Type>() {
 
-    override fun execute(node: JsonNode): ValidationResult<List<Fail>> {
+    override fun execute(node: JsonNode): ValidationResult<Fail> {
 
         val params = node.tryGetParams(CheckRegistrationRequest::class.java)
-            .doOnError { error -> return ValidationResult.error(listOf(error)) }
+            .doOnError { error -> return ValidationResult.error(error) }
             .get
             .convert()
             .doOnError { error -> return ValidationResult.error(error) }
@@ -27,7 +27,7 @@ class CheckRegistrationHandler(
 
         val serviceResult = storageService.checkRegistration(requestDocumentIds = params.documentIds)
         if (serviceResult.isError)
-            return ValidationResult.error(listOf(serviceResult.error))
+            return ValidationResult.error(serviceResult.error)
 
         return ValidationResult.ok()
     }

@@ -6,9 +6,9 @@ import com.procurement.storage.domain.util.Result
 
 class CheckRegistrationParams private constructor(val documentIds: List<DocumentId>) {
     companion object {
-        fun tryCreate(documentIds: List<DocumentId>): Result<CheckRegistrationParams, List<DataErrors>> {
+        fun tryCreate(documentIds: List<DocumentId>): Result<CheckRegistrationParams, DataErrors> {
             if (documentIds.isEmpty()) {
-                return Result.failure(listOf(DataErrors.Validation.EmptyArray("documentIds")))
+                return Result.failure(DataErrors.Validation.EmptyArray("documentIds"))
             }
             return Result.success(CheckRegistrationParams(documentIds = documentIds.toList()))
         }

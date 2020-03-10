@@ -16,17 +16,16 @@ class OpenAccessHandler(
     private val storageService: StorageService
 ) : AbstractQueryHandler<Command2Type, List<OpenAccessResult>>() {
 
-    override fun execute(node: JsonNode): Result<List<OpenAccessResult>, List<Fail>> {
+    override fun execute(node: JsonNode): Result<List<OpenAccessResult>, Fail> {
 
         val params = node.tryGetParams(OpenAccessRequest::class.java)
-            .doOnError { error -> return Result.failure(listOf(error)) }
+            .doOnError { error -> return Result.failure(error) }
             .get
             .convert()
             .doOnError { error -> return Result.failure(error) }
             .get
 
         return storageService.openAccess(requestDocumentIds = params.documentIds)
-            .mapError { error -> listOf(error) }
     }
 
     override val action: Command2Type
