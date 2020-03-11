@@ -35,7 +35,6 @@
 
         <!--Libs-->
         <springfox-swagger2.version>2.6.1</springfox-swagger2.version>
-        <equalsverifier.version>3.1.9</equalsverifier.version>
 
         <!--Logging-->
         <logstash.logback.encoder.version>4.11</logstash.logback.encoder.version>
