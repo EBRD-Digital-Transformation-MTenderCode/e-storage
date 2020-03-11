@@ -66,7 +66,7 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
                 setString(ID, fileId)
             }
 
-        return load(query)
+        return query.tryExecute(session)
             .doOnError { error -> return Result.failure(error) }
             .get
             .one()
@@ -78,7 +78,7 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
         val query = prepareGetAllByIds.bind()
             .setList("values", fileIds.toList())
 
-        val resultSet = load(query)
+        val resultSet = query.tryExecute(session)
             .doOnError { error -> return Result.failure(error) }
             .get
 
@@ -89,7 +89,7 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
     }
 
     override fun save(entity: FileEntity): Result<FileEntity, Fail.Incident.Database> {
-        val insert = prepareSave.bind()
+        prepareSave.bind()
             .apply {
                 setString(ID, entity.id)
                 set(IS_OPEN, entity.isOpen)
@@ -101,13 +101,14 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
                 setString(ON_SERVER, entity.fileOnServer)
                 setString(OWNER, entity.owner)
             }
-        load(insert).doOnError { error -> return Result.failure(error) }
+            .tryExecute(session)
+            .doOnError { error -> return Result.failure(error) }
 
         return Result.success(entity)
     }
 
-    private fun load(statement: BoundStatement): Result<ResultSet, Fail.Incident.Database> = try {
-        Result.success(session.execute(statement))
+    private fun BoundStatement.tryExecute(session: Session): Result<ResultSet, Fail.Incident.Database> = try {
+        Result.success(session.execute(this))
     } catch (expected: Exception) {
         Result.failure(Fail.Incident.Database(expected))
     }
