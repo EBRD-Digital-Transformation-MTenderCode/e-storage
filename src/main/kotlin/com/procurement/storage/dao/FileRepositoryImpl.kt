@@ -29,13 +29,29 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
         private const val OWNER = "file_owner"
 
         private const val GET_ONE_BY_ID = """
-               SELECT *
+               SELECT $ID,
+                      $IS_OPEN,
+                      $MODIFIED,
+                      $PUBLISHED,
+                      $HASH,
+                      $WEIGHT,
+                      $NAME,
+                      $ON_SERVER,
+                      $OWNER
                  FROM $KEY_SPACE.$FILES_TABLE
                 WHERE $ID=?
             """
 
         private const val GET_ALL_BY_IDS = """
-               SELECT *
+               SELECT $ID,
+                      $IS_OPEN,
+                      $MODIFIED,
+                      $PUBLISHED,
+                      $HASH,
+                      $WEIGHT,
+                      $NAME,
+                      $ON_SERVER,
+                      $OWNER
                  FROM $KEY_SPACE.$FILES_TABLE
                 WHERE $ID IN :values;
             """

@@ -10,6 +10,7 @@ import java.util.*
 class FileDao(private val session: Session) {
 
     companion object {
+        private const val KEY_SPACE = "ocds"
         private const val FILES_TABLE = "storage_files"
         private const val ID = "file_id"
         private const val IS_OPEN = "file_is_open"
@@ -20,23 +21,37 @@ class FileDao(private val session: Session) {
         private const val NAME = "file_name"
         private const val ON_SERVER = "file_on_server"
         private const val OWNER = "file_owner"
-        private const val ONE = 1
 
         private const val GET_ONE_BY_ID = """
-               SELECT *
-                 FROM $FILES_TABLE
+               SELECT $ID,
+                      $IS_OPEN,
+                      $MODIFIED,
+                      $PUBLISHED,
+                      $HASH,
+                      $WEIGHT,
+                      $NAME,
+                      $ON_SERVER,
+                      $OWNER
+                 FROM $KEY_SPACE.$FILES_TABLE
                 WHERE $ID=?
-                LIMIT $ONE
             """
 
         private const val GET_ALL_BY_IDS = """
-               SELECT *
-                 FROM ocds.$FILES_TABLE
+               SELECT $ID,
+                      $IS_OPEN,
+                      $MODIFIED,
+                      $PUBLISHED,
+                      $HASH,
+                      $WEIGHT,
+                      $NAME,
+                      $ON_SERVER,
+                      $OWNER
+                 FROM $KEY_SPACE.$FILES_TABLE
                 WHERE $ID IN :values;
             """
 
         private const val SAVE = """
-          INSERT INTO $FILES_TABLE(
+          INSERT INTO $KEY_SPACE.$FILES_TABLE(
           $ID,
           $IS_OPEN,
           $MODIFIED,
