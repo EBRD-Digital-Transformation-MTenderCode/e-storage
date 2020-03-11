@@ -10,7 +10,7 @@ sealed class BadRequestErrors(
     override val code: String = prefix + numberError
 
     class Parsing(message: String) : BadRequestErrors(
-        numberError = "02",
+        numberError = "01",
         description = message
     )
 }

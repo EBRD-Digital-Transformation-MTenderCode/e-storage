@@ -11,7 +11,6 @@ import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.domain.util.Result
-import com.procurement.storage.domain.util.ValidationResult
 import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.domain.util.bind
 import com.procurement.storage.infrastructure.web.dto.ApiDataErrorResponse
@@ -160,25 +159,13 @@ fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {
                 DataErrors.Validation.DataTypeMismatch(name = "$attr", actualType = "null", expectedType = "not null")
             )
     } else
-        Result.failure(
-            DataErrors.Validation.MissingRequiredAttribute(name = name)
-        )
+        Result.failure(DataErrors.Validation.MissingRequiredAttribute(name = name))
 }
 
 fun <T : Any> JsonNode.tryGetParams(target: Class<T>): Result<T, DataErrors> =
     getAttribute("params").bind { node ->
         when (val result = node.tryToObject(target)) {
             is Result.Success -> result
-            is Result.Failure -> result.mapError {
-                DataErrors.Parsing(result.error)
-            }
+            is Result.Failure -> result.mapError { DataErrors.Parsing("Error parsing 'params'") }
         }
     }
-
-fun JsonNode.hasParams(): ValidationResult<DataErrors> =
-    if (this.has("params"))
-        ValidationResult.ok()
-    else
-        ValidationResult.error(
-            DataErrors.Validation.MissingRequiredAttribute(name = "params")
-        )

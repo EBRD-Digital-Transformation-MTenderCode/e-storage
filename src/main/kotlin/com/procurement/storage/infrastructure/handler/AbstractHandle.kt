@@ -19,7 +19,7 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
                 when (fail) {
                     is DataErrors.Validation -> generateDataErrorResponse(id = id, version = version, fail = fail)
                     is DataErrors.Parsing -> {
-                        val error = BadRequestErrors.Parsing("Internal Server Error")
+                        val error = BadRequestErrors.Parsing("Invalid request data")
                         generateErrorResponse(id = id, version = version, fail = error)
                     }
                     else -> generateErrorResponse(id = id, version = version, fail = fail)
