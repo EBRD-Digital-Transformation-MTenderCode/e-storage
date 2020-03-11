@@ -5,7 +5,10 @@ import com.procurement.storage.infrastructure.handler.check.registration.CheckRe
 import com.procurement.storage.infrastructure.handler.open.OpenAccessHandler
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
 import com.procurement.storage.model.dto.bpe.Command2Type
+import com.procurement.storage.model.dto.bpe.errorResponse
 import com.procurement.storage.model.dto.bpe.getAction
+import com.procurement.storage.model.dto.bpe.getId
+import com.procurement.storage.model.dto.bpe.getVersion
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -21,14 +24,23 @@ class Command2Service(
 
     fun execute(request: JsonNode): ApiResponse {
 
-        val response = when (request.getAction().get) {
-            Command2Type.CHECK_REGISTRATION -> {
-                checkRegistrationHandler.handle(node = request)
-            }
-            Command2Type.OPEN_ACCESS -> {
-                openAccessHandler.handle(node = request)
-            }
+        val id = request.getId()
+            .doOnError { error -> return errorResponse(fail = error) }
+            .get
+
+        val version = request.getVersion()
+            .doOnError { error -> return errorResponse(id = id, fail = error) }
+            .get
+
+        val action = request.getAction()
+            .doOnError { error -> return errorResponse(id = id, version = version, fail = error) }
+            .get
+
+        val response = when (action) {
+            Command2Type.CHECK_REGISTRATION -> checkRegistrationHandler.handle(node = request)
+            Command2Type.OPEN_ACCESS -> openAccessHandler.handle(node = request)
         }
+
         if (log.isDebugEnabled)
             log.debug("DataOfResponse: '$response'.")
 

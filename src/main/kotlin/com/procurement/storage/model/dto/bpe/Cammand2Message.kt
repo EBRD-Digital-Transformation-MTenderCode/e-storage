@@ -35,7 +35,7 @@ enum class Command2Type(@JsonValue override val key: String) : Action, EnumEleme
     }
 }
 
-fun errorResponse(fail: Fail, id: UUID, version: ApiVersion): ApiResponse =
+fun errorResponse(fail: Fail, id: UUID = NaN, version: ApiVersion = GlobalProperties.App.apiVersion): ApiResponse =
     when (fail) {
         is Fail.Error -> getApiFailResponse(
             id = id,
