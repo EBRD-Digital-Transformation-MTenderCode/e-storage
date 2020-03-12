@@ -6,8 +6,6 @@ sealed class DataErrors(numberError: String, override val description: String) :
 
     override val code: String = prefix + numberError
 
-    class Parsing(description: String) : DataErrors(numberError = "0", description = description)
-
     sealed class Validation(numberError: String, val name: String, description: String) :
         DataErrors(numberError = numberError, description = description) {
 

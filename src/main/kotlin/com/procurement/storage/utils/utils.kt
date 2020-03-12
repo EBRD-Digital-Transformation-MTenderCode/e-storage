@@ -9,7 +9,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.procurement.storage.databinding.JsonDateDeserializer
 import com.procurement.storage.databinding.JsonDateSerializer
 import com.procurement.storage.domain.fail.Fail
-import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Result
 import java.io.IOException
 import java.time.Instant
@@ -36,17 +35,17 @@ private object JsonMapper {
         mapper.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true)
 
         dateTimeFormatter = DateTimeFormatterBuilder()
-                .parseCaseInsensitive()
-                .append(DateTimeFormatter.ISO_LOCAL_DATE)
-                .appendLiteral('T')
-                .appendValue(ChronoField.HOUR_OF_DAY, 2)
-                .appendLiteral(':')
-                .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
-                .optionalStart()
-                .appendLiteral(':')
-                .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
-                .appendLiteral('Z')
-                .toFormatter()
+            .parseCaseInsensitive()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .appendLiteral('T')
+            .appendValue(ChronoField.HOUR_OF_DAY, 2)
+            .appendLiteral(':')
+            .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+            .optionalStart()
+            .appendLiteral(':')
+            .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+            .appendLiteral('Z')
+            .toFormatter()
     }
 }
 
@@ -77,20 +76,20 @@ fun <T> toObject(clazz: Class<T>, json: JsonNode): T {
     }
 }
 
-fun <T : Any> JsonNode.tryToObject(target: Class<T>): Result<T, String> = try {
+fun <T : Any> JsonNode.tryToObject(target: Class<T>): Result<T, Fail.Incident.Parsing> = try {
     Result.success(JsonMapper.mapper.treeToValue(this, target))
 } catch (expected: Exception) {
-    Result.failure("Error binding JSON to an object of type '${target.canonicalName}'.")
+    Result.failure(Fail.Incident.Parsing(className = target.canonicalName, exception = expected))
 }
 
-fun <T : Any> String.tryToObject(target: Class<T>): Result<T, String> = try {
+fun <T : Any> String.tryToObject(target: Class<T>): Result<T, Fail.Incident.Parsing> = try {
     Result.success(JsonMapper.mapper.readValue(this, target))
 } catch (expected: Exception) {
-    Result.failure("Error binding JSON to an object of type '${target.canonicalName}'.")
+    Result.failure(Fail.Incident.Parsing(className = target.canonicalName, exception = expected))
 }
 
 fun String.toNode(): Result<JsonNode, Fail> = try {
     Result.success(JsonMapper.mapper.readTree(this))
 } catch (exception: JsonProcessingException) {
-    Result.failure(DataErrors.Parsing("Can not parse Sting to Node"))
+    Result.failure(Fail.Incident.Transforming(exception = exception))
 }
