@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.procurement.storage.config.GlobalProperties
 import com.procurement.storage.domain.EnumElementProvider
 import com.procurement.storage.domain.fail.Fail
-import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.domain.util.Result
@@ -38,10 +37,6 @@ enum class Command2Type(@JsonValue override val key: String) : Action, EnumEleme
 
 fun errorResponse(fail: Fail, id: UUID = NaN, version: ApiVersion = GlobalProperties.App.apiVersion): ApiResponse =
     when (fail) {
-        is DataErrors.Parsing -> {
-            val error = BadRequestErrors.Parsing("Invalid request data")
-            generateErrorResponse(id = id, version = version, fail = error)
-        }
         is DataErrors.Validation -> generateDataErrorResponse(id = id, version = version, fail = fail)
         is Fail.Error -> generateErrorResponse(id = id, version = version, fail = fail)
         is Fail.Incident -> generateIncidentResponse(id = id, version = version, fail = fail)

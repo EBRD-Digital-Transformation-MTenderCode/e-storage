@@ -1,7 +1,6 @@
 package com.procurement.storage.infrastructure.handler
 
 import com.procurement.storage.domain.fail.Fail
-import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
@@ -18,10 +17,6 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
             is Fail.Error -> {
                 when (fail) {
                     is DataErrors.Validation -> generateDataErrorResponse(id = id, version = version, fail = fail)
-                    is DataErrors.Parsing -> {
-                        val error = BadRequestErrors.Parsing("Invalid request data")
-                        generateErrorResponse(id = id, version = version, fail = error)
-                    }
                     else -> generateErrorResponse(id = id, version = version, fail = fail)
                 }
             }

@@ -2,6 +2,7 @@ package com.procurement.storage.controller
 
 import com.datastax.driver.core.querybuilder.QueryBuilder.toJson
 import com.procurement.storage.domain.fail.Fail
+import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
 import com.procurement.storage.model.dto.bpe.errorResponse
 import com.procurement.storage.model.dto.bpe.getId
@@ -31,7 +32,7 @@ class Command2Controller(
             log.debug("RECEIVED COMMAND: '${requestBody}'.")
 
         val node = requestBody.toNode()
-            .doOnError { error -> return responseEntity(expected = error) }
+            .doOnError { error -> return responseEntity(expected = BadRequestErrors.Parsing("Invalid request data")) }
             .get
 
         val id = node.getId()
