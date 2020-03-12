@@ -29,18 +29,6 @@ sealed class Fail {
                 description = "Database incident"
             )
 
-        class Parsing(data: String) : Incident(
-            level = Level.ERROR,
-            number = "02",
-            description = "Entity has invalid data = $data."
-        )
-
-        class DatabaseIncident : Incident(
-            level = Level.ERROR,
-            number = "03",
-            description = "Could not process data from database."
-        )
-
         enum class Level(override val key: String) : EnumElementProvider.Key {
             ERROR("error"),
             WARNING("warning"),
