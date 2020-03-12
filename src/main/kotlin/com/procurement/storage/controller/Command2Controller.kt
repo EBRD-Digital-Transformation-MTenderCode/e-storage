@@ -32,7 +32,14 @@ class Command2Controller(
             log.debug("RECEIVED COMMAND: '${requestBody}'.")
 
         val node = requestBody.toNode()
-            .doOnError { error -> return responseEntity(expected = BadRequestErrors.Parsing("Invalid request data")) }
+            .doOnError { error ->
+                return responseEntity(
+                    expected = BadRequestErrors.Parsing(
+                        message = "Invalid request data",
+                        request = requestBody
+                    )
+                )
+            }
             .get
 
         val id = node.getId()

@@ -9,7 +9,7 @@ sealed class BadRequestErrors(
 
     override val code: String = prefix + numberError
 
-    class Parsing(message: String) : BadRequestErrors(
+    class Parsing(message: String, val request: String) : BadRequestErrors(
         numberError = "01",
         description = message
     )
