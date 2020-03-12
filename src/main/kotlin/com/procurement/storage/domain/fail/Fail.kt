@@ -26,7 +26,21 @@ sealed class Fail {
             Incident(
                 level = Level.ERROR,
                 number = "01",
-                description = "Database incident"
+                description = "Database incident."
+            )
+
+        class Parsing(val className: String, val exception: Exception) :
+            Incident(
+                level = Level.ERROR,
+                number = "02",
+                description = "Error parsing to class '$className'."
+            )
+
+        class Transforming(val exception: Exception) :
+            Incident(
+                level = Level.ERROR,
+                number = "03",
+                description = "Error transforming."
             )
 
         enum class Level(override val key: String) : EnumElementProvider.Key {
