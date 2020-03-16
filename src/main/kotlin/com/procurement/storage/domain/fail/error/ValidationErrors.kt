@@ -1,5 +1,6 @@
 package com.procurement.storage.domain.fail.error
 
+import com.procurement.storage.application.service.Logger
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.model.document.DocumentId
 
@@ -16,4 +17,7 @@ sealed class ValidationErrors(numberError: String, override val description: Str
         numberError = "02", description = "Attribute '$attribute' is blank"
     )
 
+    override fun logging(logger: Logger) {
+        logger.error(message = message)
+    }
 }

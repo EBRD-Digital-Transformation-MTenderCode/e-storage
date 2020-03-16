@@ -1,5 +1,6 @@
 package com.procurement.storage.domain.fail.error
 
+import com.procurement.storage.application.service.Logger
 import com.procurement.storage.domain.fail.Fail
 
 sealed class BadRequestErrors(
@@ -13,4 +14,8 @@ sealed class BadRequestErrors(
         numberError = "01",
         description = message
     )
+
+    override fun logging(logger: Logger) {
+        logger.error(message = message)
+    }
 }

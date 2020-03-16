@@ -76,6 +76,14 @@ fun <T> toObject(clazz: Class<T>, json: JsonNode): T {
     }
 }
 
+fun <Any> toJson(obj: Any): String {
+    try {
+        return JsonMapper.mapper.writeValueAsString(obj)
+    } catch (e: JsonProcessingException) {
+        throw RuntimeException(e)
+    }
+}
+
 fun <T : Any> JsonNode.tryToObject(target: Class<T>): Result<T, Fail.Incident.Parsing> = try {
     Result.success(JsonMapper.mapper.treeToValue(this, target))
 } catch (expected: Exception) {

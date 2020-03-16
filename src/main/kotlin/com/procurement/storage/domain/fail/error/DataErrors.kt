@@ -1,5 +1,6 @@
 package com.procurement.storage.domain.fail.error
 
+import com.procurement.storage.application.service.Logger
 import com.procurement.storage.domain.fail.Fail
 
 sealed class DataErrors(numberError: String, override val description: String) : Fail.Error("DR-") {
@@ -8,6 +9,14 @@ sealed class DataErrors(numberError: String, override val description: String) :
 
     sealed class Validation(numberError: String, val name: String, description: String) :
         DataErrors(numberError = numberError, description = description) {
+
+        companion object {
+            const val ATTRIBUTE_NAME_KEY = "attributeName"
+        }
+
+        override fun logging(logger: Logger) {
+            logger.error(message = message, mdc = mapOf(ATTRIBUTE_NAME_KEY to name))
+        }
 
         class MissingRequiredAttribute(name: String) :
             Validation(numberError = "1", description = "Missing required attribute.", name = name)
@@ -68,6 +77,5 @@ sealed class DataErrors(numberError: String, override val description: String) :
 
         class UnexpectedAttribute(name: String) :
             Validation(numberError = "12", description = "Unexpected attribute.", name = name)
-
     }
 }
