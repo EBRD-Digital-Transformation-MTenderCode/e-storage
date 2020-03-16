@@ -1,6 +1,7 @@
 package com.procurement.storage.infrastructure.handler.check.registration
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.procurement.storage.application.service.Logger
 import com.procurement.storage.application.service.StorageService
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.BadRequestErrors
@@ -14,8 +15,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class CheckRegistrationHandler(
-    private val storageService: StorageService
-) : AbstractValidationHandler<Command2Type>() {
+    private val storageService: StorageService,
+    private val logger: Logger
+) : AbstractValidationHandler<Command2Type>(logger = logger) {
 
     override fun execute(node: JsonNode): ValidationResult<Fail> {
 

@@ -1,6 +1,7 @@
 package com.procurement.storage.infrastructure.handler.open
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.procurement.storage.application.service.Logger
 import com.procurement.storage.application.service.StorageService
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.BadRequestErrors
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class OpenAccessHandler(
-    private val storageService: StorageService
-) : AbstractQueryHandler<Command2Type, List<OpenAccessResult>>() {
+    private val storageService: StorageService,
+    private val logger:Logger
+) : AbstractQueryHandler<Command2Type, List<OpenAccessResult>>(logger = logger) {
 
     override fun execute(node: JsonNode): Result<List<OpenAccessResult>, Fail> {
         val paramsNode = node.tryGetParams()

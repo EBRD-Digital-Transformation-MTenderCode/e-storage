@@ -1,5 +1,6 @@
 package com.procurement.storage.infrastructure.handler
 
+import com.procurement.storage.application.service.Logger
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
@@ -10,10 +11,14 @@ import com.procurement.storage.model.dto.bpe.generateErrorResponse
 import com.procurement.storage.model.dto.bpe.generateIncidentResponse
 import java.util.*
 
-abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiResponse> {
+abstract class AbstractHandler<ACTION : Action, R : Any>(
+    private val logger: Logger
+) : Handler<ACTION, ApiResponse> {
 
-    protected fun responseError(id: UUID, version: ApiVersion, fail: Fail): ApiResponse =
-        when (fail) {
+    protected fun responseError(id: UUID, version: ApiVersion, fail: Fail): ApiResponse {
+        fail.logging(logger)
+
+        return when (fail) {
             is Fail.Error -> {
                 when (fail) {
                     is DataErrors.Validation -> generateDataErrorResponse(id = id, version = version, fail = fail)
@@ -22,4 +27,5 @@ abstract class AbstractHandler<ACTION : Action, R : Any> : Handler<ACTION, ApiRe
             }
             is Fail.Incident -> generateIncidentResponse(id = id, version = version, fail = fail)
         }
+    }
 }

@@ -13,7 +13,11 @@ sealed class BadRequestErrors(
     class Parsing(message: String, val request: String) : BadRequestErrors(
         numberError = "01",
         description = message
-    )
+    ) {
+        override fun logging(logger: Logger) {
+            logger.error(message = "$message INVALID BODY: '$request'.")
+        }
+    }
 
     override fun logging(logger: Logger) {
         logger.error(message = message)
