@@ -16,6 +16,5 @@ enum class ErrorType constructor(val code: String, val message: String) {
     NO_FILE_ON_SERVER("00.11", "No file on server: "),
     FILE_IS_CLOSED("00.12", "File is closed: "),
     MAX_REQUESTS_NUMBER("00.13", "Maximum number of requests exceeded."),
-    FILES_NOT_FOUND("00.01", "Files not found: "),
-    CONTEXT("20.01", "Context parameter not found: ");
+    FILES_NOT_FOUND("00.14", "Files not found: ")
 }
