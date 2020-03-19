@@ -24,12 +24,17 @@ class Command2Service(
 
     fun execute(request: JsonNode): ApiResponse {
 
-        val id = request.getId()
-            .doOnError { error -> return errorResponse(fail = error) }
+        val version = request.getVersion()
+            .doOnError { versionError ->
+                val id = request.getId()
+                    .doOnError { idError -> return errorResponse(fail = versionError) }
+                    .get
+                return errorResponse(fail = versionError, id = id)
+            }
             .get
 
-        val version = request.getVersion()
-            .doOnError { error -> return errorResponse(id = id, fail = error) }
+        val id = request.getId()
+            .doOnError { error -> return errorResponse(fail = error, version = version) }
             .get
 
         val action = request.getAction()
