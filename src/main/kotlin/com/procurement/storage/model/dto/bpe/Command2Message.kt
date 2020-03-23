@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.procurement.storage.config.GlobalProperties
 import com.procurement.storage.domain.EnumElementProvider
 import com.procurement.storage.domain.fail.Fail
+import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.domain.util.Result
@@ -20,6 +21,7 @@ import com.procurement.storage.infrastructure.web.dto.ApiErrorResponse
 import com.procurement.storage.infrastructure.web.dto.ApiIncidentResponse
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
 import com.procurement.storage.infrastructure.web.dto.ApiVersion
+import com.procurement.storage.utils.tryToObject
 import java.time.LocalDateTime
 import java.util.*
 
@@ -119,6 +121,31 @@ fun JsonNode.getVersion(): Result<ApiVersion, DataErrors> {
         }
 }
 
+fun JsonNode.getAction(): Result<Command2Type, DataErrors> {
+    return this.getAttribute("action")
+        .bind {
+            val value = it.asText()
+            Command2Type.orNull(value)?.asSuccess<Command2Type, DataErrors>() ?: Result.failure(
+                DataErrors.Validation.UnknownValue(
+                    name = "action",
+                    actualValue = value,
+                    expectedValues = Command2Type.allowedValues
+                )
+            )
+        }
+}
+
+fun <T : Any> JsonNode.tryParamsToObject(target: Class<T>): Result<T, BadRequestErrors> {
+    return tryToObject(target = target)
+        .doOnError {
+            return Result.failure(
+                BadRequestErrors.Parsing(message = "Can not parse 'params'.", request = this.toString())
+            )
+        }
+        .get
+        .asSuccess()
+}
+
 private fun JsonNode.tryGetStringAttribute(name: String): Result<String, DataErrors> {
     return this.tryGetAttribute(name = name, type = JsonNodeType.STRING)
         .map {
@@ -140,20 +167,6 @@ private fun JsonNode.tryGetAttribute(name: String, type: JsonNodeType): Result<J
                     )
                 )
         }
-
-fun JsonNode.getAction(): Result<Command2Type, DataErrors> {
-    return this.getAttribute("action")
-        .bind {
-            val value = it.asText()
-            Command2Type.orNull(value)?.asSuccess<Command2Type, DataErrors>() ?: Result.failure(
-                DataErrors.Validation.UnknownValue(
-                    name = "action",
-                    actualValue = value,
-                    expectedValues = Command2Type.allowedValues
-                )
-            )
-        }
-}
 
 private fun asUUID(value: String): Result<UUID, DataErrors> =
     try {

@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.procurement.storage.application.service.Logger
 import com.procurement.storage.application.service.StorageService
 import com.procurement.storage.domain.fail.Fail
-import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.domain.util.Result
 import com.procurement.storage.infrastructure.dto.OpenAccessResult
 import com.procurement.storage.infrastructure.dto.converter.convert
 import com.procurement.storage.infrastructure.handler.AbstractQueryHandler
 import com.procurement.storage.model.dto.bpe.Command2Type
 import com.procurement.storage.model.dto.bpe.tryGetParams
-import com.procurement.storage.utils.tryToObject
+import com.procurement.storage.model.dto.bpe.tryParamsToObject
 import org.springframework.stereotype.Service
 
 @Service
@@ -25,14 +24,9 @@ class OpenAccessHandler(
             .doOnError { error -> return Result.failure(error) }
             .get
 
-        val params = paramsNode.tryToObject(OpenAccessRequest::class.java)
+        val params = paramsNode.tryParamsToObject(OpenAccessRequest::class.java)
             .doOnError { error ->
-                return Result.failure(
-                    BadRequestErrors.Parsing(
-                        message = "Can not parse to ${error.className}",
-                        request = paramsNode.toString()
-                    )
-                )
+                return Result.failure(error)
             }
             .get
             .convert()
