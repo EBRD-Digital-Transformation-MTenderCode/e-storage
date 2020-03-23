@@ -12,7 +12,7 @@ object GlobalProperties {
     }
 
     class Service(
-        val id: String = "9",
+        val id: String = "14",
         val name: String = "e-storage",
         val version: String = getGitProperties()
     )
