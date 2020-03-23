@@ -54,7 +54,9 @@ fun generateDataErrorResponse(id: UUID, version: ApiVersion, fail: DataErrors.Va
             ApiDataErrorResponse.Error(
                 code = "${fail.code}/${GlobalProperties.service.id}",
                 description = fail.description,
-                attributeName = fail.name
+                details = listOf(
+                    ApiDataErrorResponse.Detail(name = fail.name)
+                )
             )
         )
     )
