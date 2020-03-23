@@ -3,6 +3,7 @@ package com.procurement.storage.model.dto.bpe
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.NullNode
 import com.procurement.storage.config.GlobalProperties
 import com.procurement.storage.domain.EnumElementProvider
@@ -10,6 +11,8 @@ import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.domain.util.Result
+import com.procurement.storage.domain.util.Result.Companion.failure
+import com.procurement.storage.domain.util.Result.Companion.success
 import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.domain.util.bind
 import com.procurement.storage.infrastructure.web.dto.ApiDataErrorResponse
@@ -101,21 +104,42 @@ fun JsonNode.getId(): Result<UUID, DataErrors> {
 }
 
 fun JsonNode.getVersion(): Result<ApiVersion, DataErrors> {
-    return this.getAttribute("version")
-        .bind {
-            val value = it.asText()
-            when (val result = ApiVersion.tryOf(value)) {
+    return this.tryGetStringAttribute("version")
+        .bind { version ->
+            when (val result = ApiVersion.tryOf(version)) {
                 is Result.Success -> result
                 is Result.Failure -> result.mapError {
                     DataErrors.Validation.DataFormatMismatch(
                         name = "version",
-                        actualValue = value,
+                        actualValue = version,
                         expectedFormat = "00.00.00"
                     )
                 }
             }
         }
 }
+
+private fun JsonNode.tryGetStringAttribute(name: String): Result<String, DataErrors> {
+    return this.tryGetAttribute(name = name, type = JsonNodeType.STRING)
+        .map {
+            it.asText()
+        }
+}
+
+private fun JsonNode.tryGetAttribute(name: String, type: JsonNodeType): Result<JsonNode, DataErrors> =
+    getAttribute(name = name)
+        .bind { node ->
+            if (node.nodeType == type)
+                success(node)
+            else
+                failure(
+                    DataErrors.Validation.DataTypeMismatch(
+                        name = name,
+                        expectedType = type.name,
+                        actualType = node.nodeType.name
+                    )
+                )
+        }
 
 fun JsonNode.getAction(): Result<Command2Type, DataErrors> {
     return this.getAttribute("action")
@@ -157,5 +181,5 @@ fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {
         Result.failure(DataErrors.Validation.MissingRequiredAttribute(name = name))
 }
 
-fun  JsonNode.tryGetParams(): Result<JsonNode, DataErrors> =
+fun JsonNode.tryGetParams(): Result<JsonNode, DataErrors> =
     getAttribute("params")
