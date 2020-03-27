@@ -4,7 +4,6 @@ import com.datastax.driver.core.BoundStatement
 import com.datastax.driver.core.ResultSet
 import com.datastax.driver.core.Row
 import com.datastax.driver.core.Session
-import com.datastax.driver.core.querybuilder.QueryBuilder.set
 import com.procurement.storage.application.repository.FileRepository
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.util.Result
@@ -108,11 +107,11 @@ class FileRepositoryImpl(private val session: Session) : FileRepository {
         prepareSave.bind()
             .apply {
                 setString(ID, entity.id)
-                set(IS_OPEN, entity.isOpen)
-                set(MODIFIED, entity.dateModified)
-                set(PUBLISHED, entity.datePublished)
+                setBool(IS_OPEN, entity.isOpen)
+                setTimestamp(MODIFIED, entity.dateModified)
+                setTimestamp(PUBLISHED, entity.datePublished)
                 setString(HASH, entity.hash)
-                set(WEIGHT, entity.weight)
+                setLong(WEIGHT, entity.weight)
                 setString(NAME, entity.fileName)
                 setString(ON_SERVER, entity.fileOnServer)
                 setString(OWNER, entity.owner)

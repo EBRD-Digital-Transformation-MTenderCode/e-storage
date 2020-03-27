@@ -3,13 +3,17 @@ package com.procurement.storage.model.dto.bpe
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.node.NullNode
 import com.procurement.storage.config.GlobalProperties
 import com.procurement.storage.domain.EnumElementProvider
 import com.procurement.storage.domain.fail.Fail
+import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.domain.util.Result
+import com.procurement.storage.domain.util.Result.Companion.failure
+import com.procurement.storage.domain.util.Result.Companion.success
 import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.domain.util.bind
 import com.procurement.storage.infrastructure.web.dto.ApiDataErrorResponse
@@ -17,6 +21,7 @@ import com.procurement.storage.infrastructure.web.dto.ApiErrorResponse
 import com.procurement.storage.infrastructure.web.dto.ApiIncidentResponse
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
 import com.procurement.storage.infrastructure.web.dto.ApiVersion
+import com.procurement.storage.utils.tryToObject
 import java.time.LocalDateTime
 import java.util.*
 
@@ -49,7 +54,9 @@ fun generateDataErrorResponse(id: UUID, version: ApiVersion, fail: DataErrors.Va
             ApiDataErrorResponse.Error(
                 code = "${fail.code}/${GlobalProperties.service.id}",
                 description = fail.description,
-                attributeName = fail.name
+                details = listOf(
+                    ApiDataErrorResponse.Detail(name = fail.name)
+                )
             )
         )
     )
@@ -101,15 +108,14 @@ fun JsonNode.getId(): Result<UUID, DataErrors> {
 }
 
 fun JsonNode.getVersion(): Result<ApiVersion, DataErrors> {
-    return this.getAttribute("version")
-        .bind {
-            val value = it.asText()
-            when (val result = ApiVersion.tryOf(value)) {
+    return this.tryGetStringAttribute("version")
+        .bind { version ->
+            when (val result = ApiVersion.tryOf(version)) {
                 is Result.Success -> result
                 is Result.Failure -> result.mapError {
                     DataErrors.Validation.DataFormatMismatch(
                         name = "version",
-                        actualValue = value,
+                        actualValue = version,
                         expectedFormat = "00.00.00"
                     )
                 }
@@ -130,6 +136,43 @@ fun JsonNode.getAction(): Result<Command2Type, DataErrors> {
             )
         }
 }
+
+fun <T : Any> JsonNode.tryParamsToObject(target: Class<T>): Result<T, BadRequestErrors> {
+    return tryToObject(target = target)
+        .doOnError {
+            return Result.failure(
+                BadRequestErrors.Parsing(
+                    message = "Can not parse 'params'.",
+                    request = this.toString(),
+                    exception = it.exception
+                )
+            )
+        }
+        .get
+        .asSuccess()
+}
+
+private fun JsonNode.tryGetStringAttribute(name: String): Result<String, DataErrors> {
+    return this.tryGetAttribute(name = name, type = JsonNodeType.STRING)
+        .map {
+            it.asText()
+        }
+}
+
+private fun JsonNode.tryGetAttribute(name: String, type: JsonNodeType): Result<JsonNode, DataErrors> =
+    getAttribute(name = name)
+        .bind { node ->
+            if (node.nodeType == type)
+                success(node)
+            else
+                failure(
+                    DataErrors.Validation.DataTypeMismatch(
+                        name = name,
+                        expectedType = type.name,
+                        actualType = node.nodeType.name
+                    )
+                )
+        }
 
 private fun asUUID(value: String): Result<UUID, DataErrors> =
     try {
@@ -157,5 +200,5 @@ fun JsonNode.getAttribute(name: String): Result<JsonNode, DataErrors> {
         Result.failure(DataErrors.Validation.MissingRequiredAttribute(name = name))
 }
 
-fun  JsonNode.tryGetParams(): Result<JsonNode, DataErrors> =
+fun JsonNode.tryGetParams(): Result<JsonNode, DataErrors> =
     getAttribute("params")

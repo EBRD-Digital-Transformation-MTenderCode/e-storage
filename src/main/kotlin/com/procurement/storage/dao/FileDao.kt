@@ -1,7 +1,6 @@
 package com.procurement.storage.dao
 
 import com.datastax.driver.core.Session
-import com.datastax.driver.core.querybuilder.QueryBuilder.set
 import com.procurement.storage.model.entity.FileEntity
 import org.springframework.stereotype.Service
 import java.util.*
@@ -118,11 +117,11 @@ class FileDao(private val session: Session) {
         val insert = prepareSave.bind()
             .apply {
                 setString(ID, entity.id)
-                set(IS_OPEN, entity.isOpen)
-                set(MODIFIED, entity.dateModified)
-                set(PUBLISHED, entity.datePublished)
+                setBool(IS_OPEN, entity.isOpen)
+                setTimestamp(MODIFIED, entity.dateModified)
+                setTimestamp(PUBLISHED, entity.datePublished)
                 setString(HASH, entity.hash)
-                set(WEIGHT, entity.weight)
+                setLong(WEIGHT, entity.weight)
                 setString(NAME, entity.fileName)
                 setString(ON_SERVER, entity.fileOnServer)
                 setString(OWNER, entity.owner)
