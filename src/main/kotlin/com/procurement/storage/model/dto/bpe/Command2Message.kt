@@ -17,6 +17,7 @@ import com.procurement.storage.domain.util.Result.Companion.failure
 import com.procurement.storage.domain.util.Result.Companion.success
 import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.domain.util.bind
+import com.procurement.storage.domain.util.extension.toList
 import com.procurement.storage.infrastructure.web.dto.ApiErrorResponse
 import com.procurement.storage.infrastructure.web.dto.ApiIncidentResponse
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
@@ -54,9 +55,7 @@ fun generateDataErrorResponse(id: UUID, version: ApiVersion, fail: DataErrors.Va
             ApiErrorResponse.Error(
                 code = "${fail.code}/${GlobalProperties.service.id}",
                 description = fail.description,
-                details = listOf(
-                    ApiErrorResponse.Error.Detail(name = fail.name)
-                )
+                details = ApiErrorResponse.Error.Detail.tryCreateOrNull(name = fail.name).toList()
             )
         )
     )
@@ -69,7 +68,7 @@ fun generateValidationResponse(id: UUID, version: ApiVersion, fail: ValidationEr
             ApiErrorResponse.Error(
                 code = "${fail.code}/${GlobalProperties.service.id}",
                 description = fail.description,
-                details = if (fail.entityId == null) null else listOf(ApiErrorResponse.Error.Detail(id = fail.entityId))
+                details = ApiErrorResponse.Error.Detail.tryCreateOrNull(id = fail.entityId).toList()
             )
         )
     )
