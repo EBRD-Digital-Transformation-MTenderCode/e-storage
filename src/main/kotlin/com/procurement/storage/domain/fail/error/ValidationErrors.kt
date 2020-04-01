@@ -4,7 +4,7 @@ import com.procurement.storage.application.service.Logger
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.model.document.DocumentId
 
-sealed class ValidationErrors(numberError: String, override val description: String) :
+sealed class ValidationErrors(numberError: String, override val description: String, val entityId: String? = null) :
     Fail.Error("VR-") {
 
     override val code: String = prefix + numberError
