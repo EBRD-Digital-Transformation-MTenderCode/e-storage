@@ -10,13 +10,14 @@ import com.procurement.storage.domain.EnumElementProvider
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.BadRequestErrors
 import com.procurement.storage.domain.fail.error.DataErrors
+import com.procurement.storage.domain.fail.error.ValidationErrors
 import com.procurement.storage.domain.util.Action
 import com.procurement.storage.domain.util.Result
 import com.procurement.storage.domain.util.Result.Companion.failure
 import com.procurement.storage.domain.util.Result.Companion.success
 import com.procurement.storage.domain.util.asSuccess
 import com.procurement.storage.domain.util.bind
-import com.procurement.storage.infrastructure.web.dto.ApiDataErrorResponse
+import com.procurement.storage.domain.util.extension.toList
 import com.procurement.storage.infrastructure.web.dto.ApiErrorResponse
 import com.procurement.storage.infrastructure.web.dto.ApiIncidentResponse
 import com.procurement.storage.infrastructure.web.dto.ApiResponse
@@ -46,17 +47,28 @@ fun errorResponse(fail: Fail, id: UUID = NaN, version: ApiVersion = GlobalProper
         is Fail.Incident -> generateIncidentResponse(id = id, version = version, fail = fail)
     }
 
-fun generateDataErrorResponse(id: UUID, version: ApiVersion, fail: DataErrors.Validation): ApiDataErrorResponse =
-    ApiDataErrorResponse(
+fun generateDataErrorResponse(id: UUID, version: ApiVersion, fail: DataErrors.Validation): ApiErrorResponse =
+    ApiErrorResponse(
         version = version,
         id = id,
         result = listOf(
-            ApiDataErrorResponse.Error(
+            ApiErrorResponse.Error(
                 code = "${fail.code}/${GlobalProperties.service.id}",
                 description = fail.description,
-                details = listOf(
-                    ApiDataErrorResponse.Detail(name = fail.name)
-                )
+                details = ApiErrorResponse.Error.Detail.tryCreateOrNull(name = fail.name).toList()
+            )
+        )
+    )
+
+fun generateValidationResponse(id: UUID, version: ApiVersion, fail: ValidationErrors): ApiErrorResponse =
+    ApiErrorResponse(
+        version = version,
+        id = id,
+        result = listOf(
+            ApiErrorResponse.Error(
+                code = "${fail.code}/${GlobalProperties.service.id}",
+                description = fail.description,
+                details = ApiErrorResponse.Error.Detail.tryCreateOrNull(id = fail.entityId).toList()
             )
         )
     )

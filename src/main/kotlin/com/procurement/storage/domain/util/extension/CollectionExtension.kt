@@ -3,6 +3,8 @@ package com.procurement.storage.domain.util.extension
 import com.procurement.storage.domain.util.Option
 import com.procurement.storage.domain.util.Result
 
+fun <T> T?.toList(): List<T> = if (this != null) listOf(this) else emptyList()
+
 inline fun <T, V> Collection<T>.isUnique(selector: (T) -> V): Boolean {
     val unique = HashSet<V>()
     forEach { item ->

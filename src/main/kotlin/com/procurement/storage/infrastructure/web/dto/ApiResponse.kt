@@ -2,11 +2,13 @@ package com.procurement.storage.infrastructure.web.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.model.enums.ResponseStatus
 import java.time.LocalDateTime
 import java.util.*
 
+@JsonPropertyOrder("version", "id", "status", "result")
 sealed class ApiResponse(
     @field:JsonProperty("id") @param:JsonProperty("id") val id: UUID,
 
@@ -42,23 +44,27 @@ class ApiErrorResponse(
     @field:JsonProperty("status")
     override val status: ResponseStatus = ResponseStatus.ERROR
 
-    class Error(val code: String?, val description: String?)
-}
-
-class ApiDataErrorResponse(
-    version: ApiVersion,
-    id: UUID,
-    result: List<Error>
-) : ApiResponse(
-    version = version,
-    result = result,
-    id = id
-) {
-    @field:JsonProperty("status")
-    override val status: ResponseStatus = ResponseStatus.ERROR
-
-    class Error(val code: String?, val description: String?, val details: List<Detail>)
-    class Detail(val name: String)
+    class Error(
+        val code: String,
+        val description: String,
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        val details: List<Detail> = emptyList()
+    ) {
+        class Detail private constructor(
+            @field:JsonInclude(JsonInclude.Include.NON_NULL)
+            val name: String? = null,
+            @field:JsonInclude(JsonInclude.Include.NON_NULL)
+            val id: String? = null
+        ) {
+            companion object {
+                fun tryCreateOrNull(id: String? = null, name: String? = null): Detail? =
+                    if (id == null && name == null)
+                        null
+                    else
+                        Detail(id = id, name = name)
+            }
+        }
+    }
 }
 
 class ApiIncidentResponse(
