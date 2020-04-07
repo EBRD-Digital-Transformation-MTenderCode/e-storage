@@ -6,12 +6,12 @@ import com.procurement.storage.domain.util.Result
 import com.procurement.storage.domain.util.asSuccess
 import java.time.LocalDateTime
 
-fun parseStartDate(value: String): Result<LocalDateTime, DataErrors.Validation.DataFormatMismatch> =
+fun parseDate(value: String, attributeName: String): Result<LocalDateTime, DataErrors.Validation.DataFormatMismatch> =
     value.tryParseLocalDateTime()
         .doOnError { expectedFormat ->
             return Result.failure(
                 DataErrors.Validation.DataFormatMismatch(
-                    name = "startDate",
+                    name = attributeName,
                     actualValue = value,
                     expectedFormat = expectedFormat
                 )

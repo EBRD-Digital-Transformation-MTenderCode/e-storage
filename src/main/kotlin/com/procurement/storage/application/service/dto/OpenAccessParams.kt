@@ -1,6 +1,6 @@
 package com.procurement.storage.application.service.dto
 
-import com.procurement.storage.application.model.parseStartDate
+import com.procurement.storage.application.model.parseDate
 import com.procurement.storage.domain.fail.error.DataErrors
 import com.procurement.storage.domain.model.document.DocumentId
 import com.procurement.storage.domain.util.Result
@@ -13,7 +13,7 @@ class OpenAccessParams private constructor(val documentIds: List<DocumentId>, va
                 return Result.failure(DataErrors.Validation.EmptyArray("documentIds"))
             }
 
-            val datePublishedParsed = parseStartDate(datePublished)
+            val datePublishedParsed = parseDate(value = datePublished, attributeName = "datePublished")
                 .doOnError { error -> return Result.failure(error) }
                 .get
 
