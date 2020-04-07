@@ -39,7 +39,7 @@ class OpenAccessHandler(
             .doOnError { error -> return Result.failure(error) }
             .get
 
-        return storageService.openAccess(requestDocumentIds = params.documentIds)
+        return storageService.openAccess(params = params)
     }
 
     override val action: Command2Type

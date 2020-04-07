@@ -1,6 +1,7 @@
 package com.procurement.storage.application.service
 
 import com.procurement.storage.application.repository.FileRepository
+import com.procurement.storage.application.service.dto.OpenAccessParams
 import com.procurement.storage.config.UploadFileProperties
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.ValidationErrors
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service
 
 interface StorageService {
     fun checkRegistration(requestDocumentIds: List<DocumentId>): ValidationResult<Fail>
-    fun openAccess(requestDocumentIds: List<DocumentId>): Result<List<OpenAccessResult>, Fail>
+    fun openAccess(params: OpenAccessParams): Result<List<OpenAccessResult>, Fail>
 }
 
 @Service
@@ -27,7 +28,9 @@ class StorageServiceImpl(
     private val uploadFileProperties: UploadFileProperties
 ) : StorageService {
 
-    override fun openAccess(requestDocumentIds: List<DocumentId>): Result<List<OpenAccessResult>, Fail> {
+    override fun openAccess(params: OpenAccessParams): Result<List<OpenAccessResult>, Fail> {
+
+        val requestDocumentIds: List<DocumentId> = params.documentIds
 
         val documentIds = validationDocumentIds(ids = requestDocumentIds)
             .doOnError {error -> return Result.failure(error) }
@@ -51,7 +54,7 @@ class StorageServiceImpl(
             dbFiles.map { file ->
                 OpenAccessResult(
                     id = file.id,
-                    datePublished = file.datePublished!!.toLocal(),
+                    datePublished = file.datePublished?.toLocal() ?: params.datePublished,
                     uri = uploadFileProperties.path + file.id
                 )
             }
