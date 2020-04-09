@@ -53,15 +53,15 @@ class StorageServiceImpl(
 
         val openedDocuments = dbFiles
             .map { fileEntity ->
-                if (!fileEntity.isOpen) {
+                if (fileEntity.isOpen) {
+                    fileEntity
+                } else
                     fileEntity.copy(
                         datePublished = params.datePublished.toDate(),
                         isOpen = true
                     ).also {
                         fileRepository.save(it)
                     }
-                } else
-                    fileEntity
             }
 
         return Result.success(
