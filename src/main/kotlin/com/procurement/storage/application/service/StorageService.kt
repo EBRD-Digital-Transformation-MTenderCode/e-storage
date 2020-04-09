@@ -14,6 +14,7 @@ import com.procurement.storage.domain.util.extension.mapResult
 import com.procurement.storage.domain.util.extension.toSetBy
 import com.procurement.storage.domain.util.validate
 import com.procurement.storage.infrastructure.dto.OpenAccessResult
+import com.procurement.storage.utils.toDate
 import com.procurement.storage.utils.toLocal
 import org.springframework.stereotype.Service
 
@@ -33,11 +34,11 @@ class StorageServiceImpl(
         val requestDocumentIds: List<DocumentId> = params.documentIds
 
         val documentIds = validationDocumentIds(ids = requestDocumentIds)
-            .doOnError {error -> return Result.failure(error) }
+            .doOnError { error -> return Result.failure(error) }
             .get
 
         val dbFiles = getDocumentsByIds(documentIds)
-            .doOnError {error -> return Result.failure(error) }
+            .doOnError { error -> return Result.failure(error) }
             .get
 
         if (dbFiles.isEmpty()) {
@@ -50,11 +51,25 @@ class StorageServiceImpl(
         if (unknownDocumentIds.isNotEmpty())
             return Result.failure(ValidationErrors.DocumentsNotExisting(unknownDocumentIds))
 
+        val openedDocuments = dbFiles
+            .filter { !it.isOpen }
+            .map { fileEntity ->
+                if (!fileEntity.isOpen) {
+                    fileEntity.copy(
+                        datePublished = params.datePublished.toDate(),
+                        isOpen = true
+                    ).also {
+                        fileRepository.save(fileEntity)
+                    }
+                } else
+                    fileEntity
+            }
+
         return Result.success(
-            dbFiles.map { file ->
+            openedDocuments.map { file ->
                 OpenAccessResult(
                     id = file.id,
-                    datePublished = file.datePublished?.toLocal() ?: params.datePublished,
+                    datePublished = file.datePublished!!.toLocal(),
                     uri = uploadFileProperties.path + file.id
                 )
             }
@@ -64,11 +79,11 @@ class StorageServiceImpl(
     override fun checkRegistration(requestDocumentIds: List<DocumentId>): ValidationResult<Fail> {
 
         val documentIds = validationDocumentIds(ids = requestDocumentIds)
-            .doOnError {error -> return ValidationResult.error(error) }
+            .doOnError { error -> return ValidationResult.error(error) }
             .get
 
         val dbFiles = getDocumentsByIds(documentIds)
-            .doOnError {error -> return ValidationResult.error(error) }
+            .doOnError { error -> return ValidationResult.error(error) }
             .get
 
         if (dbFiles.isEmpty()) {
