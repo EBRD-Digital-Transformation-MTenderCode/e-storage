@@ -58,7 +58,7 @@ class StorageServiceImpl(
                         datePublished = params.datePublished.toDate(),
                         isOpen = true
                     ).also {
-                        fileRepository.save(fileEntity)
+                        fileRepository.save(it)
                     }
                 } else
                     fileEntity
