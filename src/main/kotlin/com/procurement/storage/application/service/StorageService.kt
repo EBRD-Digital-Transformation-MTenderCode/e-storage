@@ -52,7 +52,6 @@ class StorageServiceImpl(
             return Result.failure(ValidationErrors.DocumentsNotExisting(unknownDocumentIds))
 
         val openedDocuments = dbFiles
-            .filter { !it.isOpen }
             .map { fileEntity ->
                 if (!fileEntity.isOpen) {
                     fileEntity.copy(
