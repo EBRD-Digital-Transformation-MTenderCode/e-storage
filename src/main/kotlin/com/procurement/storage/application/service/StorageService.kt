@@ -1,6 +1,7 @@
 package com.procurement.storage.application.service
 
 import com.procurement.storage.application.repository.FileRepository
+import com.procurement.storage.application.service.dto.OpenAccessParams
 import com.procurement.storage.config.UploadFileProperties
 import com.procurement.storage.domain.fail.Fail
 import com.procurement.storage.domain.fail.error.ValidationErrors
@@ -13,12 +14,13 @@ import com.procurement.storage.domain.util.extension.mapResult
 import com.procurement.storage.domain.util.extension.toSetBy
 import com.procurement.storage.domain.util.validate
 import com.procurement.storage.infrastructure.dto.OpenAccessResult
+import com.procurement.storage.utils.toDate
 import com.procurement.storage.utils.toLocal
 import org.springframework.stereotype.Service
 
 interface StorageService {
     fun checkRegistration(requestDocumentIds: List<DocumentId>): ValidationResult<Fail>
-    fun openAccess(requestDocumentIds: List<DocumentId>): Result<List<OpenAccessResult>, Fail>
+    fun openAccess(params: OpenAccessParams): Result<List<OpenAccessResult>, Fail>
 }
 
 @Service
@@ -27,14 +29,16 @@ class StorageServiceImpl(
     private val uploadFileProperties: UploadFileProperties
 ) : StorageService {
 
-    override fun openAccess(requestDocumentIds: List<DocumentId>): Result<List<OpenAccessResult>, Fail> {
+    override fun openAccess(params: OpenAccessParams): Result<List<OpenAccessResult>, Fail> {
+
+        val requestDocumentIds: List<DocumentId> = params.documentIds
 
         val documentIds = validationDocumentIds(ids = requestDocumentIds)
-            .doOnError {error -> return Result.failure(error) }
+            .doOnError { error -> return Result.failure(error) }
             .get
 
         val dbFiles = getDocumentsByIds(documentIds)
-            .doOnError {error -> return Result.failure(error) }
+            .doOnError { error -> return Result.failure(error) }
             .get
 
         if (dbFiles.isEmpty()) {
@@ -47,8 +51,21 @@ class StorageServiceImpl(
         if (unknownDocumentIds.isNotEmpty())
             return Result.failure(ValidationErrors.DocumentsNotExisting(unknownDocumentIds))
 
+        val openedDocuments = dbFiles
+            .map { fileEntity ->
+                if (fileEntity.isOpen) {
+                    fileEntity
+                } else
+                    fileEntity.copy(
+                        datePublished = params.datePublished.toDate(),
+                        isOpen = true
+                    ).also {
+                        fileRepository.save(it)
+                    }
+            }
+
         return Result.success(
-            dbFiles.map { file ->
+            openedDocuments.map { file ->
                 OpenAccessResult(
                     id = file.id,
                     datePublished = file.datePublished!!.toLocal(),
@@ -61,11 +78,11 @@ class StorageServiceImpl(
     override fun checkRegistration(requestDocumentIds: List<DocumentId>): ValidationResult<Fail> {
 
         val documentIds = validationDocumentIds(ids = requestDocumentIds)
-            .doOnError {error -> return ValidationResult.error(error) }
+            .doOnError { error -> return ValidationResult.error(error) }
             .get
 
         val dbFiles = getDocumentsByIds(documentIds)
-            .doOnError {error -> return ValidationResult.error(error) }
+            .doOnError { error -> return ValidationResult.error(error) }
             .get
 
         if (dbFiles.isEmpty()) {
