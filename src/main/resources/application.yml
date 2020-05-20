@@ -14,11 +14,11 @@ spring:
       max-request-size: 50Mb
 
 cassandra:
-  contact-points: 10.0.20.104,10.0.20.105,10.0.20.106
+  contact-points: 127.0.0.1
   keyspace-name: ocds
   port: 9042
-  username: caclient
-  password: 6AH7vbrkMWnfK
+  username: cassandra
+  password: cassandra
 
 upload:
   file:
