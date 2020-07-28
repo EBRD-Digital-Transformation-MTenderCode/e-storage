@@ -14,16 +14,14 @@ spring:
       max-request-size: 50Mb
 
 cassandra:
-  contact-points: 127.0.0.1
+  contact-points: localhost
   keyspace-name: ocds
   port: 9042
-  username: cassandra
-  password: cassandra
 
 upload:
   file:
     max-weight: 52428800
-    path: http://bpe.eprocurement.systems/api/v1/storage/get/
+    path: http://storage/api/v1/storage/get/
     folder: /home/user/storage
     extensions: jpg,png,gif,tif,rar,zip,7s,doc,docx,xls,xlsx,pdf,rtf,txt
 
