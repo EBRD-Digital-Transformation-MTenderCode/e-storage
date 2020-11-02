@@ -13,6 +13,10 @@ sealed class ValidationErrors(numberError: String, override val description: Str
         numberError = "01", description = "Documents '$documentsIds' does not exist"
     )
 
+    class DocumentsNotExistingOnCheckRegistration(documentsIds: Collection<DocumentId>) : ValidationErrors(
+        numberError = "10.10.1.1", description = "Documents '$documentsIds' does not exist"
+    )
+
     class BlankAttribute(attribute: String) : ValidationErrors(
         numberError = "02", description = "Attribute '$attribute' is blank"
     )
