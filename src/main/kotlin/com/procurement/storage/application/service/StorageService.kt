@@ -86,14 +86,14 @@ class StorageServiceImpl(
             .get
 
         if (dbFiles.isEmpty()) {
-            return ValidationResult.error(ValidationErrors.DocumentsNotExisting(documentIds))
+            return ValidationResult.error(ValidationErrors.DocumentsNotExistingOnCheckRegistration(documentIds))
         }
 
         val receivedDocumentIds = requestDocumentIds.toSet()
         val knownDocumentIds = dbFiles.toSetBy { it.id }
         val unknownDocumentIds = knownDocumentIds.getUnknownElements(received = receivedDocumentIds)
         if (unknownDocumentIds.isNotEmpty())
-            return ValidationResult.error(ValidationErrors.DocumentsNotExisting(unknownDocumentIds))
+            return ValidationResult.error(ValidationErrors.DocumentsNotExistingOnCheckRegistration(unknownDocumentIds))
 
         return ValidationResult.ok()
     }
